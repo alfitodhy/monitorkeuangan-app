@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->date('tanggal_deadline')->nullable();
             $table->integer('durasi_pengerjaan_bulan')->nullable();
             $table->text('keterangan')->nullable();
+            $table->string('is_active', 1)->default('Y');
             $table->timestamps(); // created_at & updated_at
         });
     }

@@ -19,6 +19,7 @@ class CreateTbPemasukanProyekTable extends Migration
             $table->string('metode_pembayaran', 50)->nullable();
             $table->json('attachment_file')->nullable();
             $table->text('keterangan')->nullable();
+            $table->string('status', 50)->nullable();
             $table->timestamps();
 
             $table->foreign('id_proyek')
