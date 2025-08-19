@@ -76,18 +76,25 @@
                     <tbody class="divide-y divide-gray-200">
                         @php
                             $allow_payment = true; // Termin pertama pasti bisa bayar
+                            $total_nilai = $proyek->nilai_proyek; // total nilai proyek
+                            $nilai_per_termin = floor($total_nilai / $proyek->total_termin); // dibulatkan ke bawah
+                            $sisa_pembulatan = $total_nilai - $nilai_per_termin * $proyek->total_termin;
                         @endphp
                         @for ($i = 1; $i <= $proyek->total_termin; $i++)
                             @php
+                                // Kalau termin terakhir tambahin sisa pembulatan biar totalnya pas
+                                $nilai_termin_ini =
+                                    $nilai_per_termin + ($i == $proyek->total_termin ? $sisa_pembulatan : 0);
+
                                 $total_bayar_termin = $pemasukan_per_termin[$i] ?? 0;
-                                $is_paid = $total_bayar_termin >= $nilai_per_termin;
+                                $is_paid = $total_bayar_termin >= $nilai_termin_ini;
                                 $status = $is_paid ? 'Lunas' : 'Belum Lunas';
-                                $sisa_termin = max(0, $nilai_per_termin - $total_bayar_termin);
+                                $sisa_termin = max(0, $nilai_termin_ini - $total_bayar_termin);
                             @endphp
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
                                 <td class="px-4 py-2 whitespace-nowrap text-gray-700">{{ $i }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-right text-gray-700">Rp
-                                    {{ number_format($nilai_per_termin, 0, ',', '.') }}</td>
+                                    {{ number_format($nilai_termin_ini, 0, ',', '.') }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-right text-green-600 font-medium">Rp
                                     {{ number_format($total_bayar_termin, 0, ',', '.') }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-right text-red-600 font-medium">Rp
@@ -95,7 +102,7 @@
                                 <td class="px-4 py-2 whitespace-nowrap text-center">
                                     <span
                                         class="px-2 py-0.5 rounded-full text-xs font-bold
-                                    {{ $is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                    {{ $is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                         {{ $status }}
                                     </span>
                                 </td>
@@ -148,7 +155,6 @@
                                     </div>
                                 </div>
 
-
                                 <td class="px-4 py-2 whitespace-nowrap text-center">
                                     @if (!$is_paid && $allow_payment)
                                         <button @click="modalOpen = {{ $i }}"
@@ -171,16 +177,26 @@
                             @endphp
                         @endfor
                     </tbody>
+
                 </table>
             </div>
 
 
         </div>
 
+        @php
+            $total_nilai = $proyek->nilai_proyek;
+            $nilai_per_termin = floor($total_nilai / $proyek->total_termin);
+            $sisa_pembulatan = $total_nilai - $nilai_per_termin * $proyek->total_termin;
+        @endphp
+
         @for ($i = 1; $i <= $proyek->total_termin; $i++)
             @php
+                // Nilai termin sekarang
+                $nilai_termin_ini = $nilai_per_termin + ($i == $proyek->total_termin ? $sisa_pembulatan : 0);
+
                 $total_bayar_termin = (int) ($pemasukan_per_termin[$i] ?? 0);
-                $sisa_bayar_termin = max(0, (int) $nilai_per_termin - $total_bayar_termin);
+                $sisa_bayar_termin = max(0, $nilai_termin_ini - $total_bayar_termin);
             @endphp
 
             <div x-show="modalOpen === {{ $i }}" x-transition:enter="transition ease-out duration-300"
@@ -275,6 +291,7 @@
                 </div>
             </div>
         @endfor
+
 
     </div>
 

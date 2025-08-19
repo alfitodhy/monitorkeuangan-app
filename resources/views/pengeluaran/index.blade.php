@@ -19,6 +19,15 @@
             </div>
         </div>
 
+       @if ($errors->any())
+    <div class="mb-4 p-4 rounded-xl bg-red-100 border border-red-400 text-red-700">
+        <div class="mt-2 text-sm space-y-1">
+            @foreach ($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    </div>
+@endif
         {{-- Flash message --}}
         @if (session('success'))
             <div class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">
@@ -30,8 +39,8 @@
         @if ($pengeluaran->isEmpty())
             <div class="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
                 <div class="text-center text-gray-500 dark:text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -67,12 +76,15 @@
                                         $statusClass = match ($item->status) {
                                             'Pengajuan'
                                                 => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
-                                            'Diterima'
+                                            'Sedang diproses'
+                                                => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
+                                            'Sudah dibayar'
                                                 => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
                                             'Ditolak' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
                                             default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
                                         };
                                     @endphp
+
                                     <span class="px-2 py-1 text-xs font-medium rounded {{ $statusClass }}">
                                         {{ ucfirst($item->status ?: 'Pengajuan') }}
                                     </span>
@@ -93,9 +105,7 @@
                                     </a>
 
                                     {{-- Tombol Edit --}}
-                                    {{-- @if (
-                                        $item->status === 'Pengajuan' &&
-                                            (auth()->user()->role === 'super admin' || auth()->user()->id_user === $item->user_created))
+                                    {{-- @if ($item->status === 'Pengajuan' && (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) || auth()->user()->id_user === $item->user_created))
                                         <a href="{{ route('pengeluaran.edit', $item->id_pengeluaran) }}"
                                             title="Edit Pengeluaran"
                                             class="inline-flex items-center justify-center w-7 h-7 bg-yellow-500 hover:bg-yellow-600 text-white rounded shadow">
@@ -109,8 +119,9 @@
 
                                     {{-- Tombol Hapus --}}
                                     @if (
-                                        $item->status === 'Pengajuan' &&
-                                            (auth()->user()->role === 'super admin' || auth()->user()->id_user === $item->user_created))
+                                        $item->status === 'Ditolak' &&
+                                            (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) ||
+                                                auth()->user()->id_user === $item->user_created))
                                         <form action="{{ route('pengeluaran.destroy', $item->id_pengeluaran) }}"
                                             method="POST" class="inline-block delete-form">
                                             @csrf
@@ -126,15 +137,104 @@
                                         </form>
                                     @endif
 
+                                    {{-- Tombol Proses --}}
+                                    {{-- Tombol Buka Modal --}}
+                                    @if ($item->status === 'Pengajuan' && in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']))
+                                        <button type="button"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded shadow"
+                                            x-data x-on:click="$dispatch('open-modal-{{ $item->id_pengeluaran }}')"
+                                            title="Proses Data Pengeluaran">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </button>
+                                    @endif
+
+                                    {{-- Modal --}}
+                                    <div x-data="{ open: false, pilihan: '' }"
+                                        x-on:open-modal-{{ $item->id_pengeluaran }}.window="open = true" x-show="open"
+                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                                        x-cloak>
+
+                                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-sm transform transition-all duration-300 scale-95 opacity-0"
+                                            :class="{ 'scale-100 opacity-100': open }">
+
+                                            {{-- Icon Header --}}
+                                            <div
+                                                class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mx-auto mb-4">
+                                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+
+                                            <h3
+                                                class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
+                                                Proses Pengeluaran
+                                            </h3>
+                                            <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">
+                                                Pilih tindakan untuk pengeluaran ini
+                                            </p>
+
+                                            {{-- Form --}}
+                                            <form
+                                                action="{{ route('pengeluaran.prosesPengeluaran', $item->id_pengeluaran) }}"
+                                                method="POST" enctype="multipart/form-data">
+                                                @csrf
+
+                                                {{-- Dropdown Pilihan --}}
+                                                <label
+                                                    class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Pilih
+                                                    Aksi</label>
+                                                <select name="aksi" x-model="pilihan"
+                                                    class="block w-full text-sm border rounded-md p-2 mb-4 dark:bg-gray-700 dark:text-white">
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="proses">Proses Data</option>
+                                                    <option value="approve">Langsung Approve</option>
+                                                </select>
+
+                                                {{-- Upload File kalau Approve --}}
+                                                <div x-show="pilihan === 'approve'" x-transition>
+                                                    <label for="file_buktitf"
+                                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unggah
+                                                        Bukti Transfer</label>
+                                                    <input type="file" name="file_buktitf"
+                                                        class="block w-full text-sm text-gray-5s00 file:mr-4 file:py-2 file:px-4 
+    file:rounded-md file:border-0 file:text-sm file:font-semibold 
+    file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 mb-4">
+
+                                                </div>
+
+                                                {{-- Tombol --}}
+                                                <div class="flex justify-end space-x-2">
+                                                    <button type="button" @click="open=false"
+                                                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md 
+                           hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+                                                        Batal
+                                                    </button>
+                                                    <button type="submit"
+                                                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md 
+                           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                           focus:ring-offset-2 transition-colors">
+                                                        Kirim
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
                                     {{-- Tombol Approve & Tolak untuk BOD/Admin Keuangan --}}
-                                    @if (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) && $item->status === 'Pengajuan')
+                                    @if (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) && $item->status === 'Sedang diproses')
                                         {{-- Modal Approve & Tolak --}}
                                         <div x-data="{ openApprove: null, openReject: null }">
                                             {{-- Approve --}}
                                             <button type="button" title="Approve" @click="openApprove = true"
                                                 class="inline-flex items-center justify-center w-7 h-7 bg-green-500 hover:bg-green-600 text-white rounded shadow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M5 13l4 4L19 7" />
                                                 </svg>
@@ -143,12 +243,16 @@
                                             {{-- Tolak --}}
                                             <button type="button" title="Tolak" @click="openReject = true"
                                                 class="inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded shadow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M6 18L18 6M6 6l12 12" />
+                                                        d="M18.364 5.636A9 9 0 105.636 18.364 9 9 0 0018.364 5.636z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M6 6l12 12" />
                                                 </svg>
                                             </button>
+
+
 
 
 
@@ -177,7 +281,7 @@
                                                         <label for="file_buktitf"
                                                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unggah
                                                             Bukti Transfer</label>
-                                                        <input type="file" name="file_buktitf[]" multiple required
+                                                        <input type="file" name="file_buktitf" multiple required
                                                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 mb-4">
                                                         <div class="flex justify-end space-x-2">
                                                             <button type="button" @click="openApprove=false"
@@ -222,6 +326,8 @@
                                                 </div>
                                             </div>
                                     @endif
+
+
                                 </td>
 
             </div>
@@ -247,20 +353,56 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Konfirmasi hapus
             document.querySelectorAll(".delete-btn").forEach(button => {
                 button.addEventListener("click", function(e) {
                     e.preventDefault();
                     let form = this.closest("form");
 
                     Swal.fire({
-                        title: 'Konfirmasi Penghapusan Data',
-                        text: "Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.",
+                        title: 'Konfirmasi Penghapusan',
+                        text: "Yakin ingin menghapus data ini?",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
                         cancelButtonColor: '#6c757d',
                         confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal'
+                        cancelButtonText: 'Batal',
+                        // Mengatur ukuran font pada judul
+                        titleStyle: {
+                            fontSize: '1em' // Atur ukuran font judul di sini
+                        },
+                        // Mengubah 'text' menjadi 'html' untuk mengatur ukuran font
+                        html: '<p style="font-size: 0.9em;">Yakin ingin menghapus data ini?</p>'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
+            // Konfirmasi proses
+            document.querySelectorAll(".proses-btn").forEach(button => {
+                button.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    let form = this.closest("form");
+
+                    Swal.fire({
+                        title: 'Proses Pengeluaran?',
+                        text: "Data akan diproses ke tahap berikutnya.",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Proses',
+                        cancelButtonText: 'Batal',
+                        // Mengatur ukuran font pada judul
+                        titleStyle: {
+                            fontSize: '1em' // Atur ukuran font judul di sini
+                        },
+                        // Mengubah 'text' menjadi 'html' untuk mengatur ukuran font
+                        html: '<p style="font-size: 0.9em;">Data akan diproses ke tahap berikutnya.</p>'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             form.submit();
@@ -270,5 +412,6 @@
             });
         });
     </script>
+
 
 @endsection

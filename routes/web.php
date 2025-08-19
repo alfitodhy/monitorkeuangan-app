@@ -32,7 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Master Data
     Route::resource('projects', ProjectController::class);
-Route::get('/projects/data', [ProjectController::class, 'getData'])->name('proyek.data');
+    Route::get('/projects/data', [ProjectController::class, 'getData'])->name('proyek.data');
 
     Route::get('/projects/{id}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
@@ -54,23 +54,23 @@ Route::get('/projects/data', [ProjectController::class, 'getData'])->name('proye
     Route::post('pemasukan/{id_proyek}/update-lunasi/{termin_ke}', [PemasukanProyekController::class, 'updateLunasi'])->name('pemasukan.updateLunasi');
     Route::get('/api/termin-status/{id}/{termin}', [PemasukanProyekController::class, 'getTerminStatus']);
     Route::get('/api/termin-detail/{id}', [PemasukanProyekController::class, 'getTerminDetail']);
-Route::post('/pemasukan/{id_proyek}/lunasi/{termin_ke}', [PemasukanProyekController::class, 'storeLunasi'])->name('pemasukan.storeLunasi');
+    Route::post('/pemasukan/{id_proyek}/lunasi/{termin_ke}', [PemasukanProyekController::class, 'storeLunasi'])->name('pemasukan.storeLunasi');
 
 
 
     // Monitoring Pengeluaran
     Route::resource('pengeluaran', PengeluaranProyekController::class);
     Route::post('pengeluaran/{id}/approve', [PengeluaranProyekController::class, 'approve'])->name('pengeluaran.approve');
-Route::post('pengeluaran/{id}/reject', [PengeluaranProyekController::class, 'reject'])->name('pengeluaran.reject');
+    Route::post('pengeluaran/{id}/reject', [PengeluaranProyekController::class, 'reject'])->name('pengeluaran.reject');
 
 
     Route::get('/pengeluaran/create', [PengeluaranProyekController::class, 'create'])->name('pengeluaran.create');
     Route::get('/vendor-by-jenis/{jenis}', [PengeluaranProyekController::class, 'getVendorByJenis'])->name('vendor.by.jenis');
+    Route::post('/pengeluaran/{id_pengeluaran}/prosesPengeluaran', [PengeluaranProyekController::class, 'prosesPengeluaran'])->name('pengeluaran.prosesPengeluaran');
 
 
     //Laporan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-
 });
 
 require __DIR__ . '/auth.php';

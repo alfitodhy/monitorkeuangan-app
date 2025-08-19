@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', 'Tambah Pengeluaran Proyek')
+
+
 @section('content')
 
     @if ($errors->any())
@@ -14,205 +17,253 @@
 
 
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
-            <h1 class="text-3xl font-extrabold text-gray-900 mb-8 text-center tracking-tight">
-                Tambah Pengeluaran Proyek
-            </h1>
+        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 flex justify-center">
+            <div class="w-full max-w-2xl">
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-8 text-center tracking-tight">
+                    Tambah Pengeluaran Proyek
+                </h1>
 
-            <form action="{{ route('pengeluaran.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                @csrf
+                <form action="{{ route('pengeluaran.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {{-- Pilih Proyek --}}
-                    {{-- Pilih Proyek --}}
-                    <div class="space-y-1">
-                        <label for="id_proyek" class="block text-sm font-medium text-gray-700">Proyek</label>
-                        <div class="relative">
-                            <select name="id_proyek" id="id_proyek"
-                                class="w-full pl-3 pr-10 py-2 text-base border-gray-300 
-                   focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-                   sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Pilih Proyek --}}
+                        <div class="space-y-1">
+                            <label for="id_proyek" class="block text-sm font-medium text-gray-700">Proyek</label>
+                            <div class="relative">
+                                <select name="id_proyek" id="id_proyek"
+                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 
+                    focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                    sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
+                                    required>
+                                    <option value="">-- Pilih Proyek --</option>
+                                    @foreach ($proyek as $p)
+                                        <option value="{{ $p->id_proyek }}" data-nama="{{ $p->nama_proyek }}">
+                                            {{ $p->nama_proyek }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="nama_proyek" id="nama_proyek"> {{-- Hidden Input --}}
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {{-- Tanggal Pengeluaran --}}
+                        <div class="space-y-1">
+                            <label for="tanggal_pengeluaran" class="block text-sm font-medium text-gray-700">Tanggal
+                                Pengeluaran</label>
+                            <input type="date" name="tanggal_pengeluaran" id="tanggal_pengeluaran"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
                                 required>
-                                <option value="">-- Pilih Proyek --</option>
-                                @foreach ($proyek as $p)
-                                    <option value="{{ $p->id_proyek }}" data-nama="{{ $p->nama_proyek }}">
-                                        {{ $p->nama_proyek }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <input type="hidden" name="nama_proyek" id="nama_proyek"> {{-- Hidden Input --}}
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {{-- Pilih Jenis Vendor --}}
+                        <div class="space-y-1">
+                            <label for="jenis_vendor" class="block text-sm font-medium text-gray-700">Jenis Vendor</label>
+                            <div class="relative">
+                                <select id="jenis_vendor"
+                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
+                                    required>
+                                    <option value="">-- Pilih Jenis Vendor --</option>
+                                    @foreach ($jenisVendor as $jenis)
+                                        <option value="{{ $jenis }}">{{ $jenis }}</option>
+                                    @endforeach
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Pilih Vendor --}}
+                        <div class="space-y-1">
+                            <label for="vendor" class="block text-sm font-medium text-gray-700">Vendor</label>
+                            <div class="relative">
+                                <select id="vendor" name="id_vendor"
+                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
+                                    required disabled>
+                                    <option value="">-- Pilih Vendor --</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Pilih Rekening --}}
+                        <div class="space-y-1">
+                            <label for="rekening" class="block text-sm font-medium text-gray-700">Rekening Vendor</label>
+                            <div class="relative">
+                                <select id="rekening" name="rekening"
+                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
+                                    required disabled>
+                                    <option value="">-- Pilih Rekening --</option>
+                                    <option value="lainnya">Lainnya...</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    {{-- Input Rekening Lainnya --}}
+                    <div id="rekening_lainnya" class="space-y-4 mt-4 hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Detail Rekening Lainnya</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {{-- Atas Nama --}}
+                            <div class="space-y-1">
+                                <label for="atas_nama" class="block text-sm font-medium text-gray-700">Atas Nama</label>
+                                <input type="text" name="atas_nama" id="atas_nama"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                                    placeholder="Nama pemilik rekening">
+                            </div>
 
-                    {{-- Tanggal Pengeluaran --}}
-                    <div class="space-y-1">
-                        <label for="tanggal_pengeluaran" class="block text-sm font-medium text-gray-700">Tanggal
-                            Pengeluaran</label>
-                        <input type="date" name="tanggal_pengeluaran" id="tanggal_pengeluaran"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                            required>
+                            {{-- Nama Bank --}}
+                            <div class="space-y-1">
+                                <label for="nama_bank" class="block text-sm font-medium text-gray-700">Nama Bank</label>
+                                <input type="text" name="nama_bank" id="nama_bank"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                                    placeholder="Contoh: Bank BCA">
+                            </div>
+
+                            {{-- Nomor Rekening --}}
+                            <div class="space-y-1">
+                                <label for="no_rekening" class="block text-sm font-medium text-gray-700">Nomor
+                                    Rekening</label>
+                                <input type="text" name="no_rekening" id="no_rekening"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                                    placeholder="Nomor rekening">
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {{-- Pilih Jenis Vendor --}}
+                    {{-- Jumlah --}}
                     <div class="space-y-1">
-                        <label for="jenis_vendor" class="block text-sm font-medium text-gray-700">Jenis Vendor</label>
-                        <div class="relative">
-                            <select id="jenis_vendor"
-                                class="w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
+                        <label for="jumlah_display" class="block text-sm font-medium text-gray-700">Jumlah</label>
+                        <div class="relative mt-1 rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">Rp</span>
+                            </div>
+                            <input type="text" id="jumlah_display"
+                                class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                                placeholder="0" required>
+                            <input type="hidden" name="jumlah" id="jumlah_value">
+                        </div>
+                    </div>
+
+                    {{-- Keterangan --}}
+                    <div class="space-y-1">
+                        <label for="keterangan" class="block text-sm font-medium text-gray-700">Keterangan</label>
+                        <textarea name="keterangan" id="keterangan"
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                            rows="3" placeholder="Masukkan keterangan tambahan..."></textarea>
+                    </div>
+
+                    {{-- File Bukti Transfer / Nota --}}
+                    <div class="space-y-1">
+                        <label for="file_nota" class="block text-sm font-medium text-gray-700">Bukti Nota</label>
+                        <div class="mt-1 flex items-center space-x-2">
+                            <input type="file" name="file_nota" id="file_nota" accept="image/*"
+                                class="w-full text-sm text-gray-500
+                    border border-gray-300 rounded-md
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-l-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-indigo-50 file:text-indigo-700
+                    hover:file:bg-indigo-100"
                                 required>
-                                <option value="">-- Pilih Jenis Vendor --</option>
-                                @foreach ($jenisVendor as $jenis)
-                                    <option value="{{ $jenis }}">{{ $jenis }}</option>
-                                @endforeach
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
                         </div>
+                        <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG. Maks 2MB.</p>
                     </div>
 
-                    {{-- Pilih Vendor --}}
-                    <div class="space-y-1">
-                        <label for="vendor" class="block text-sm font-medium text-gray-700">Vendor</label>
-                        <div class="relative">
-                            <select id="vendor" name="id_vendor"
-                                class="w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
-                                required disabled>
-                                <option value="">-- Pilih Vendor --</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                    {{-- Status hanya muncul jika role = bod, admin keuangan, super admin --}}
+                    @php
+                        $rolesAllowed = ['bod', 'admin keuangan', 'super admin'];
+                    @endphp
 
-                    {{-- Pilih Rekening --}}
-                    <div class="space-y-1">
-                        <label for="rekening" class="block text-sm font-medium text-gray-700">Rekening Vendor</label>
-                        <div class="relative">
-                            <select id="rekening" name="rekening"
-                                class="w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
-                                required disabled>
-                                <option value="">-- Pilih Rekening --</option>
-                                <option value="lainnya">Lainnya...</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Input Rekening Lainnya --}}
-
-                <div id="rekening_lainnya" class="space-y-4 mt-4 hidden">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Detail Rekening Lainnya</label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {{-- Atas Nama --}}
+                    @if (in_array(Auth::user()->role, $rolesAllowed))
                         <div class="space-y-1">
-                            <label for="atas_nama" class="block text-sm font-medium text-gray-700">Atas Nama</label>
-                            <input type="text" name="atas_nama" id="atas_nama"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                                placeholder="Nama pemilik rekening">
+                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="status" id="status"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                <option value="Pengajuan">Pengajuan</option>
+                                <option value="Approve">Approve</option>
+                            </select>
                         </div>
 
-                        {{-- Nama Bank --}}
-                        <div class="space-y-1">
-                            <label for="nama_bank" class="block text-sm font-medium text-gray-700">Nama Bank</label>
-                            <input type="text" name="nama_bank" id="nama_bank"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                                placeholder="Contoh: Bank BCA">
+                        {{-- Upload Bukti Transfer (muncul hanya kalau pilih Approve) --}}
+                        <div class="space-y-1 mt-3 hidden" id="bukti_transfer_wrapper">
+                            <label for="file_buktitf" class="block text-sm font-medium text-gray-700">Upload Bukti
+                                Transfer</label>
+                            <input type="file" name="file_buktitf" id="file_buktitf" accept="image/*,application/pdf"
+                                class="w-full text-sm text-gray-500
+                    border border-gray-300 rounded-md
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-l-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-indigo-50 file:text-indigo-700
+                    hover:file:bg-indigo-100">
+                            <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, PDF. Maks 2MB.</p>
                         </div>
+                    @endif
 
-                        {{-- Nomor Rekening --}}
-                        <div class="space-y-1">
-                            <label for="no_rekening" class="block text-sm font-medium text-gray-700">Nomor
-                                Rekening</label>
-                            <input type="text" name="no_rekening" id="no_rekening"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                                placeholder="Nomor rekening">
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const statusSelect = document.getElementById("status");
+                            const buktiWrapper = document.getElementById("bukti_transfer_wrapper");
+
+                            if (statusSelect) {
+                                statusSelect.addEventListener("change", function() {
+                                    if (this.value === "Approve") {
+                                        buktiWrapper.classList.remove("hidden");
+                                    } else {
+                                        buktiWrapper.classList.add("hidden");
+                                    }
+                                });
+                            }
+                        });
+                    </script>
+
+                    <div class="pt-5">
+                        <div class="flex justify-end space-x-3">
+                            <a href="{{ route('pengeluaran.index') }}"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                Batal
+                            </a>
+                            <button type="submit"
+                                class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                Simpan
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                {{-- Jumlah --}}
-                <div class="space-y-1">
-                    <label for="jumlah_display" class="block text-sm font-medium text-gray-700">Jumlah</label>
-                    <div class="relative mt-1 rounded-md shadow-sm">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span class="text-gray-500 sm:text-sm">Rp</span>
-                        </div>
-                        <input type="text" id="jumlah_display"
-                            class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                            placeholder="0" required>
-                        <input type="hidden" name="jumlah" id="jumlah_value">
-                    </div>
-                </div>
-
-                {{-- Keterangan --}}
-                <div class="space-y-1">
-                    <label for="keterangan" class="block text-sm font-medium text-gray-700">Keterangan</label>
-                    <textarea name="keterangan" id="keterangan"
-                        class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                        rows="3" placeholder="Masukkan keterangan tambahan..."></textarea>
-                </div>
-
-                {{-- File Bukti Transfer / Nota --}}
-                <div class="space-y-1">
-                    <label for="file_nota" class="block text-sm font-medium text-gray-700">File Bukti</label>
-                    <div class="mt-1 flex items-center space-x-2">
-                        <input type="file" name="file_nota" id="file_nota" accept="image/*"
-                            class="w-full text-sm text-gray-500
-                        border border-gray-300 rounded-md
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-l-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-indigo-50 file:text-indigo-700
-                        hover:file:bg-indigo-100"
-                            required>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG. Maks 2MB.</p>
-                </div>
-
-                <div class="pt-5">
-                    <div class="flex justify-end space-x-3">
-                        <a href="{{ route('pengeluaran.index') }}"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                            Batal
-                        </a>
-                        <button type="submit"
-                            class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                            Simpan
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 

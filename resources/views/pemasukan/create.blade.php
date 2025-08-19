@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', 'Tambah Pemasukan Proyek')
+
+
 @section('content')
 
     <style>

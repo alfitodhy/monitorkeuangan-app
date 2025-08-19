@@ -22,12 +22,13 @@ class PengeluaranProyek extends Model
         'file_nota',
         'file_buktitf',
         'keterangan',
-        'catatan_bod'
+        'catatan_bod',
+        'user_created',
     ];
 
     protected $casts = [
         'rekening' => 'array',
         'file_nota' => 'array',
-        'file_buktitf' => 'array',
+        // 'file_buktitf' => 'array',
     ];
 }

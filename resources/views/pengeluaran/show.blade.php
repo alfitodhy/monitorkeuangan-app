@@ -8,18 +8,9 @@
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-0">
-                Detail Pengeluaran
+            
             </h1>
             <div class="flex space-x-2">
-                {{-- <a href="{{ route('pengeluaran.edit', $pengeluaran->id_pengeluaran) }}"
-                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
-                    <svg class="-ml-0.5 mr-1.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                        viewBox="0 0 20 20">
-                        <path
-                            d="M13.586 3.586a2 2 0 112.828 2.828l-.794.793-2.828-2.828.794-.793zM11.379 5.793L3 14.172V17h2.828l8.389-8.389-2.828-2.828z" />
-                    </svg>
-                    Edit
-                </a> --}}
                 <a href="{{ route('pengeluaran.index') }}"
                     class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">
                     <svg class="-ml-0.5 mr-1.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -84,7 +75,7 @@
                     </div>
                 </div>
 
-                {{-- Status & Metadata --}}
+                {{-- Status & Keterangan --}}
                 <div class="space-y-4">
                     <div class="flex items-start space-x-3">
                         <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 mt-1" xmlns="http://www.w3.org/2000/svg"
@@ -95,20 +86,41 @@
                         <div>
                             <p class="font-semibold text-gray-500 dark:text-gray-400">Status</p>
                             @php
-                                $statusClass = [
-                                    'pending' => 'bg-yellow-500/10 text-yellow-500 ring-yellow-500/30',
-                                    'diterima' => 'bg-green-500/10 text-green-500 ring-green-500/30',
-                                    'ditolak' => 'bg-red-500/10 text-red-500 ring-red-500/30',
-                                ];
+                                $statusClass = match ($pengeluaran->status) {
+                                    'Pengajuan'
+                                        => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
+                                    'Sedang diproses'
+                                        => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
+                                    'Sudah dibayar'
+                                        => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
+                                    'Ditolak' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
+                                    default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+                                };
                             @endphp
+
                             <span
-                                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset {{ $statusClass[$pengeluaran->status] ?? 'bg-gray-500/10 text-gray-500 ring-gray-500/30' }}">
+                                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusClass }}">
                                 {{ ucfirst($pengeluaran->status) }}
                             </span>
                         </div>
+
                     </div>
 
-                    {{-- <div class="flex items-start space-x-3">
+                    {{-- Keterangan --}}
+                    <div class="flex items-start space-x-3">
+                        <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 mt-1" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-gray-500 dark:text-gray-400">Keterangan</p>
+                            <p class="text-gray-900 dark:text-white">
+                                {{ $pengeluaran->keterangan ?? '-' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
                         <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 mt-1" xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -118,9 +130,7 @@
                             <p class="font-semibold text-gray-500 dark:text-gray-400">Diajukan Oleh</p>
                             <p class="text-gray-900 dark:text-white">{{ $pengeluaran->user_created ?? '-' }}</p>
                         </div>
-                    </div> --}}
-
-
+                    </div>
                 </div>
 
                 {{-- Catatan BOD --}}
@@ -149,63 +159,67 @@
                         @php
                             $attachments = [];
 
-                            // file_nota bisa string atau array
                             if ($pengeluaran->file_nota) {
-                                if (is_array($pengeluaran->file_nota)) {
-                                    foreach ($pengeluaran->file_nota as $nota) {
-                                        $attachments[] = ['tipe' => 'Nota', 'file' => basename($nota), 'path' => $nota];
-                                    }
-                                } else {
-                                    $attachments[] = [
-                                        'tipe' => 'Nota',
-                                        'file' => basename($pengeluaran->file_nota),
-                                        'path' => $pengeluaran->file_nota,
-                                    ];
-                                }
+                                $attachments[] = [
+                                    'tipe' => 'Nota',
+                                    'file' => basename($pengeluaran->file_nota),
+                                    'path' => $pengeluaran->file_nota,
+                                ];
                             }
 
-                            // file_buktitf bisa string atau array
                             if ($pengeluaran->file_buktitf) {
-                                if (is_array($pengeluaran->file_buktitf)) {
-                                    foreach ($pengeluaran->file_buktitf as $bukti) {
-                                        $attachments[] = [
-                                            'tipe' => 'Bukti Transfer',
-                                            'file' => basename($bukti),
-                                            'path' => $bukti,
-                                        ];
-                                    }
-                                } else {
-                                    $attachments[] = [
-                                        'tipe' => 'Bukti Transfer',
-                                        'file' => basename($pengeluaran->file_buktitf),
-                                        'path' => $pengeluaran->file_buktitf,
-                                    ];
-                                }
+                                $attachments[] = [
+                                    'tipe' => 'Bukti Transfer',
+                                    'file' => basename($pengeluaran->file_buktitf),
+                                    'path' => $pengeluaran->file_buktitf,
+                                ];
                             }
                         @endphp
 
                         <div class="space-y-3">
                             @foreach ($attachments as $att)
                                 <div
-                                    class="flex items-start space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
-                                    <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 mt-1"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    <div>
-                                        <p class="font-semibold text-gray-500 dark:text-gray-400">{{ $att['tipe'] }}</p>
+                                    class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <svg class="h-5 w-5 text-gray-400 dark:text-gray-500"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <div>
+                                            <p class="font-semibold text-gray-500 dark:text-gray-400">{{ $att['tipe'] }}
+                                            </p>
+                                            <span class="text-gray-900 dark:text-white text-sm">{{ $att['file'] }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
                                         <a href="{{ asset($att['path']) }}" target="_blank"
-                                            class="text-blue-600 dark:text-blue-400 hover:underline">{{ $att['file'] }}</a>
+                                            class="inline-flex items-center justify-center p-1 rounded-full text-gray-400 hover:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                                            title="Lihat">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+                                        <a href="{{ asset($att['path']) }}" download
+                                            class="inline-flex items-center justify-center p-1 rounded-full text-gray-400 hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                                            title="Unduh">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                        </a>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     </div>
                 @endif
-
-
             </div>
         </div>
     </div>

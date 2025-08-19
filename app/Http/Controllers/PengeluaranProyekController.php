@@ -47,7 +47,7 @@ class PengeluaranProyekController extends Controller
 
 
 
-    public function store(Request $request)
+    public function storelama(Request $request)
     {
         // Validasi data yang masuk
         $request->validate([
@@ -121,10 +121,195 @@ class PengeluaranProyekController extends Controller
     }
 
 
+    public function store(Request $request)
+    {
+        // Validasi dasar
+        $rules = [
+            'id_proyek' => 'required|integer',
+            'id_vendor' => 'required|integer',
+            'nama_proyek' => 'required|string',
+            'tanggal_pengeluaran' => 'required|date',
+            'jumlah' => 'required|integer',
+            'keterangan' => 'nullable|string',
+            'file_nota' => 'required|image|mimes:jpeg,png,jpg|max:2048', // 2MB
+            'status' => 'nullable|string|in:Pengajuan,Approve', // status baru
+        ];
+
+        // Kalau pilih Approve, wajib upload file bukti tf
+        if ($request->status === 'Approve') {
+            $rules['file_buktitf'] = 'required|image|mimes:jpeg,png,jpg|max:2048';
+        }
+
+        $request->validate($rules);
+
+        // Ambil vendor
+        $vendor = Vendor::findOrFail($request->id_vendor);
+        $namaVendor = $vendor->nama_vendor;
+
+        // Tangani rekening
+        $rekening = $request->rekening;
+        if ($rekening === 'lainnya') {
+            $request->validate([
+                'atas_nama' => 'required|string',
+                'nama_bank' => 'required|string',
+                'no_rekening' => 'required|string',
+            ]);
+
+            $rekening_baru = [
+                'nama_bank' => $request->nama_bank,
+                'no_rekening' => $request->no_rekening,
+                'atas_nama' => $request->atas_nama,
+            ];
+
+            $daftar_rekening = json_decode($vendor->rekening, true) ?? [];
+            $daftar_rekening[] = $rekening_baru;
+            $vendor->rekening = json_encode($daftar_rekening);
+            $vendor->save();
+
+            $rekening = "{$request->nama_bank} - {$request->no_rekening} a/n {$request->atas_nama}";
+        }
+
+        // Upload file nota
+        $filePathNota = null;
+        if ($request->hasFile('file_nota')) {
+            $file = $request->file('file_nota');
+            $fileName = time() . '_nota_' . $file->getClientOriginalName();
+            $path = 'uploads/pengeluaran/pr_' . $request->id_proyek;
+
+            if (!Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->makeDirectory($path);
+            }
+
+            $file->move(public_path($path), $fileName);
+            $filePathNota = $path . '/' . $fileName;
+        }
+
+        // Upload file bukti transfer (kalau approve)
+        $filePathBukti = null;
+        if ($request->hasFile('file_buktitf')) {
+            $file = $request->file('file_buktitf');
+            $fileName = time() . '_buktitf_' . $file->getClientOriginalName();
+            $path = 'uploads/pengeluaran/pr_' . $request->id_proyek;
+
+            if (!Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->makeDirectory($path);
+            }
+
+            $file->move(public_path($path), $fileName);
+            $filePathBukti = $path . '/' . $fileName;
+        }
+
+        // Tentukan status
+        $status = $request->status === 'Approve' ? 'Sudah dibayar' : 'Pengajuan';
+
+        // Simpan data
+        PengeluaranProyek::create([
+            'id_proyek' => $request->id_proyek,
+            'nama_proyek' => $request->nama_proyek,
+            'id_vendor' => $request->id_vendor,
+            'nama_vendor' => $namaVendor,
+            'rekening' => $rekening,
+            'status' => $status,
+            'tanggal_pengeluaran' => $request->tanggal_pengeluaran,
+            'jumlah' => $request->jumlah,
+            'keterangan' => $request->keterangan,
+            'file_nota' => $filePathNota,
+            'file_buktitf' => $filePathBukti,
+            'user_created' => Auth::user()->username,
+        ]);
+
+        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran proyek berhasil ditambahkan!');
+    }
 
 
 
-   public function approve(Request $request, $id)
+    public function prosesPengeluaranjson(Request $request, $id_pengeluaran)
+    {
+        $pengeluaran = PengeluaranProyek::findOrFail($id_pengeluaran);
+
+        // Validasi dropdown
+        $request->validate([
+            'aksi' => 'required|in:proses,approve',
+        ]);
+
+        if ($request->aksi === 'proses') {
+            // Kalau pilih proses dulu
+            $pengeluaran->status = 'Sedang diproses';
+            $pengeluaran->save();
+
+            return back()->with('success', 'Pengeluaran berhasil diproses!');
+        }
+
+        if ($request->aksi === 'approve') {
+            // Kalau langsung approve, wajib upload file
+            $request->validate([
+                'file_buktitf' => 'required|array',
+                'file_buktitf.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+            ]);
+
+            $paths = [];
+            $folder = "uploads/pengeluaran/pr_{$pengeluaran->id_proyek}";
+
+            foreach ($request->file('file_buktitf') as $file) {
+                $paths[] = $file->store($folder, 'public');
+            }
+
+            // Simpan status + path file
+            $pengeluaran->status = 'Sudah dibayar';
+            $pengeluaran->file_buktitf = json_encode($paths); // simpan sebagai json array
+            $pengeluaran->save();
+
+            return back()->with('success', 'Pengeluaran berhasil di-approve!');
+        }
+    }
+
+    public function prosesPengeluaran(Request $request, $id_pengeluaran)
+    {
+        $pengeluaran = PengeluaranProyek::findOrFail($id_pengeluaran);
+
+        // Validasi dropdown dengan pesan error custom
+        $request->validate([
+            'aksi' => 'required|in:proses,approve',
+        ], [
+            'aksi.required' => 'Pilih aksi terlebih dahulu.',
+            'aksi.in' => 'Aksi yang dipilih tidak valid.',
+        ]);
+
+        if ($request->aksi === 'proses') {
+            // Kalau pilih proses dulu
+            $pengeluaran->status = 'Sedang diproses';
+            $pengeluaran->save();
+
+            return back()->with('success', 'Pengeluaran berhasil diproses!');
+        }
+
+        if ($request->aksi === 'approve') {
+            // Kalau langsung approve, wajib upload file
+            $request->validate([
+                'file_buktitf' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            ], [
+                'file_buktitf.required' => 'File bukti transfer wajib diupload.',
+                'file_buktitf.file' => 'File bukti transfer tidak valid.',
+                'file_buktitf.mimes' => 'Format file harus jpg, jpeg, png, atau pdf.',
+                'file_buktitf.max' => 'Ukuran file maksimal 2MB.',
+            ]);
+
+            $folder = "uploads/pengeluaran/pr_{$pengeluaran->id_proyek}";
+            $path = $request->file('file_buktitf')->store($folder, 'public');
+
+            // Simpan status + path file
+            $pengeluaran->status = 'Sudah dibayar';
+            $pengeluaran->file_buktitf = $path; // langsung string, bukan json
+            $pengeluaran->save();
+
+            return back()->with('success', 'Pengeluaran berhasil di-approve!');
+        }
+    }
+
+
+
+
+    public function approve(Request $request, $id)
     {
         $request->validate([
             'file_buktitf' => 'required|array',
@@ -143,7 +328,7 @@ class PengeluaranProyekController extends Controller
 
         $pengeluaran->update([
             'file_buktitf' => $paths,
-            'status' => 'Diterima'
+            'status' => 'Sudah dibayar'
         ]);
 
         return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran disetujui');

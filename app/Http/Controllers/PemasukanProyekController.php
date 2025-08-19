@@ -9,6 +9,7 @@ use App\Models\TerminProyek;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+
 class PemasukanProyekController extends Controller
 {
 
@@ -38,7 +39,7 @@ class PemasukanProyekController extends Controller
     {
         $proyek = Proyek::all();
         $proyek = Proyek::where('is_active', 'Y')->get();
-    $proyek = Proyek::where('status_proyek', '!=', 'completed')->get();
+        $proyek = Proyek::where('status_proyek', '!=', 'completed')->get();
 
         // $termin = TerminProyek::all();
 
@@ -47,8 +48,6 @@ class PemasukanProyekController extends Controller
             ->pluck('metode_pembayaran');
 
         return view('pemasukan.create', compact('proyek', 'metodePembayaran'));
-
-
     }
 
 
@@ -72,47 +71,47 @@ class PemasukanProyekController extends Controller
     }
 
     public function getTerminDetail($id)
-{
-    $proyek = Proyek::findOrFail($id);
+    {
+        $proyek = Proyek::findOrFail($id);
 
-    // Hitung nilai per termin
-    $nilaiPerTermin = $proyek->nilai_proyek / $proyek->termin;
+        // Hitung nilai per termin
+        $nilaiPerTermin = $proyek->nilai_proyek / $proyek->termin;
 
-    // Ambil semua total pembayaran per termin dari database
-    $totalPembayaranPerTermin = PemasukanProyek::where('id_proyek', $id)
-        ->select('termin_ke', DB::raw('SUM(jumlah) as total_bayar'))
-        ->groupBy('termin_ke')
-        ->pluck('total_bayar', 'termin_ke')
-        ->all();
+        // Ambil semua total pembayaran per termin dari database
+        $totalPembayaranPerTermin = PemasukanProyek::where('id_proyek', $id)
+            ->select('termin_ke', DB::raw('SUM(jumlah) as total_bayar'))
+            ->groupBy('termin_ke')
+            ->pluck('total_bayar', 'termin_ke')
+            ->all();
 
-    $terminSekarang = 1;
-    $maksimalNominal = 0;
-    
-    // Loop dari termin pertama hingga terakhir untuk menemukan yang belum lunas
-    for ($i = 1; $i <= $proyek->termin; $i++) {
-        $totalBayarDiTerminIni = $totalPembayaranPerTermin[$i] ?? 0;
-        
-        // Jika total pembayaran untuk termin ini kurang dari nilai termin, 
-        // maka ini adalah termin yang harus dibayar
-        if ($totalBayarDiTerminIni < $nilaiPerTermin) {
-            $terminSekarang = $i;
-            $maksimalNominal = max(0, $nilaiPerTermin - $totalBayarDiTerminIni);
-            break; // Hentikan loop karena termin saat ini sudah ditemukan
-        }
-    }
-    
-    // Jika loop selesai, berarti semua termin sudah lunas
-    // Atur termin sekarang ke termin terakhir + 1 untuk menandakan proyek selesai
-    if ($terminSekarang > $proyek->termin) {
-        $terminSekarang = $proyek->termin + 1;
+        $terminSekarang = 1;
         $maksimalNominal = 0;
-    }
 
-    return response()->json([
-        'termin_sekarang' => $terminSekarang,
-        'maksimal_nominal' => $maksimalNominal,
-    ]);
-}   
+        // Loop dari termin pertama hingga terakhir untuk menemukan yang belum lunas
+        for ($i = 1; $i <= $proyek->termin; $i++) {
+            $totalBayarDiTerminIni = $totalPembayaranPerTermin[$i] ?? 0;
+
+            // Jika total pembayaran untuk termin ini kurang dari nilai termin, 
+            // maka ini adalah termin yang harus dibayar
+            if ($totalBayarDiTerminIni < $nilaiPerTermin) {
+                $terminSekarang = $i;
+                $maksimalNominal = max(0, $nilaiPerTermin - $totalBayarDiTerminIni);
+                break; // Hentikan loop karena termin saat ini sudah ditemukan
+            }
+        }
+
+        // Jika loop selesai, berarti semua termin sudah lunas
+        // Atur termin sekarang ke termin terakhir + 1 untuk menandakan proyek selesai
+        if ($terminSekarang > $proyek->termin) {
+            $terminSekarang = $proyek->termin + 1;
+            $maksimalNominal = 0;
+        }
+
+        return response()->json([
+            'termin_sekarang' => $terminSekarang,
+            'maksimal_nominal' => $maksimalNominal,
+        ]);
+    }
 
     public function getTerminStatus($id, $termin)
     {
@@ -186,20 +185,20 @@ class PemasukanProyekController extends Controller
         }
 
         // Proses simpan file (jika ada)
-      $path = null;
+        $path = null;
 
-if ($request->hasFile('attachment_file')) {
-    $file = $request->file('attachment_file');
+        if ($request->hasFile('attachment_file')) {
+            $file = $request->file('attachment_file');
 
-    // Nama file unik
-    $fileName = time() . '-' . Str::slug($proyek->nama_proyek) . '.' . $file->extension();
+            // Nama file unik
+            $fileName = time() . '-' . Str::slug($proyek->nama_proyek) . '.' . $file->extension();
 
-    // Path folder tujuan: uploads/pemasukan/pr_(id_proyek)
-    $folderPath = 'uploads/pemasukan/pr_' . $proyek->id_proyek;
+            // Path folder tujuan: uploads/pemasukan/pr_(id_proyek)
+            $folderPath = 'uploads/pemasukan/pr_' . $proyek->id_proyek;
 
-    // Simpan file di storage/app/public/uploads/pemasukan/pr_(id_proyek)
-    $path = $file->storeAs($folderPath, $fileName, 'public');
-}
+            // Simpan file di storage/app/public/uploads/pemasukan/pr_(id_proyek)
+            $path = $file->storeAs($folderPath, $fileName, 'public');
+        }
 
         // Simpan data pemasukan
         PemasukanProyek::create([
@@ -262,7 +261,7 @@ if ($request->hasFile('attachment_file')) {
             ->groupBy(DB::raw('CAST(termin_ke AS UNSIGNED)'))
             ->pluck('total_bayar', 'termin_ke');
 
-  $metodePembayaran = PemasukanProyek::select('metode_pembayaran')
+        $metodePembayaran = PemasukanProyek::select('metode_pembayaran')
             ->distinct()
             ->pluck('metode_pembayaran');
 
@@ -272,7 +271,7 @@ if ($request->hasFile('attachment_file')) {
             ->get()
             ->groupBy('termin_ke');
 
-            
+
 
         return view('pemasukan.detail', compact(
             'proyek',
@@ -280,7 +279,7 @@ if ($request->hasFile('attachment_file')) {
             'nilai_per_termin',
             'bukti_per_termin',
             'metodePembayaran'
-            
+
         ));
     }
 
@@ -361,87 +360,112 @@ if ($request->hasFile('attachment_file')) {
 
 
     public function updateLunasi(Request $request, $id_proyek, $termin_ke)
-{
-    // Validasi input
-    $request->validate([
-        'jumlah_bayar'      => 'required|string',
-        'metode_pembayaran' => 'required|string',
-        'keterangan'        => 'nullable|string|max:255', // Tambahkan validasi untuk keterangan
-        'attachment_file'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048', 
-    ]);
+    {
+        // Validasi input
+        $request->validate([
+            'jumlah_bayar'      => 'required|string',
+            'metode_pembayaran' => 'required|string',
+            'keterangan'        => 'nullable|string|max:255', // Tambahkan validasi untuk keterangan
+            'attachment_file'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
 
-    // Bersihkan format Rupiah dari input jumlah_bayar
-    $jumlahBayar = (int) preg_replace('/[^\d]/', '', $request->jumlah_bayar);
-    
-    $proyek = Proyek::findOrFail($id_proyek);
+        // Bersihkan format Rupiah dari input jumlah_bayar
+        $jumlahBayar = (int) preg_replace('/[^\d]/', '', $request->jumlah_bayar);
 
-    if ($proyek->termin <= 0) {
-        return back()->withErrors(['error' => 'Jumlah termin proyek harus lebih dari 0.']);
+        $proyek = Proyek::findOrFail($id_proyek);
+
+        if ($proyek->termin <= 0) {
+            return back()->withErrors(['error' => 'Jumlah termin proyek harus lebih dari 0.']);
+        }
+
+        $nilaiProyek = $proyek->nilai_proyek;
+        $totalTermin = $proyek->termin;
+
+        // Hitung nilai per termin (dibulatkan ke bawah)
+        $nilaiPerTermin = floor($nilaiProyek / $totalTermin);
+
+        // Hitung sisa proyek (agar total pas)
+        $sisaPembulatan = $nilaiProyek - ($nilaiPerTermin * $totalTermin);
+
+        // Kalau termin terakhir → tambahkan sisa pembulatan
+        if ($termin_ke == $totalTermin) {
+            $nilaiPerTermin += $sisaPembulatan;
+        }
+
+        // Hitung total bayar yang sudah masuk di termin ini
+        $totalBayarTerminSaatIni = PemasukanProyek::where('id_proyek', $id_proyek)
+            ->where('termin_ke', $termin_ke)
+            ->sum('jumlah');
+
+        // Hitung sisa real
+        $sisaBayarReal = max(0, $nilaiPerTermin - $totalBayarTerminSaatIni);
+
+        if ($jumlahBayar > $sisaBayarReal) {
+            return back()->withErrors([
+                'jumlah_bayar' => 'Jumlah melebihi sisa pembayaran termin ini: Rp ' . number_format($sisaBayarReal, 0, ',', '.')
+            ])->withInput();
+        }
+
+
+        // Tangani unggah file jika ada
+        $filePath = null;
+        if ($request->hasFile('attachment_file')) {
+            $file = $request->file('attachment_file');
+
+            // Tentukan jalur penyimpanan dinamis di dalam public storage
+            $path = 'uploads/pemasukan/pr_' . $id_proyek; // Mengganti 'pengeluaran' menjadi 'pemasukan'
+
+            // Tentukan nama file yang unik
+            $fileName = time() . '_' . $file->getClientOriginalName();
+
+            // Simpan file ke direktori yang baru
+            $file->storeAs('public/' . $path, $fileName);
+
+            // Simpan jalur relatif ke database
+            $filePath = $path . '/' . $fileName;
+        }
+
+        // Buat entri pemasukan baru dengan semua data
+        PemasukanProyek::create([
+            'id_proyek'         => $id_proyek,
+            'termin_ke'         => $termin_ke,
+            'jumlah'            => $jumlahBayar,
+            'metode_pembayaran' => $request->metode_pembayaran,
+            'nama_klien'        => $proyek->nama_klien, // Menyimpan nama klien dari data proyek
+            'attachment_file'   => $filePath, // Menyimpan jalur file
+            'tanggal_pemasukan' => now()->toDateString(),
+            'keterangan'         => 'Pelunasan Termin ke-' . $termin_ke,
+            'created_at'        => now()->setTimezone('Asia/Jakarta'),
+        ]);
+
+        // Hitung jumlah termin yang sudah lunas
+        $jumlahTerminLunas = 0;
+        for ($i = 1; $i <= $totalTermin; $i++) {
+            $nilaiTermin = floor($nilaiProyek / $totalTermin);
+
+            // Kalau termin terakhir, tambahin sisa pembulatan
+            if ($i == $totalTermin) {
+                $nilaiTermin += $sisaPembulatan;
+            }
+
+            $totalBayar = PemasukanProyek::where('id_proyek', $id_proyek)
+                ->where('termin_ke', $i)
+                ->sum('jumlah');
+
+            if ($totalBayar >= $nilaiTermin) {
+                $jumlahTerminLunas++;
+            }
+        }
+
+        // Update status proyek
+        if ($jumlahTerminLunas == $totalTermin) {
+            $proyek->status_proyek = 'completed';
+        } else {
+            $proyek->status_proyek = 'progress';
+        }
+        $proyek->save();
+
+        return redirect()->route('pemasukan.show', $id_proyek)
+            ->with('success', 'Pembayaran termin berhasil dicatat.');
     }
-
-    $nilaiPerTermin = $proyek->nilai_proyek / $proyek->termin;
-
-    $totalBayarTerminSaatIni = PemasukanProyek::where('id_proyek', $id_proyek)
-        ->where('termin_ke', $termin_ke)
-        ->sum('jumlah');
-
-    $sisaBayarReal = max(0, $nilaiPerTermin - $totalBayarTerminSaatIni);
-
-    if ($jumlahBayar > $sisaBayarReal) {
-        return back()->withErrors([
-            'jumlah_bayar' => 'Jumlah melebihi sisa pembayaran termin ini: Rp ' . number_format($sisaBayarReal, 0, ',', '.')
-        ])->withInput();
-    }
-
-    // Tangani unggah file jika ada
-    $filePath = null;
-    if ($request->hasFile('attachment_file')) {
-        $file = $request->file('attachment_file');
-        
-        // Tentukan jalur penyimpanan dinamis di dalam public storage
-        $path = 'uploads/pemasukan/pr_' . $id_proyek; // Mengganti 'pengeluaran' menjadi 'pemasukan'
-
-        // Tentukan nama file yang unik
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        
-        // Simpan file ke direktori yang baru
-        $file->storeAs('public/' . $path, $fileName);
-        
-        // Simpan jalur relatif ke database
-        $filePath = $path . '/' . $fileName;
-    }
-    
-    // Buat entri pemasukan baru dengan semua data
-    PemasukanProyek::create([
-        'id_proyek'         => $id_proyek,
-        'termin_ke'         => $termin_ke,
-        'jumlah'            => $jumlahBayar,
-        'metode_pembayaran' => $request->metode_pembayaran,
-        'nama_klien'        => $proyek->nama_klien, // Menyimpan nama klien dari data proyek
-        'attachment_file'   => $filePath, // Menyimpan jalur file
-        'tanggal_pemasukan' => now()->toDateString(),
-                'keterangan'         => 'Pelunasan Termin ke-' . $termin_ke,
-        'created_at'        => now()->setTimezone('Asia/Jakarta'),
-    ]);
-
-    // Update status proyek
-    $jumlahTerminLunas = PemasukanProyek::where('id_proyek', $id_proyek)
-        ->select('termin_ke', DB::raw('SUM(jumlah) as total_termin'))
-        ->groupBy('termin_ke')
-        ->having('total_termin', '>=', $nilaiPerTermin)
-        ->count();
-
-    if ($jumlahTerminLunas == $proyek->termin) {
-        $proyek->status_proyek = 'completed';
-    } else {
-        $proyek->status_proyek = 'progress';
-    }
-    $proyek->save();
-
-    return redirect()->route('pemasukan.show', $id_proyek)
-        ->with('success', 'Pembayaran termin berhasil dicatat.');
-}
-
-
-
 }
