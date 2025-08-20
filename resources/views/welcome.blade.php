@@ -56,27 +56,27 @@
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
                         <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="email"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                                placeholder="">
+                                placeholder="Masukkan Email">
                     </div>
 
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <input id="password" name="password" type="password" required autocomplete="current-password"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;">
+                                placeholder="Masukkan Password">
                     </div>
 
                     <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center">
+                        {{-- <div class="flex items-center">
                             <input id="remember_me" name="remember" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="remember_me" class="ml-2 block text-gray-900">Ingat Saya</label>
-                        </div>
+                        </div> --}}
                         
-                        @if (Route::has('password.request'))
+                        {{-- @if (Route::has('password.request'))
                             <a href="{{ route('password.request') }}" class="font-medium text-blue-600 hover:text-blue-500">
                                 Lupa Password?
                             </a>
-                        @endif
+                        @endif --}}
                     </div>
 
                     <div>

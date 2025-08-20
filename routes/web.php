@@ -16,11 +16,21 @@ use App\Http\Controllers\PengeluaranProyekController;
 
 // Login routes (di luar auth)
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
+
+// Jika user mengakses /login via GET, redirect otomatis
+Route::get('/login', function () {
+    return auth()->check() ? redirect('/dashboard') : redirect('/');
+});
+
+// Proses login via POST
 Route::post('/login', [LoginController::class, 'login'])->name('login');
+
+// Logout
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+
 // Route yang hanya bisa diakses setelah login
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -73,4 +83,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 });
 
-require __DIR__ . '/auth.php';
+// require __DIR__ . '/auth.php';

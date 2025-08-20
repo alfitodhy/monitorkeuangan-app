@@ -161,7 +161,7 @@
 
             {{-- Bagian Akun & Logout --}}
             <div class="p-4 mt-auto border-t dark:border-gray-700">
-                <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3">
+                <a href="#" class="flex items-center space-x-3">
                     <img class="h-10 w-10 rounded-full object-cover"
                         src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->nama_lengkap ?? 'User') . '&background=2563eb&color=ffffff&bold=true' }}"
                         alt="{{ Auth::user()->nama_lengkap }}">
@@ -170,7 +170,7 @@
                             {{ Auth::user()->nama_lengkap ?? 'Pengguna' }}
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">
-                            Pengaturan Akun
+                            {{-- Pengaturan Akun --}}
                         </div>
                     </div>
                 </a>
