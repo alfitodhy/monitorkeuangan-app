@@ -89,7 +89,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('vendor.index') }}"
+                                    <a href="{{ route('vendors.index') }}"
                                         class="block px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200
                                     {{ request()->routeIs('vendors.*') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
                                         Management Vendor

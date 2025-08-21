@@ -7,7 +7,7 @@
     {{-- Header Halaman --}}
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-0">Data Vendor</h1>
-        <a href="{{ route('vendor.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-md shadow-sm text-sm transition duration-300 ease-in-out">
+        <a href="{{ route('vendors.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-md shadow-sm text-sm transition duration-300 ease-in-out">
             Tambah Vendor
         </a>
     </div>
@@ -56,7 +56,7 @@
                             <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $item->email }}</td>
                             <td class="px-3 py-2 text-center space-x-1">
                                 {{-- Tombol Detail --}}
-                                <a href="{{ route('vendor.show', $item->id_vendor) }}"
+                                <a href="{{ route('vendors.show', $item->id_vendor) }}"
                                     title="Lihat Detail"
                                     class="inline-flex items-center justify-center w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded shadow">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -68,7 +68,7 @@
                                 </a>
 
                                 {{-- Tombol Edit --}}
-                                <a href="{{ route('vendor.edit', $item->id_vendor) }}"
+                                <a href="{{ route('vendors.edit', $item->id_vendor) }}"
                                     title="Edit Vendor"
                                     class="inline-flex items-center justify-center w-7 h-7 bg-yellow-500 hover:bg-yellow-600 text-white rounded shadow">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,7 +78,7 @@
                                 </a>
 
                                 {{-- Tombol Hapus --}}
-                                <form action="{{ route('vendor.destroy', $item->id_vendor) }}" method="POST" class="inline-block delete-form">
+                                <form action="{{ route('vendors.destroy', $item->id_vendor) }}" method="POST" class="inline-block delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" 

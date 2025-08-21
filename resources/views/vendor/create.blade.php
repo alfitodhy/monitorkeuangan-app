@@ -8,7 +8,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-0">Tambah Vendor</h1>
-     <a href="{{ route('vendor.index') }}"
+     <a href="{{ route('vendors.index') }}"
     class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-2 rounded-md shadow-sm text-sm inline-flex items-center space-x-1 transition duration-300 ease-in-out">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -30,7 +30,7 @@
 
     {{-- Form --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <form action="{{ route('vendor.store') }}" method="POST" class="space-y-4">
+        <form action="{{ route('vendors.store') }}" method="POST" class="space-y-4">
             @csrf
             {{-- Grid untuk input utama --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             {{-- Tombol --}}
             <div class="flex justify-end space-x-2 mt-6">
-                <a href="{{ route('vendor.index') }}"
+                <a href="{{ route('vendors.index') }}"
                     class="bg-gray-500 hover:bg-gray-600 text-white py-1.5 px-4 rounded-md shadow-sm text-sm">
                     Batal
                 </a>

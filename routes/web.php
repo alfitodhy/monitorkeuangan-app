@@ -50,9 +50,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     //vendor 
-    Route::resource('vendor', VendorController::class);
-    Route::get('/vendor/{vendor}', [VendorController::class, 'show'])->name('vendor.show');
-    Route::resource('vendors', VendorController::class)->only('index');
+    Route::resource('vendors', VendorController::class);
 
 
 

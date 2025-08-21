@@ -13,7 +13,7 @@ class VendorController extends Controller
     public function index()
     {
         $vendors = Vendor::all();
-        return view('vendor.index', compact('vendors'));
+        return view('vendors.index', compact('vendors'));
     }
 
     public function getByJenis($jenis)
@@ -42,7 +42,7 @@ class VendorController extends Controller
             }
         }
 
-        return view('vendor.create', [
+        return view('vendors.create', [
             'spesialisasi_vendor' => $spesialisasi_vendor,
             'nama_bank' => array_unique($nama_bank) // Pastikan unik
 
@@ -115,7 +115,7 @@ class VendorController extends Controller
             'keterangan' => $keterangan,
         ]);
 
-        return redirect()->route('vendor.index')->with('success', 'Vendor berhasil ditambahkan');
+        return redirect()->route('vendors.index')->with('success', 'Vendor berhasil ditambahkan');
     }
 
 
@@ -126,7 +126,7 @@ class VendorController extends Controller
      */
     public function show(Vendor $vendor)
     {
-        return view('vendor.show', compact('vendor'));
+        return view('vendors.show', compact('vendor'));
     }
 
     /**
@@ -150,7 +150,7 @@ class VendorController extends Controller
             }
         }
 
-        return view('vendor.edit', compact('vendor', 'spesialisasi_vendor', 'nama_bank'));
+        return view('vendors.edit', compact('vendor', 'spesialisasi_vendor', 'nama_bank'));
     }
 
     /**
@@ -181,7 +181,7 @@ class VendorController extends Controller
 
         $vendor->save();
 
-        return redirect()->route('vendor.index')->with('success', 'Vendor berhasil diperbarui.');
+        return redirect()->route('vendors.index')->with('success', 'Vendor berhasil diperbarui.');
     }
 
     /**
@@ -190,6 +190,6 @@ class VendorController extends Controller
     public function destroy(Vendor $vendor)
     {
         $vendor->delete();
-        return redirect()->route('vendor.index')->with('success', 'Vendor berhasil dihapus.');
+        return redirect()->route('vendors.index')->with('success', 'Vendor berhasil dihapus.');
     }
 }

@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable; // gunakan ini
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable // extend ke Authenticatable, bukan Model biasa
+class User extends Authenticatable
 {
     use Notifiable;
 
     protected $table = 'tb_user';
     protected $primaryKey = 'id_user';
     public $timestamps = true;
+
+    public $incrementing = true; // penting biar sessions keisi
+    protected $keyType = 'int';  // integer PK
 
     protected $fillable = [
         'nama_lengkap',
@@ -28,9 +31,4 @@ class User extends Authenticatable // extend ke Authenticatable, bukan Model bia
         'password',
         'remember_token',
     ];
-
-    public function getRouteKeyName()
-    {
-        return 'id_user';
-    }
 }

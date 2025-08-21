@@ -306,33 +306,28 @@ class PengeluaranProyekController extends Controller
         }
     }
 
-
-
+ 
+    
 
     public function approve(Request $request, $id)
     {
         $request->validate([
-            'file_buktitf' => 'required|array',
-            'file_buktitf.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
+            'file_buktitf' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         $pengeluaran = PengeluaranProyek::findOrFail($id);
 
-        $paths = [];
         $folder = "uploads/pengeluaran/pr_{$pengeluaran->id_proyek}";
-
-        foreach ($request->file('file_buktitf') as $file) {
-            // Simpan file di storage/app/public/uploads/pengeluaran/pr_{id_proyek}/
-            $paths[] = $file->store($folder, 'public');
-        }
+        $path = $request->file('file_buktitf')->store($folder, 'public');
 
         $pengeluaran->update([
-            'file_buktitf' => $paths,
+            'file_buktitf' => $path,
             'status' => 'Sudah dibayar'
         ]);
 
         return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran disetujui');
     }
+
 
     // Reject Pengeluaran
     public function reject(Request $request, $id)

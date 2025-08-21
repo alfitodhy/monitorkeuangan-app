@@ -8,7 +8,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-0">Edit Vendor</h1>
-        <a href="{{ route('vendor.index') }}"
+        <a href="{{ route('vendors.index') }}"
             class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-4 rounded-md shadow-sm text-sm transition duration-300 ease-in-out">
             Kembali
         </a>
@@ -27,7 +27,7 @@
 
     {{-- Form --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <form action="{{ route('vendor.update', $vendor->id_vendor) }}" method="POST" class="space-y-4">
+        <form action="{{ route('vendors.update', $vendor->id_vendor) }}" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
 
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             {{-- Tombol --}}
             <div class="flex justify-end space-x-2 mt-6">
-                <a href="{{ route('vendor.index') }}"
+                <a href="{{ route('vendors.index') }}"
                     class="bg-gray-500 hover:bg-gray-600 text-white py-1.5 px-4 rounded-md shadow-sm text-sm">
                     Batal
                 </a>
