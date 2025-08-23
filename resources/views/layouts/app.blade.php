@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Monitor Keuangan Proyek')</title>
+    <title>@yield('title', 'Sistem Monitor Keuangan Proyek')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.jsdelivr.net/npm/@heroicons/vue@2.1.3/dist/heroicons.min.js"></script>
