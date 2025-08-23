@@ -78,7 +78,23 @@ Route::middleware(['auth'])->group(function () {
 
 
     //Laporan
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('index');
+        Route::get('/rekap', [LaporanController::class, 'rekap'])->name('rekap');
+        Route::get('/keuangan', [LaporanController::class, 'keuangan'])->name('keuangan');
+    });
+
+
+
+    Route::get('/storage/{path}', function ($path) {
+        $file = Storage::disk('public')->path($path);
+
+        if (!file_exists($file)) {
+            abort(404);
+        }
+
+        return response()->file($file);
+    })->where('path', '.*');
 });
 
 // require __DIR__ . '/auth.php';

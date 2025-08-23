@@ -176,12 +176,8 @@ class PengeluaranProyekController extends Controller
             $fileName = time() . '_nota_' . $file->getClientOriginalName();
             $path = 'uploads/pengeluaran/pr_' . $request->id_proyek;
 
-            if (!Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->makeDirectory($path);
-            }
-
-            $file->move(public_path($path), $fileName);
-            $filePathNota = $path . '/' . $fileName;
+            // Simpan ke storage/app/public/uploads/pengeluaran/pr_(id)/
+            $filePathNota = $file->storeAs($path, $fileName, 'public');
         }
 
         // Upload file bukti transfer (kalau approve)
@@ -191,12 +187,7 @@ class PengeluaranProyekController extends Controller
             $fileName = time() . '_buktitf_' . $file->getClientOriginalName();
             $path = 'uploads/pengeluaran/pr_' . $request->id_proyek;
 
-            if (!Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->makeDirectory($path);
-            }
-
-            $file->move(public_path($path), $fileName);
-            $filePathBukti = $path . '/' . $fileName;
+            $filePathBukti = $file->storeAs($path, $fileName, 'public');
         }
 
         // Tentukan status

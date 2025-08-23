@@ -14,6 +14,13 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.tailwindcss.css">
+    <!-- jQuery dulu -->
+    <!-- jQuery (untuk Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.tailwindcss.js"></script>
@@ -62,10 +69,13 @@
 
                     {{-- Master Data (Dropdown) --}}
                     @if ($role === 'super admin' || $role === 'admin keuangan' || $role === 'bod')
-                        <li x-data="{ open: {{ request()->routeIs('projects.*') || request()->routeIs('vendors.*') ? 'true' : 'false' }} }">
+                        {{-- Menu Master Data --}}
+                        <li x-data="{ open: {{ request()->routeIs('projects.*') || request()->routeIs('vendors.*') ? 'true' : 'false' }} }" class="relative">
                             <button @click="open = !open"
-                                class="w-full flex items-center justify-between p-3 text-sm font-semibold rounded-lg transition-colors duration-200
-                            {{ request()->routeIs('projects.*') || request()->routeIs('vendors.*') ? 'text-blue-600 dark:text-blue-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                                class="flex items-center justify-between w-full p-3 text-sm font-semibold rounded-lg transition-colors duration-200
+            {{ request()->routeIs('projects.*') || request()->routeIs('vendors.*')
+                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg'
+                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -73,31 +83,41 @@
                                     </svg>
                                     Master Data
                                 </div>
-                                <svg :class="{ 'rotate-180': open }"
-                                    class="w-4 h-4 transform transition-transform duration-200" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 ml-2 transition-transform duration-200"
+                                    :class="{ 'rotate-180': open }" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                            <ul x-show="open" x-collapse.duration.300ms class="ml-6 mt-1 space-y-1">
+
+                            {{-- Dropdown (nested list) --}}
+                            <ul x-show="open" x-transition class="ml-8 mt-1 space-y-1">
                                 <li>
                                     <a href="{{ route('projects.index') }}"
-                                        class="block px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200
-                                    {{ request()->routeIs('projects.*') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                                        class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
+                    {{ request()->routeIs('projects.*')
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                                         Management Proyek
                                     </a>
                                 </li>
                                 <li>
                                     <a href="{{ route('vendors.index') }}"
-                                        class="block px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200
-                                    {{ request()->routeIs('vendors.*') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                                        class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
+                    {{ request()->routeIs('vendors.*')
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                                         Management Vendor
                                     </a>
                                 </li>
                             </ul>
                         </li>
                     @endif
+
+
+
+
                     {{-- Monitor Pemasukan Proyek --}}
                     @if ($role === 'super admin' || $role === 'admin keuangan' || $role === 'bod')
                         <li>
@@ -142,20 +162,57 @@
                             </a>
                         </li>
                     @endif
+
+
                     @if ($role === 'super admin' || $role === 'bod')
                         {{-- Menu Laporan --}}
-                        <li>
-                            <a href="{{ route('laporan.index') }}"
-                                class="flex items-center p-3 text-sm font-semibold rounded-lg transition-colors duration-200
-            {{ request()->routeIs('laporan.*') ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
-                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <li x-data="{ open: {{ request()->routeIs('laporan.*') ? 'true' : 'false' }} }" class="relative">
+                            <button @click="open = !open"
+                                class="flex items-center justify-between w-full p-3 text-sm font-semibold rounded-lg transition-colors duration-200
+            {{ request()->routeIs('laporan.*')
+                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg'
+                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 17v-2m3 2v-4m3 4v-6M4 21h16a2 2 0 002-2V7a2 2 0 00-2-2H8l-4 4v10a2 2 0 002 2z" />
+                                    </svg>
+                                    Laporan Proyek
+                                </div>
+                                <svg class="w-4 h-4 ml-2 transition-transform duration-200"
+                                    :class="{ 'rotate-180': open }" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 17v-2m3 2v-4m3 4v-6M4 21h16a2 2 0 002-2V7a2 2 0 00-2-2H8l-4 4v10a2 2 0 002 2z" />
+                                        d="M19 9l-7 7-7-7" />
                                 </svg>
-                                Laporan Proyek
-                            </a>
+                            </button>
+
+                            {{-- Dropdown (nested list) --}}
+                            <ul x-show="open" x-transition class="ml-8 mt-1 space-y-1">
+                                <li>
+                                    <a href="{{ route('laporan.index') }}"
+                                        class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
+                    {{ request()->routeIs('laporan.index')
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                        Rekap Laporan
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('laporan.keuangan') }}"
+                                        class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
+                    {{ request()->routeIs('laporan.keuangan')
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                        Laporan Keuangan Proyek
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     @endif
+
+
+
                 </ul>
             </nav>
 
@@ -222,7 +279,7 @@
         </main>
     </div>
 
-
+    @stack('scripts')
 
 
 </body>
