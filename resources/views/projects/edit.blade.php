@@ -8,53 +8,6 @@
     @endphp
 
 
-    <style>
-        .custom-file-input::-webkit-file-upload-button {
-            visibility: hidden;
-        }
-
-        .custom-file-input::before {
-            content: 'Pilih Dokumen';
-            display: inline-block;
-            background: linear-gradient(to right, #6366f1, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            outline: none;
-            white-space: nowrap;
-            -webkit-user-select: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.875rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .custom-file-input:hover::before {
-            background: linear-gradient(to right, #4f46e5, #7c3aed);
-        }
-
-        .custom-file-input:active::before {
-            background: linear-gradient(to right, #4338ca, #6d28d9);
-        }
-
-        .custom-file-input {
-            background-color: #f9fafb;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-            width: 100%;
-            cursor: pointer;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .custom-file-input:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-    </style>
-
     <div class="max-w-6xl mx-auto p-10 bg-white rounded-2xl shadow-xl border border-gray-200 my-10">
         <h2 class="text-lg font-semibold mb-2 text-gray-900 text-left">Edit Proyek: {{ $project->nama_proyek }}</h2>
         <hr class="mb-6 border-gray-300">
@@ -100,8 +53,20 @@
                 <div>
                     <label for="attachment_file" class="block text-sm font-medium text-gray-700 mb-0.5">Tambah
                         Lampiran</label>
-                    <input type="file" id="attachment_file" class="custom-file-input text-sm" name="attachment_file[]"
-                        multiple>
+                    <input type="file" id="attachment_file"
+                        class="w-full text-sm 
+        text-gray-700 dark:text-gray-300
+        border border-gray-300 dark:border-gray-600 
+        rounded-md
+        file:mr-4 file:py-2 file:px-4
+        file:rounded-l-md file:border-0
+        file:text-sm file:font-semibold
+        file:bg-indigo-50 file:text-indigo-700
+        hover:file:bg-indigo-100
+        dark:file:bg-gray-700 dark:file:text-indigo-300
+        dark:hover:file:bg-gray-600
+        bg-white dark:bg-gray-800"
+                        name="attachment_file[]" multiple>
                 </div>
 
                 <div>

@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    <div x-data="{ modalOpen: null }" class="relative z-0 min-h-screen bg-white">
+    <div x-data="{ modalOpen: null, proofModalData: null }" class="relative z-0 min-h-screen bg-white">
         <div class="container mx-auto p-4 sm:p-6 relative z-0">
             <div class="flex items-center justify-between mb-4 lg:mb-6">
                 <h1 class="text-xl lg:text-2xl font-bold text-gray-800">{{ $proyek->nama_proyek }}</h1>
@@ -44,12 +44,12 @@
                 <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
                     <p class="text-xs font-medium text-gray-500">Total Dibayar</p>
                     <p class="text-xl font-bold text-green-600 mt-0.5">Rp
-                        {{ number_format($proyek->total_dibayar, 0, ',', '.') }}</p>
+                        {{ number_format($total_dibayar, 0, ',', '.') }}</p>
                 </div>
                 <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
                     <p class="text-xs font-medium text-gray-500">Sisa Bayar</p>
                     <p class="text-xl font-bold text-red-600 mt-0.5">Rp
-                        {{ number_format($proyek->sisa_bayar, 0, ',', '.') }}</p>
+                        {{ number_format($sisa_bayar, 0, ',', '.') }}</p>
                 </div>
             </div>
 
@@ -75,89 +75,45 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @php
-                            $allow_payment = true; // Termin pertama pasti bisa bayar
-                            $total_nilai = $proyek->nilai_proyek; // total nilai proyek
-                            $nilai_per_termin = floor($total_nilai / $proyek->total_termin); // dibulatkan ke bawah
-                            $sisa_pembulatan = $total_nilai - $nilai_per_termin * $proyek->total_termin;
+                            $allow_payment = true;
                         @endphp
-                        @for ($i = 1; $i <= $proyek->total_termin; $i++)
+                        @foreach ($termins as $termin)
                             @php
-                                // Kalau termin terakhir tambahin sisa pembulatan biar totalnya pas
-                                $nilai_termin_ini =
-                                    $nilai_per_termin + ($i == $proyek->total_termin ? $sisa_pembulatan : 0);
-
-                                $total_bayar_termin = $pemasukan_per_termin[$i] ?? 0;
-                                $is_paid = $total_bayar_termin >= $nilai_termin_ini;
+                                $is_paid = $termin->total_bayar >= $termin->nilai_termin;
                                 $status = $is_paid ? 'Lunas' : 'Belum Lunas';
-                                $sisa_termin = max(0, $nilai_termin_ini - $total_bayar_termin);
                             @endphp
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                <td class="px-4 py-2 whitespace-nowrap text-gray-700">{{ $i }}</td>
+                                <td class="px-4 py-2 whitespace-nowrap text-gray-700">{{ $termin->termin_ke }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-right text-gray-700">Rp
-                                    {{ number_format($nilai_termin_ini, 0, ',', '.') }}</td>
+                                    {{ number_format($termin->nilai_termin, 0, ',', '.') }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-right text-green-600 font-medium">Rp
-                                    {{ number_format($total_bayar_termin, 0, ',', '.') }}</td>
+                                    {{ number_format($termin->total_bayar, 0, ',', '.') }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-right text-red-600 font-medium">Rp
-                                    {{ number_format($sisa_termin, 0, ',', '.') }}</td>
+                                    {{ number_format($termin->sisa_bayar, 0, ',', '.') }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-center">
                                     <span
                                         class="px-2 py-0.5 rounded-full text-xs font-bold
-                    {{ $is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                        {{ $is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                         {{ $status }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-2 whitespace-nowrap text-center">
-                                    @if (isset($bukti_per_termin[$i]))
-                                        <button class="text-blue-500 hover:text-blue-700 transition-colors duration-150"
-                                            onclick="showProofModal({{ json_encode($bukti_per_termin[$i]) }})">
+                                <td class="px-4 py-2 text-center">
+                                    @if (isset($bukti_per_termin[$termin->id_termin]) && $bukti_per_termin[$termin->id_termin]->isNotEmpty())
+                                        <button
+                                            @click="proofModalData = {
+                                                termin_ke: {{ $termin->termin_ke }},
+                                                bukti: @js($bukti_per_termin[$termin->id_termin]->map(fn($b) => ['file' => $b->attachment_file]))
+                                            }"
+                                            class="px-3 py-1 text-blue-500 rounded-lg shadow">
                                             Lihat Bukti
                                         </button>
                                     @else
-                                        <span class="text-gray-400 text-sm">-</span>
+                                        <span class="text-gray-500 italic">-</span>
                                     @endif
                                 </td>
-
-                                <div id="proofModal"
-                                    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
-                                    onclick="closeProofModal()">
-                                    <div class="bg-white rounded-lg p-6 w-11/12 max-w-lg relative z-50 shadow-lg"
-                                        onclick="event.stopPropagation()">
-
-                                        <h2 class="text-lg font-bold text-gray-800 mb-4">Bukti Pembayaran Termin <span
-                                                id="modal-termin-title"></span></h2>
-
-                                        <div id="proofPreview"
-                                            class="w-full h-64 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden mb-4 hidden">
-                                            <img id="previewImage" class="hidden" alt="Bukti Pembayaran">
-                                            <p id="previewMessage" class="text-sm text-gray-500">Pilih bukti dari daftar di
-                                                bawah.</p>
-                                        </div>
-
-                                        <div id="proofList" class="space-y-1 max-h-60 overflow-y-auto pr-2">
-                                        </div>
-
-                                        <div class="flex justify-end mt-4">
-                                            <button type="button" onclick="closeProofModal()"
-                                                class="px-3 py-1.5 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors duration-150">
-                                                Tutup
-                                            </button>
-                                        </div>
-
-                                        <button onclick="closeProofModal()"
-                                            class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors duration-150"
-                                            aria-label="Close modal">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
                                 <td class="px-4 py-2 whitespace-nowrap text-center">
                                     @if (!$is_paid && $allow_payment)
-                                        <button @click="modalOpen = {{ $i }}"
+                                        <button @click="modalOpen = {{ $termin->termin_ke }}"
                                             class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
                                             Lunasi
                                         </button>
@@ -168,38 +124,83 @@
                                     @endif
                                 </td>
                             </tr>
-
                             @php
-                                // Kalau termin ini belum lunas, termin berikutnya tidak boleh dibayar
                                 if (!$is_paid) {
                                     $allow_payment = false;
                                 }
                             @endphp
-                        @endfor
+                        @endforeach
                     </tbody>
-
                 </table>
             </div>
-
-
         </div>
 
-        @php
-            $total_nilai = $proyek->nilai_proyek;
-            $nilai_per_termin = floor($total_nilai / $proyek->total_termin);
-            $sisa_pembulatan = $total_nilai - $nilai_per_termin * $proyek->total_termin;
-        @endphp
+        <div x-show="proofModalData" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;"
+            @click.away="proofModalData = null">
+            <div x-transition:enter="transition ease-out duration-300 transform"
+                x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-200 transform"
+                x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
+                class="bg-white rounded-lg p-6 w-11/12 max-w-xl relative z-50 shadow-lg" @click.stop>
 
-        @for ($i = 1; $i <= $proyek->total_termin; $i++)
-            @php
-                // Nilai termin sekarang
-                $nilai_termin_ini = $nilai_per_termin + ($i == $proyek->total_termin ? $sisa_pembulatan : 0);
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Bukti Pembayaran Termin <span
+                        x-text="proofModalData ? proofModalData.termin_ke : ''"></span></h2>
 
-                $total_bayar_termin = (int) ($pemasukan_per_termin[$i] ?? 0);
-                $sisa_bayar_termin = max(0, $nilai_termin_ini - $total_bayar_termin);
-            @endphp
+                <div x-data="{ currentFile: null, isImage: true }" class="space-y-4">
+                    <template x-if="proofModalData">
+                        <div x-init="if (proofModalData.bukti.length > 0) {
+                            currentFile = proofModalData.bukti[0].file;
+                            isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(currentFile.split('.').pop().toLowerCase());
+                        }">
+                            <div class="w-full h-64 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden mb-4">
+                                <template x-if="isImage">
+                                    <img :src="'{{ asset('storage') }}/' + currentFile" alt="Bukti Pembayaran" class="object-contain w-full h-full">
+                                </template>
+                                <template x-if="!isImage">
+                                    <embed :src="'{{ asset('storage') }}/' + currentFile" type="application/pdf" class="w-full h-full">
+                                </template>
+                            </div>
 
-            <div x-show="modalOpen === {{ $i }}" x-transition:enter="transition ease-out duration-300"
+                            <ul class="space-y-1 max-h-40 overflow-y-auto pr-2">
+                                <template x-for="(file, index) in proofModalData.bukti" :key="index">
+                                    <li>
+                                        <button
+                                            @click="currentFile = file.file; isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(file.file.split('.').pop().toLowerCase());"
+                                            :class="{ 'font-bold text-blue-800': currentFile === file.file, 'text-gray-600': currentFile !== file.file }"
+                                            class="text-sm hover:underline">
+                                            <i class="fas fa-file-alt mr-2"></i> Bukti Pembayaran ke-<span x-text="index + 1"></span>
+                                        </button>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                </div>
+                
+                <div class="flex justify-end mt-4">
+                    <button type="button" @click="proofModalData = null"
+                        class="px-3 py-1.5 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors duration-150">
+                        Tutup
+                    </button>
+                </div>
+
+                <button @click="proofModalData = null"
+                    class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors duration-150"
+                    aria-label="Close modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        @foreach ($termins as $termin)
+            <div x-show="modalOpen === {{ $termin->termin_ke }}" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0"
@@ -218,27 +219,29 @@
                         </svg>
                     </div>
                     <h2 class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">Lunasi Termin
-                        ke-{{ $i }}</h2>
+                        ke-{{ $termin->termin_ke }}</h2>
                     <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">Lengkapi data pembayaran untuk
                         melunasi termin ini.</p>
 
-                    <form method="POST" action="{{ route('pemasukan.updateLunasi', [$proyek->id_proyek, $i]) }}"
+                    <form method="POST"
+                        action="{{ route('pemasukan.updateLunasi', [$proyek->id_proyek, $termin->termin_ke]) }}"
                         enctype="multipart/form-data">
                         @csrf
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah yang
                                 harus dilunasi</label>
-                            <input type="text" value="Rp. {{ number_format($sisa_bayar_termin, 0, ',', '.') }}"
+                            <input type="text" value="Rp. {{ number_format($termin->sisa_bayar, 0, ',', '.') }}"
                                 readonly
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-not-allowed text-sm">
-                            <input type="hidden" name="sisa_bayar_termin" value="{{ $sisa_bayar_termin }}">
+                            <input type="hidden" name="sisa_bayar_termin" value="{{ $termin->sisa_bayar }}">
                         </div>
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                                for="metode_pembayaran_{{ $i }}">Metode Pembayaran</label>
-                            <input list="metode-list" name="metode_pembayaran" id="metode_pembayaran"
+                                for="metode_pembayaran_{{ $termin->termin_ke }}">Metode Pembayaran</label>
+                            <input list="metode-list" name="metode_pembayaran"
+                                id="metode_pembayaran_{{ $termin->termin_ke }}"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-gray-300 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="Masukkan Metode Pembayaran" value="{{ old('metode_pembayaran') }}">
                             <datalist id="metode-list">
@@ -252,8 +255,8 @@
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                                for="jumlah_bayar_{{ $i }}">Jumlah Bayar</label>
-                            <input type="text" name="jumlah_bayar" id="jumlah_bayar_{{ $i }}"
+                                for="jumlah_bayar_{{ $termin->termin_ke }}">Jumlah Bayar</label>
+                            <input type="text" name="jumlah_bayar" id="jumlah_bayar_{{ $termin->termin_ke }}"
                                 x-data="rupiahInput()" x-on:input="onInput" x-init="if (value) $el.value = formatRupiah(value)"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-gray-300 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150"
                                 placeholder="Masukkan jumlah pembayaran" required>
@@ -261,8 +264,8 @@
 
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                                for="attachment_file_{{ $i }}">Bukti Pembayaran</label>
-                            <input type="file" name="attachment_file" id="attachment_file_{{ $i }}"
+                                for="attachment_file_{{ $termin->termin_ke }}">Bukti Pembayaran</label>
+                            <input type="file" name="attachment_file" id="attachment_file_{{ $termin->termin_ke }}"
                                 class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
                                 accept=".pdf,.jpg,.jpeg,.png">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: PDF, JPG, PNG (maks. 2MB)</p>
@@ -290,16 +293,21 @@
                     </button>
                 </div>
             </div>
-        @endfor
-
-
+        @endforeach
     </div>
 
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('rupiahInput', () => ({
-                formatRupiah(value) {
-                    let numberString = value.replace(/[^,\d]/g, '').toString();
+                value: '',
+                onInput(event) {
+                    let input = event.target;
+                    let originalValue = input.value.replace(/[^,\d]/g, '').toString();
+                    let formattedValue = this.formatRupiah(originalValue);
+                    input.value = formattedValue;
+                },
+                formatRupiah(numberString) {
+                    if (!numberString) return '';
                     let split = numberString.split(',');
                     let sisa = split[0].length % 3;
                     let rupiah = split[0].substr(0, sisa);
@@ -311,93 +319,12 @@
                     }
 
                     rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
-                    return rupiah ? 'Rp. ' + rupiah : '';
+                    return 'Rp. ' + rupiah;
                 },
-
-                onInput(event) {
-                    let input = event.target;
-                    let originalValue = input.value.replace(/[^,\d]/g, '');
-                    input.value = this.formatRupiah(originalValue);
-                },
-
                 getRawNumber(formatted) {
                     return formatted.replace(/[^,\d]/g, '').replace(',', '.');
                 }
             }))
         })
     </script>
-
-    <script>
-        function showProofModal(bukti) {
-            const modal = document.getElementById('proofModal');
-            const listContainer = document.getElementById('proofList');
-
-            // Bersihkan konten sebelumnya
-            listContainer.innerHTML = '';
-
-            // Tampilkan judul termin yang relevan
-            document.getElementById('modal-termin-title').textContent = bukti.length > 0 ? bukti[0].termin_ke : '';
-
-            // Buat tag <ol> untuk daftar bernomor dan tambahkan kelas list-none
-            const ol = document.createElement('ol');
-            ol.className = 'list-none space-y-1'; // Menggunakan list-none untuk menghapus gaya bawaan
-
-            // Loop dan tambahkan bukti ke daftar
-            bukti.forEach((item, index) => { // tambahkan index untuk nomor urut
-                if (item.attachment_file) {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.href = '#';
-                    a.className = 'text-blue-600 hover:underline text-sm truncate block';
-                    a.onclick = (e) => showProof(e, '{{ asset('storage') }}/' + item.attachment_file, item
-                        .attachment_file.split('.').pop());
-                    a.innerHTML =
-                        `${index + 1}. <i class="fas fa-file-alt mr-2"></i> ${item.attachment_file.split('/').pop()}`; // Menambahkan nomor urut
-
-                    li.appendChild(a);
-                    ol.appendChild(li); // Masukkan <li> ke dalam <ol>
-                }
-            });
-
-            listContainer.appendChild(ol); // Tambahkan <ol> ke dalam container modal
-
-            modal.classList.remove('hidden');
-        }
-
-
-        // Fungsi showProof dan closeProofModal tidak perlu diubah
-        function closeProofModal() {
-            document.getElementById('proofModal').classList.add('hidden');
-            document.getElementById('proofPreview').classList.add('hidden');
-            document.getElementById('previewMessage').classList.remove('hidden');
-            document.getElementById('previewImage').classList.add('hidden');
-        }
-
-        function showProof(event, url, extension) {
-            event.preventDefault();
-
-            const previewContainer = document.getElementById('proofPreview');
-            const previewImage = document.getElementById('previewImage');
-            const previewMessage = document.getElementById('previewMessage');
-
-            previewContainer.classList.remove('hidden');
-            previewMessage.classList.add('hidden');
-            previewImage.classList.add('hidden');
-
-            previewContainer.innerHTML = '';
-
-            if (extension.toLowerCase() === 'pdf') {
-                const embed = document.createElement('embed');
-                embed.setAttribute('src', url);
-                embed.setAttribute('type', 'application/pdf');
-                embed.className = 'w-full h-full';
-                previewContainer.appendChild(embed);
-            } else {
-                previewImage.setAttribute('src', url);
-                previewImage.classList.remove('hidden');
-                previewContainer.appendChild(previewImage);
-            }
-        }
-    </script>
-
 @endsection

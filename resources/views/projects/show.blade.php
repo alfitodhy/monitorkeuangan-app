@@ -49,7 +49,7 @@
                 <p>
                     <span
                         class="inline-block px-2 py-0.5 rounded-full text-[11px] font-medium
-                    {{ $project->status_proyek == 'selesai' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' }}">
+                {{ $project->status_proyek == 'selesai' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' }}">
                         {{ ucfirst($project->status_proyek ?: 'belum mulai') }}
                     </span>
                 </p>
@@ -62,6 +62,48 @@
                 <span class="font-semibold">Keterangan:</span>
                 <p>{{ $project->keterangan ?? '-' }}</p>
             </div>
+
+
+
+            {{-- Detail Termin --}}
+            @if ($termins && $termins->count() > 0)
+                <div class="sm:col-span-2 mt-4">
+                    <h3 class="text-md font-semibold mb-3 text-gray-900">Detail Termin</h3>
+                    @foreach ($termins as $termin)
+                        <div class="mb-4 p-4 border rounded-md bg-gray-50">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-800 font-medium">Termin Ke-{{ $termin->termin_ke }}</span>
+                                <span
+                                    class="inline-block px-2 py-0.5 rounded-full text-[11px] font-medium
+                                {{ $termin->status_pembayaran == 'lunas' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                    {{ ucfirst($termin->status_pembayaran ?? 'Belum Bayar') }}
+                                </span>
+                            </div>
+                            <ul class="text-sm text-gray-600">
+                                <li>
+                                    <span class="font-semibold">Jumlah:</span> Rp
+                                    {{ number_format($termin->jumlah, 0, ',', '.') }}
+                                </li>
+                                <li>
+                                    <span class="font-semibold">Jatuh Tempo:</span>
+                                    {{ \Carbon\Carbon::parse($termin->tanggal_jatuh_tempo)->format('d M Y') }}
+                                </li>
+                                @if ($termin->status_pembayaran == 'lunas' && $termin->tanggal_lunas)
+                                    <li>
+                                        <span class="font-semibold">Tanggal Lunas:</span>
+                                        {{ \Carbon\Carbon::parse($termin->tanggal_lunas)->format('d M Y') }}
+                                    </li>
+                                @endif
+                                @if ($termin->keterangan)
+                                    <li>
+                                        <span class="font-semibold">Keterangan:</span> {{ $termin->keterangan }}
+                                    </li>
+                                @endif
+                            </ul>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
 
 
             {{-- Lampiran --}}

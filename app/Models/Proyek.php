@@ -9,10 +9,11 @@ class Proyek extends Model
 {
     use HasFactory;
 
-    protected $table = 'tb_proyek'; 
+    protected $table = 'tb_proyek';
 
     protected $primaryKey = 'id_proyek';
-
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $fillable = [
         'kode_proyek',
         'nama_proyek',

@@ -65,6 +65,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pemasukan/{id_proyek}/lunasi/{termin_ke}', [PemasukanProyekController::class, 'storeLunasi'])->name('pemasukan.storeLunasi');
 
 
+    // routes/web.php
+    Route::get('/api/termin-proyek/{id}', [PemasukanProyekController::class, 'getDetail']);
+
 
     // Monitoring Pengeluaran
     Route::resource('pengeluaran', PengeluaranProyekController::class);
