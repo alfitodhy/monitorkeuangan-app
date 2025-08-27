@@ -8,7 +8,7 @@
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-0">
-            
+
             </h1>
             <div class="flex space-x-2">
                 <a href="{{ route('pengeluaran.index') }}"
@@ -194,7 +194,7 @@
                                         </div>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <a href="{{ asset($att['path']) }}" target="_blank"
+                                        <a href="{{ asset('storage/' . $att['path']) }}" target="_blank"
                                             class="inline-flex items-center justify-center p-1 rounded-full text-gray-400 hover:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
                                             title="Lihat">
                                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -205,7 +205,7 @@
                                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
-                                        <a href="{{ asset($att['path']) }}" download
+                                        <a href="{{ asset('storage/' . $att['path']) }}" download
                                             class="inline-flex items-center justify-center p-1 rounded-full text-gray-400 hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
                                             title="Unduh">
                                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"

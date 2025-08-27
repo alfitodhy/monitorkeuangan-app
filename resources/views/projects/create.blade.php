@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Tambah Proyek')
+
 @section('content')
 
     <body class="bg-gray-50 dark:bg-gray-900">
@@ -389,50 +391,51 @@
     </body>
 
     <script>
-    document.querySelector('form').addEventListener('submit', function(e) {
-    console.log('Form sedang di-submit, membersihkan format...');
-    
-    // Bersihkan nilai_proyek
-    const nilaiProyekInput = document.getElementById('nilai_proyek');
-    if (nilaiProyekInput) {
-        const cleanValue = nilaiProyekInput.value.replace(/[^\d]/g, '');
-        nilaiProyekInput.value = cleanValue;
-        console.log('Nilai proyek dibersihkan:', cleanValue);
-    }
-    
-    // Bersihkan estimasi_hpp
-    const estimasiInput = document.getElementById('estimasi_hpp');
-    if (estimasiInput) {
-        estimasiInput.value = estimasiInput.value.replace(/[^\d]/g, '');
-    }
-    
-    // Bersihkan semua input termin
-    let totalTermin = 0;
-    const terminInputs = document.querySelectorAll('input[name*="[jumlah]"]');
-    
-    terminInputs.forEach((input, index) => {
-        const originalValue = input.value;
-        const cleanValue = input.value.replace(/[^\d]/g, '');
-        input.value = cleanValue;
-        
-        const numericValue = parseInt(cleanValue) || 0;
-        totalTermin += numericValue;
-        
-        console.log(`Termin ${index + 1}: ${originalValue} -> ${cleanValue} (${numericValue})`);
-    });
-    
-    // Validasi total termin
-    const nilaiProyek = parseInt(nilaiProyekInput.value) || 0;
-    console.log(`Total termin: ${totalTermin}, Nilai proyek: ${nilaiProyek}`);
-    
-    if (terminInputs.length > 0 && totalTermin !== nilaiProyek) {
-        e.preventDefault();
-        alert(`Total jumlah termin (${totalTermin.toLocaleString('id-ID')}) harus sama dengan Nilai Proyek (${nilaiProyek.toLocaleString('id-ID')}).`);
-        return false;
-    }
-    
-    console.log('Form validation passed, submitting...');
-});
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log('Form sedang di-submit, membersihkan format...');
+
+            // Bersihkan nilai_proyek
+            const nilaiProyekInput = document.getElementById('nilai_proyek');
+            if (nilaiProyekInput) {
+                const cleanValue = nilaiProyekInput.value.replace(/[^\d]/g, '');
+                nilaiProyekInput.value = cleanValue;
+                console.log('Nilai proyek dibersihkan:', cleanValue);
+            }
+
+            // Bersihkan estimasi_hpp
+            const estimasiInput = document.getElementById('estimasi_hpp');
+            if (estimasiInput) {
+                estimasiInput.value = estimasiInput.value.replace(/[^\d]/g, '');
+            }
+
+            // Bersihkan semua input termin
+            let totalTermin = 0;
+            const terminInputs = document.querySelectorAll('input[name*="[jumlah]"]');
+
+            terminInputs.forEach((input, index) => {
+                const originalValue = input.value;
+                const cleanValue = input.value.replace(/[^\d]/g, '');
+                input.value = cleanValue;
+
+                const numericValue = parseInt(cleanValue) || 0;
+                totalTermin += numericValue;
+
+                console.log(`Termin ${index + 1}: ${originalValue} -> ${cleanValue} (${numericValue})`);
+            });
+
+            // Validasi total termin
+            const nilaiProyek = parseInt(nilaiProyekInput.value) || 0;
+            console.log(`Total termin: ${totalTermin}, Nilai proyek: ${nilaiProyek}`);
+
+            if (terminInputs.length > 0 && totalTermin !== nilaiProyek) {
+                e.preventDefault();
+                alert(
+                    `Total jumlah termin (${totalTermin.toLocaleString('id-ID')}) harus sama dengan Nilai Proyek (${nilaiProyek.toLocaleString('id-ID')}).`);
+                return false;
+            }
+
+            console.log('Form validation passed, submitting...');
+        });
     </script>
 
 

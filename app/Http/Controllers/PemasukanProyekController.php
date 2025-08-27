@@ -64,7 +64,7 @@ class PemasukanProyekController extends Controller
     public function getDetail($idProyek)
     {
         try {
-            // 🔎 Ambil proyek
+
             $proyek = Proyek::find($idProyek);
             if (!$proyek) {
                 return response()->json(['error' => 'Proyek tidak ditemukan'], 404);
@@ -202,6 +202,7 @@ class PemasukanProyekController extends Controller
             'id_proyek' => 'required|exists:tb_proyek,id_proyek',
             'id_termin' => 'required|exists:tb_termin_proyek,id_termin',
             'jumlah' => 'required|numeric|min:1',
+
             'tanggal_pemasukan' => 'required|date',
             'attachment_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:5120',
         ]);
@@ -214,7 +215,6 @@ class PemasukanProyekController extends Controller
             return back()->withErrors(['Termin tidak ditemukan.']);
         }
 
-        // 🔑 Cek termin ke-1 harus lunas dulu
         $termin1 = DB::table('tb_termin_proyek')
             ->where('id_proyek', $terminSekarang->id_proyek)
             ->where('termin_ke', 1)
@@ -234,37 +234,35 @@ class PemasukanProyekController extends Controller
             }
         }
 
-        // 🔽 Handle file upload
         $filePath = null;
         if ($request->hasFile('attachment_file')) {
             $file = $request->file('attachment_file');
-            $folder = "pemasukan/pr_{$request->id_proyek}";
+            $folder = "uploads/pemasukan/pr_{$request->id_proyek}";
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
             $file->storeAs($folder, $filename, 'public');
+
+            // simpan JSON valid (array of string)
             $filePath = json_encode([$folder . '/' . $filename]);
         }
 
-        // 🔎 Ambil nama klien dari tb_proyek
+
         $proyek = DB::table('tb_proyek')->where('id_proyek', $request->id_proyek)->first();
         $namaKlien = $proyek ? $proyek->nama_klien : null;
 
-        // ✅ Simpan pemasukan (tambahkan nama_klien dan termin_ke)
         DB::table('tb_pemasukan_proyek')->insert([
             'id_proyek' => $request->id_proyek,
             'id_termin' => $request->id_termin,
-            'termin_ke' => $terminSekarang->termin_ke,   // ⬅️ ambil dari termin
-            'nama_klien' => $namaKlien,                 // ⬅️ ambil dari proyek
+            'termin_ke' => $terminSekarang->termin_ke,
+            'nama_klien' => $namaKlien,
             'jumlah' => $request->jumlah,
             'tanggal_pemasukan' => $request->tanggal_pemasukan,
             'metode_pembayaran' => $request->metode_pembayaran,
-            'attachment_file' => $filePath,
+            'attachment_file' => $filePath, 
             'keterangan' => $request->keterangan,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // 🔁 Hitung ulang total pembayaran untuk termin ini
         $totalDibayar = DB::table('tb_pemasukan_proyek')
             ->where('id_termin', $request->id_termin)
             ->sum('jumlah');
@@ -274,10 +272,10 @@ class PemasukanProyekController extends Controller
 
         if ($totalDibayar >= $terminSekarang->jumlah) {
             $statusPembayaran = 'lunas';
-            $tanggalLunas = now(); // isi tanggal lunas
+            $tanggalLunas = now();
         }
 
-        // 🔄 Update status di tb_termin_proyek
+
         DB::table('tb_termin_proyek')
             ->where('id_termin', $request->id_termin)
             ->update([
@@ -288,6 +286,7 @@ class PemasukanProyekController extends Controller
 
         return redirect()->route('pemasukan.index')->with('success', 'Pemasukan berhasil ditambahkan!');
     }
+
 
 
 

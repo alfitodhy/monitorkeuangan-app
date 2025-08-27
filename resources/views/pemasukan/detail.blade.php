@@ -17,12 +17,12 @@
         </div>
     @endif
 
-    <div x-data="{ modalOpen: null, proofModalData: null }" class="relative z-0 min-h-screen bg-white">
+    <div x-data="{ modalOpen: null, proofModalData: null }" class="relative z-0 min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div class="container mx-auto p-4 sm:p-6 relative z-0">
             <div class="flex items-center justify-between mb-4 lg:mb-6">
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-800">{{ $proyek->nama_proyek }}</h1>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200">{{ $proyek->nama_proyek }}</h1>
                 <a href="{{ route('pemasukan.index') }}"
-                    class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md shadow-md text-gray-700 bg-white hover:bg-gray-100 focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-200">
+                    class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md shadow-md text-gray-700 bg-white hover:bg-gray-100 focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:focus:ring-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -32,48 +32,48 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-                    <p class="text-xs font-medium text-gray-500">Total Termin</p>
-                    <p class="text-xl font-bold text-gray-900 mt-0.5">{{ $proyek->total_termin }}</p>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Termin</p>
+                    <p class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">{{ $proyek->total_termin }}</p>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-                    <p class="text-xs font-medium text-gray-500">Nilai Proyek</p>
-                    <p class="text-xl font-bold text-gray-900 mt-0.5">Rp
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Nilai Proyek</p>
+                    <p class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">Rp
                         {{ number_format($proyek->nilai_proyek, 0, ',', '.') }}</p>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-                    <p class="text-xs font-medium text-gray-500">Total Dibayar</p>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Dibayar</p>
                     <p class="text-xl font-bold text-green-600 mt-0.5">Rp
                         {{ number_format($total_dibayar, 0, ',', '.') }}</p>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-                    <p class="text-xs font-medium text-gray-500">Sisa Bayar</p>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Sisa Bayar</p>
                     <p class="text-xl font-bold text-red-600 mt-0.5">Rp
                         {{ number_format($sisa_bayar, 0, ',', '.') }}</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Termin Ke</th>
-                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Nominal Seharusnya</th>
-                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Total Dibayar</th>
-                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Sisa Bayar</th>
-                            <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Status</th>
-                            <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Lihat Bukti</th>
-                            <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @php
                             $allow_payment = true;
                         @endphp
@@ -82,9 +82,9 @@
                                 $is_paid = $termin->total_bayar >= $termin->nilai_termin;
                                 $status = $is_paid ? 'Lunas' : 'Belum Lunas';
                             @endphp
-                            <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                <td class="px-4 py-2 whitespace-nowrap text-gray-700">{{ $termin->termin_ke }}</td>
-                                <td class="px-4 py-2 whitespace-nowrap text-right text-gray-700">Rp
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                                <td class="px-4 py-2 whitespace-nowrap text-gray-700 dark:text-gray-300">{{ $termin->termin_ke }}</td>
+                                <td class="px-4 py-2 whitespace-nowrap text-right text-gray-700 dark:text-gray-300">Rp
                                     {{ number_format($termin->nilai_termin, 0, ',', '.') }}</td>
                                 <td class="px-4 py-2 whitespace-nowrap text-right text-green-600 font-medium">Rp
                                     {{ number_format($termin->total_bayar, 0, ',', '.') }}</td>
@@ -93,7 +93,7 @@
                                 <td class="px-4 py-2 whitespace-nowrap text-center">
                                     <span
                                         class="px-2 py-0.5 rounded-full text-xs font-bold
-                                        {{ $is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                        {{ $is_paid ? 'bg-green-100 text-green-700 dark:bg-green-700 dark:text-green-100' : 'bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100' }}">
                                         {{ $status }}
                                     </span>
                                 </td>
@@ -104,11 +104,11 @@
                                                 termin_ke: {{ $termin->termin_ke }},
                                                 bukti: @js($bukti_per_termin[$termin->id_termin]->map(fn($b) => ['file' => $b->attachment_file]))
                                             }"
-                                            class="px-3 py-1 text-blue-500 rounded-lg shadow">
+                                            class="px-3 py-1 text-blue-500 dark:text-blue-400 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
                                             Lihat Bukti
                                         </button>
                                     @else
-                                        <span class="text-gray-500 italic">-</span>
+                                        <span class="text-gray-500 dark:text-gray-400 italic">-</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-2 whitespace-nowrap text-center">
@@ -118,9 +118,9 @@
                                             Lunasi
                                         </button>
                                     @elseif($is_paid)
-                                        <span class="text-gray-400 text-sm"></span>
+                                        <span class="text-gray-400 dark:text-gray-500 text-sm"></span>
                                     @else
-                                        <span class="text-gray-400 text-sm"></span>
+                                        <span class="text-gray-400 dark:text-gray-500 text-sm"></span>
                                     @endif
                                 </td>
                             </tr>
@@ -145,9 +145,9 @@
                 x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-200 transform"
                 x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
-                class="bg-white rounded-lg p-6 w-11/12 max-w-xl relative z-50 shadow-lg" @click.stop>
+                class="bg-white dark:bg-gray-800 rounded-lg p-6 w-11/12 max-w-xl relative z-50 shadow-lg" @click.stop>
 
-                <h2 class="text-lg font-bold text-gray-800 mb-4">Bukti Pembayaran Termin <span
+                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">Bukti Pembayaran Termin <span
                         x-text="proofModalData ? proofModalData.termin_ke : ''"></span></h2>
 
                 <div x-data="{ currentFile: null, isImage: true }" class="space-y-4">
@@ -156,7 +156,7 @@
                             currentFile = proofModalData.bukti[0].file;
                             isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(currentFile.split('.').pop().toLowerCase());
                         }">
-                            <div class="w-full h-64 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden mb-4">
+                            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md flex items-center justify-center overflow-hidden mb-4">
                                 <template x-if="isImage">
                                     <img :src="'{{ asset('storage') }}/' + currentFile" alt="Bukti Pembayaran" class="object-contain w-full h-full">
                                 </template>
@@ -170,7 +170,7 @@
                                     <li>
                                         <button
                                             @click="currentFile = file.file; isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(file.file.split('.').pop().toLowerCase());"
-                                            :class="{ 'font-bold text-blue-800': currentFile === file.file, 'text-gray-600': currentFile !== file.file }"
+                                            :class="{ 'font-bold text-blue-800 dark:text-blue-400': currentFile === file.file, 'text-gray-600 dark:text-gray-400': currentFile !== file.file }"
                                             class="text-sm hover:underline">
                                             <i class="fas fa-file-alt mr-2"></i> Bukti Pembayaran ke-<span x-text="index + 1"></span>
                                         </button>
@@ -183,13 +183,13 @@
                 
                 <div class="flex justify-end mt-4">
                     <button type="button" @click="proofModalData = null"
-                        class="px-3 py-1.5 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors duration-150">
+                        class="px-3 py-1.5 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors duration-150 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-600">
                         Tutup
                     </button>
                 </div>
 
                 <button @click="proofModalData = null"
-                    class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors duration-150"
+                    class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors duration-150 dark:text-gray-400 dark:hover:text-gray-200"
                     aria-label="Close modal">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
@@ -212,13 +212,13 @@
                     x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
                     class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-11/12 max-w-sm relative z-50" @click.stop>
 
-                    <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mx-auto mb-4">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-800 mx-auto mb-4">
+                        <svg class="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </div>
-                    <h2 class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">Lunasi Termin
+                    <h2 class="text-xl font-semibold text-center text-gray-900 dark:text-gray-100 mb-2">Lunasi Termin
                         ke-{{ $termin->termin_ke }}</h2>
                     <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">Lengkapi data pembayaran untuk
                         melunasi termin ini.</p>
@@ -266,7 +266,7 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                                 for="attachment_file_{{ $termin->termin_ke }}">Bukti Pembayaran</label>
                             <input type="file" name="attachment_file" id="attachment_file_{{ $termin->termin_ke }}"
-                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 dark:file:bg-violet-900 dark:file:text-violet-300 dark:hover:file:bg-violet-800"
                                 accept=".pdf,.jpg,.jpeg,.png">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: PDF, JPG, PNG (maks. 2MB)</p>
                         </div>
