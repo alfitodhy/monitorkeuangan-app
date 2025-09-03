@@ -22,7 +22,7 @@
         @endif
 
         {{-- Tampilan saat tidak ada data --}}
-        @if ($data->isEmpty())
+        @if ($proyek->isEmpty())
             <div class="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
                 <div class="text-center text-gray-500 dark:text-gray-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24"
@@ -70,7 +70,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach ($data as $index => $item)
+                            @foreach ($proyek as $index => $item)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-75">
                                     <td class="px-2 py-1 text-center text-gray-700 dark:text-gray-200 font-medium">
                                         {{ $index + 1 }}</td>
@@ -99,7 +99,6 @@
                                             'completed' =>
                                                 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
                                             'canceled' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
-                                            // Tambah status lain kalau perlu
                                         ];
                                         $colorClass =
                                             $statusColors[$item->status_proyek] ?? 'bg-gray-200 text-gray-700';
@@ -138,6 +137,21 @@
                                                 </a>
                                             @endif
 
+                                            {{-- Tombol Addendum --}}
+                                            @if ($item->status_proyek === 'progress')
+                                                <button type="button"
+                                                    onclick="openAddendumModal({{ $item->id_proyek }}, '{{ $item->nama_proyek }}')"
+                                                    title="Tambah Addendum"
+                                                    class="inline-flex items-center justify-center w-7 h-7 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg shadow">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                </button>
+                                            @endif
+
+
                                             {{-- Tombol Hapus --}}
                                             <form action="{{ route('projects.destroy', $item->id_proyek) }}" method="POST"
                                                 class="delete-form">
@@ -152,6 +166,7 @@
                                                     </svg>
                                                 </button>
                                             </form>
+
                                         </div>
                                     </td>
                                 </tr>
@@ -162,6 +177,910 @@
             </div>
         @endif
     </div>
+
+    <!-- Modal (updated) -->
+    <div id="addendumModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+        <div id="addendumOverlay" class="absolute inset-0 bg-black/50 transition-opacity duration-300 ease-out opacity-0"
+            onclick="closeAddendumModal()"></div>
+
+        <div id="addendumModalContent"
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl max-h-[90vh] bg-white dark:bg-gray-800 shadow-xl rounded-lg transition-all duration-300 ease-out scale-95 opacity-0">
+            <div class="flex flex-col h-full max-h-[90vh]">
+                {{-- Header Modal --}}
+                <div
+                    class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                        Addendum Proyek:
+                        <span id="modalProyekName" class="text-indigo-600"></span>
+                    </h2>
+                    <button type="button" onclick="closeAddendumModal()"
+                        class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Konten Modal --}}
+                <div class="flex-grow overflow-y-auto p-6">
+                    {{-- Loading State --}}
+                    <div id="loadingAddendum" class="text-center py-8">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">Memuat data addendum...</p>
+                    </div>
+
+                    {{-- Container untuk Accordion atau Form --}}
+                    <div id="addendumContent" class="hidden">
+                        <div id="existingAddendums" class="space-y-3 mb-6"></div>
+
+                        <div class="mb-4">
+                            <button type="button" id="btnTambahAddendum"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-300 ease-in-out">
+                                <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                                Tambah Addendum Baru
+                            </button>
+                        </div>
+
+                        <div id="formAddendum" class="hidden">
+                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Form Addendum Baru
+                                </h3>
+                                <form id="addendumForm" method="POST" enctype="multipart/form-data" data-proyek-id="">
+
+                                    @csrf
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                                        <div>
+                                            <label for="nomor_addendum"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor
+                                                Addendum</label>
+                                            <input type="text" id="nomor_addendum" name="nomor_addendum" required
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                        </div>
+                                        <div>
+                                            <label for="tanggal_addendum"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal
+                                                Addendum</label>
+                                            <input type="date" id="tanggal_addendum" name="tanggal_addendum" required
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                        </div>
+
+                                        <!-- display input untuk nilai (type=text supaya bisa format "Rp ..."), name dihapus -->
+                                        <div>
+                                            <label for="nilai_proyek_addendum"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nilai
+                                                Tambahan</label>
+                                            <input type="text" id="nilai_proyek_addendum" placeholder="Rp "
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                        </div>
+
+                                        <!-- display input untuk hpp (type=text supaya bisa tambah '%' di tampilan) -->
+                                        <div>
+                                            <label for="estimasi_hpp_addendum"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estimasi
+                                                HPP Tambahan (%)</label>
+                                            <input type="text" id="estimasi_hpp_addendum" placeholder="0"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="tambahan_termin_addendum"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tambahan
+                                                Termin</label>
+                                            <input type="number" id="tambahan_termin_addendum"
+                                                name="tambahan_termin_addendum"
+                                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
+                                        </div>
+
+                                        <!-- Container tempat form termin dinamis -->
+                                        <div>
+                                            <label for="durasi_addendum"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tambahan
+                                                Durasi (bulan)</label>
+                                            <input type="number" id="durasi_addendum" name="durasi_addendum"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                        </div>
+                                        <div id="terminContainer" class="sm:col-span-2"></div>
+                                        <div class="sm:col-span-2">
+                                            <label for="deskripsi_perubahan"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi
+                                                Perubahan</label>
+                                            <textarea id="deskripsi_perubahan" name="deskripsi_perubahan" rows="3"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"></textarea>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label for="attachment_file"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lampiran</label>
+                                            <input type="file" id="attachment_file" name="attachment_file[]" multiple
+                                                class="mt-1 block w-full text-gray-700 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-200 dark:hover:file:bg-indigo-800">
+                                        </div>
+                                    </div>
+
+                                    {{-- Tombol Form --}}
+                                    <div class="flex justify-end mt-6 space-x-2">
+                                        <button type="button" onclick="cancelAddendumForm()"
+                                            class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 font-medium transition duration-150 ease-in-out">
+                                            Batal
+                                        </button>
+                                        <button type="submit"
+                                            class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 font-medium transition duration-150 ease-in-out">
+                                            Simpan Addendum
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Footer Modal --}}
+                <div class="flex justify-end p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                    <button type="button" onclick="closeAddendumModal()"
+                        class="px-6 py-2 rounded-lg bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 font-medium transition duration-150 ease-in-out">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProyekId = null;
+
+        function openAddendumModal(id, nama) {
+            currentProyekId = id;
+            const modal = document.getElementById('addendumModal');
+            const overlay = document.getElementById('addendumOverlay');
+            const content = document.getElementById('addendumModalContent');
+
+            document.getElementById('modalProyekName').innerText = nama || '';
+            document.getElementById('addendumForm').setAttribute('data-proyek-id', id);
+
+            // reset / state
+            document.getElementById('loadingAddendum').classList.remove('hidden');
+            document.getElementById('addendumContent').classList.add('hidden');
+            document.getElementById('formAddendum').classList.add('hidden');
+            document.getElementById('existingAddendums').innerHTML = '';
+
+            // show modal (with animation classes)
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            // load data
+            loadAddendumData(id);
+        }
+
+        function closeAddendumModal() {
+            const modal = document.getElementById('addendumModal');
+            const overlay = document.getElementById('addendumOverlay');
+            const content = document.getElementById('addendumModalContent');
+
+            overlay.classList.add('opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentProyekId = null;
+            }, 300);
+        }
+
+        function loadAddendumData(proyekId) {
+            const container = document.getElementById('existingAddendums');
+            const loadingDiv = document.getElementById('loadingAddendum');
+            const contentDiv = document.getElementById('addendumContent');
+            const btnTambah = document.getElementById('btnTambahAddendum');
+
+            // Clear and reset
+            container.innerHTML = '';
+            loadingDiv.classList.remove('hidden');
+            contentDiv.classList.add('hidden');
+            btnTambah.classList.add('hidden');
+
+            fetch(`/projects/${proyekId}/addendums`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Normalize data
+                    const addendums = Array.isArray(data) ? data : (data.addendums || data.data || []);
+
+                    loadingDiv.classList.add('hidden');
+                    contentDiv.classList.remove('hidden');
+
+                    if (addendums.length > 0) {
+                        renderAddendumAccordion(addendums);
+                        btnTambah.classList.remove('hidden');
+                    } else {
+                        btnTambah.classList.add('hidden');
+                        showAddendumForm();
+                    }
+
+                    // Set form action
+                    document.getElementById('addendumForm').action = `/projects/${proyekId}/addendums`;
+                })
+                .catch(err => {
+                    console.error('Error loading addendum data:', err);
+
+                    loadingDiv.classList.add('hidden');
+                    contentDiv.classList.remove('hidden');
+                    btnTambah.classList.add('hidden');
+                    showAddendumForm();
+
+                    document.getElementById('addendumForm').action = `/projects/${proyekId}/addendums`;
+                });
+        }
+
+        function renderAddendumAccordion(addendums) {
+            const container = document.getElementById('existingAddendums');
+            container.innerHTML = '';
+
+            addendums.forEach((addendum, index) => {
+                // Handle attachments - support multiple formats
+                let attachmentsHtml = '';
+                try {
+                    let attachments = [];
+
+                    // Parse attachments dari berbagai format
+                    if (addendum.attachments) {
+                        if (Array.isArray(addendum.attachments)) {
+                            attachments = addendum.attachments;
+                        } else if (typeof addendum.attachments === 'string') {
+                            attachments = JSON.parse(addendum.attachments);
+                        }
+                    }
+
+                    // Juga cek field attachment_file jika ada
+                    if (addendum.attachment_file) {
+                        if (Array.isArray(addendum.attachment_file)) {
+                            attachments = [...attachments, ...addendum.attachment_file];
+                        } else if (typeof addendum.attachment_file === 'string') {
+                            try {
+                                const parsedFiles = JSON.parse(addendum.attachment_file);
+                                if (Array.isArray(parsedFiles)) {
+                                    attachments = [...attachments, ...parsedFiles];
+                                } else {
+                                    attachments.push(parsedFiles);
+                                }
+                            } catch {
+                                // Jika bukan JSON, anggap sebagai single file path
+                                attachments.push(addendum.attachment_file);
+                            }
+                        } else {
+                            attachments.push(addendum.attachment_file);
+                        }
+                    }
+
+                    // Generate HTML untuk attachments
+                    if (attachments.length > 0) {
+                        attachmentsHtml = `
+                    <div class="mb-4">
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a2 2 0 00-2.828-2.828z" />
+                            </svg>
+                            Lampiran File (${attachments.length})
+                        </label>
+                        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                `;
+
+                        attachments.forEach(att => {
+                            const fileName = getFileName(att);
+                            const filePath = getFilePath(att);
+                            const fileSize = getFileSize(att);
+                            const fileType = getFileType(fileName);
+
+                            // Debug log untuk melihat path
+                            console.log('Attachment data:', {
+                                original: att,
+                                fileName: fileName,
+                                filePath: filePath,
+                                fullUrl: `/storage/${filePath}`
+                            });
+
+                            attachmentsHtml += `
+                        <a href="/storage/${filePath}" target="_blank" 
+                           class="group flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-200">
+                            <div class="flex-shrink-0 mr-3">
+                                ${getFileIcon(fileType)}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                    ${fileName}
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    ${fileType.toUpperCase()}${fileSize ? ` • ${fileSize}` : ''}
+                                </p>
+                            </div>
+                            <div class="flex-shrink-0 ml-2">
+                                <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </div>
+                        </a>
+                    `;
+                        });
+
+                        attachmentsHtml += `
+                        </div>
+                    </div>
+                `;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing attachments:', e);
+                    attachmentsHtml = '';
+                }
+
+                const item = `
+            <div class="border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm">
+                <div class="accordion-header bg-gray-50 dark:bg-gray-700 p-4 cursor-pointer flex justify-between items-center hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
+                     onclick="toggleAccordion(${index})">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                           
+                            <div>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Addendum #${addendum.nomor_addendum || (index + 1)}</span>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">${formatDate(addendum.tanggal_addendum)}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 px-2 py-1 rounded-full font-medium">
+                                +Rp ${numberFormat(addendum.nilai_proyek_addendum || 0)}
+                            </span>
+                            ${getAttachmentBadge(addendum)}
+                        </div>
+                    </div>
+                    <svg class="accordion-icon w-5 h-5 text-gray-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+
+                <div class="accordion-content hidden border-t border-gray-200 dark:border-gray-600">
+                    <div class="p-4 bg-white dark:bg-gray-800">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Nomor Addendum</label>
+                                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${addendum.nomor_addendum || '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tanggal</label>
+                                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${formatDate(addendum.tanggal_addendum)}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Nilai Tambahan</label>
+                                <p class="mt-1 text-sm font-semibold text-green-600 dark:text-green-400">Rp ${numberFormat(addendum.nilai_proyek_addendum || 0)}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">HPP Tambahan</label>
+                                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${addendum.estimasi_hpp_addendum ? addendum.estimasi_hpp_addendum + '%' : '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Termin Tambahan</label>
+                                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${addendum.tambahan_termin_addendum || '-'}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Durasi Tambahan</label>
+                                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${addendum.durasi_addendum ? addendum.durasi_addendum + ' bulan' : '-'}</p>
+                            </div>
+                        </div>
+
+                        ${addendum.deskripsi_perubahan ? `
+                                                                    <div class="mb-4">
+                                                                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
+                                                                        <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                                                            ${addendum.deskripsi_perubahan}
+                                                                        </div>
+                                                                    </div>
+                                                                ` : ''}
+
+                        ${attachmentsHtml}
+
+                        <div class="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-600">
+                          
+                            <button type="button" onclick="deleteAddendum(${addendum.id_addendum})" 
+                                    class="inline-flex items-center px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs rounded-md font-medium transition-colors duration-200">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+                container.insertAdjacentHTML('beforeend', item);
+            });
+        }
+
+
+
+        
+        // Helper functions untuk attachment handling
+        function getFileName(attachment) {
+            if (typeof attachment === 'string') {
+                return attachment.split('/').pop() || attachment;
+            }
+            return attachment.original_name || attachment.name || attachment.file_name || attachment.filename || 'File';
+        }
+
+        function getFilePath(attachment) {
+            if (typeof attachment === 'string') {
+                // Jika sudah full path, gunakan langsung
+                if (attachment.includes('uploads/proyek/')) {
+                    return attachment;
+                }
+                // Jika hanya nama file, tambahkan path lengkap
+                return `uploads/proyek/pr_${currentProyekId}/addendum/${attachment}`;
+            }
+
+            let path = attachment.file_path || attachment.path || attachment.url || '';
+
+            // Jika path tidak lengkap, tambahkan prefix
+            if (path && !path.includes('uploads/proyek/')) {
+                path = `uploads/proyek/pr_${currentProyekId}/addendum/${path}`;
+            }
+
+            return path;
+        }
+
+        function getFileSize(attachment) {
+            if (typeof attachment === 'object' && attachment.size) {
+                const bytes = parseInt(attachment.size);
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1048576) return Math.round(bytes / 1024) + ' KB';
+                return Math.round(bytes / 1048576) + ' MB';
+            }
+            return '';
+        }
+
+        function getFileType(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            const types = {
+                pdf: 'pdf',
+                doc: 'doc',
+                docx: 'doc',
+                xls: 'excel',
+                xlsx: 'excel',
+                ppt: 'ppt',
+                pptx: 'ppt',
+                jpg: 'image',
+                jpeg: 'image',
+                png: 'image',
+                gif: 'image',
+                txt: 'text',
+                zip: 'archive',
+                rar: 'archive'
+            };
+            return types[ext] || 'file';
+        }
+
+        function getFileIcon(fileType) {
+            const icons = {
+                pdf: `<div class="w-8 h-8 bg-red-100 dark:bg-red-800 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-red-600 dark:text-red-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 18h12V6l-4-4H4v16zm8-14l2 2h-2V4z"/>
+                </svg>
+              </div>`,
+                doc: `<div class="w-8 h-8 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-600 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 18h12V6l-4-4H4v16zm8-14l2 2h-2V4z"/>
+                </svg>
+              </div>`,
+                excel: `<div class="w-8 h-8 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-green-600 dark:text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M4 18h12V6l-4-4H4v16zm8-14l2 2h-2V4z"/>
+                  </svg>
+                </div>`,
+                image: `<div class="w-8 h-8 bg-purple-100 dark:bg-purple-800 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>`,
+                archive: `<div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-800 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                  </div>`,
+                default: `<div class="w-8 h-8 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>`
+            };
+            return icons[fileType] || icons.default;
+        }
+
+        function getAttachmentBadge(addendum) {
+            let totalAttachments = 0;
+
+            try {
+                // Count attachments
+                if (addendum.attachments) {
+                    if (Array.isArray(addendum.attachments)) {
+                        totalAttachments += addendum.attachments.length;
+                    } else if (typeof addendum.attachments === 'string') {
+                        const parsed = JSON.parse(addendum.attachments);
+                        totalAttachments += Array.isArray(parsed) ? parsed.length : 1;
+                    }
+                }
+
+                // Count attachment_file
+                if (addendum.attachment_file) {
+                    if (Array.isArray(addendum.attachment_file)) {
+                        totalAttachments += addendum.attachment_file.length;
+                    } else if (typeof addendum.attachment_file === 'string') {
+                        try {
+                            const parsed = JSON.parse(addendum.attachment_file);
+                            totalAttachments += Array.isArray(parsed) ? parsed.length : 1;
+                        } catch {
+                            totalAttachments += 1;
+                        }
+                    } else {
+                        totalAttachments += 1;
+                    }
+                }
+            } catch (e) {
+                console.warn('Error counting attachments:', e);
+            }
+
+            if (totalAttachments > 0) {
+                return `
+            <span class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 px-2 py-1 rounded-full font-medium flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a2 2 0 00-2.828-2.828z" />
+                </svg>
+                ${totalAttachments} file${totalAttachments > 1 ? 's' : ''}
+            </span>
+        `;
+            }
+            return '';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            } catch {
+                return dateString;
+            }
+        }
+
+
+        function toggleAccordion(index) {
+            let accordionItems = document.querySelectorAll('.accordion-content');
+            let accordionIcons = document.querySelectorAll('.accordion-icon');
+
+            accordionItems.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.toggle('hidden');
+                    accordionIcons[i].classList.toggle('rotate-180');
+                } else {
+                    item.classList.add('hidden');
+                    accordionIcons[i].classList.remove('rotate-180');
+                }
+            });
+        }
+
+        function showAddendumForm() {
+            document.getElementById('formAddendum').classList.remove('hidden');
+            document.getElementById('tanggal_addendum').value = new Date().toISOString().split('T')[0];
+        }
+
+        function cancelAddendumForm() {
+            document.getElementById('formAddendum').classList.add('hidden');
+            document.getElementById('addendumForm').reset();
+
+            let existingAddendums = document.getElementById('existingAddendums');
+            if (existingAddendums.children.length > 0) {
+                document.getElementById('btnTambahAddendum').classList.remove('hidden');
+            }
+        }
+
+        function editAddendum(addendumId) {
+            // arahkan ke halaman edit (pastikan route ada)
+            // contoh route: GET /projects/{idProyek}/addendums/{idAddendum}/edit
+            if (!currentProyekId) return;
+            window.location.href = `/projects/${currentProyekId}/addendums/${addendumId}/edit`;
+        }
+
+        function deleteAddendum(addendumId) {
+            if (!currentProyekId) return;
+
+            Swal.fire({
+                title: 'Hapus Addendum?',
+                text: "Addendum ini akan dihapus secara permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        html: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    fetch(`/projects/${currentProyekId}/addendums/${addendumId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content'),
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success || data.status === 'success') {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Addendum telah dihapus.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                // Force refresh accordion dengan delay singkat untuk memastikan DOM siap
+                                setTimeout(() => {
+                                    refreshAddendumAccordion();
+                                }, 100);
+
+                            } else {
+                                Swal.fire('Error!', data.message || 'Gagal menghapus addendum.', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Delete error:', err);
+                            Swal.fire('Error!', 'Terjadi kesalahan saat menghapus addendum.', 'error');
+                        });
+                }
+            });
+        }
+
+        function refreshAddendumAccordion() {
+            if (!currentProyekId) return;
+
+            // Clear existing content first
+            const container = document.getElementById('existingAddendums');
+            const loadingDiv = document.getElementById('loadingAddendum');
+            const contentDiv = document.getElementById('addendumContent');
+            const btnTambah = document.getElementById('btnTambahAddendum');
+
+            // Reset state
+            container.innerHTML = '';
+            loadingDiv.classList.remove('hidden');
+            contentDiv.classList.add('hidden');
+            btnTambah.classList.add('hidden');
+
+            // Load fresh data
+            fetch(`/projects/${currentProyekId}/addendums`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Normalize data structure
+                    const addendums = Array.isArray(data) ? data : (data.addendums || data.data || []);
+
+                    // Hide loading, show content
+                    loadingDiv.classList.add('hidden');
+                    contentDiv.classList.remove('hidden');
+
+                    if (addendums.length > 0) {
+                        // Render accordion dengan data terbaru
+                        renderAddendumAccordion(addendums);
+                        btnTambah.classList.remove('hidden');
+                    } else {
+                        // Jika tidak ada addendum, show form
+                        btnTambah.classList.add('hidden');
+                        showAddendumForm();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error refreshing addendum data:', err);
+
+                    // Hide loading, show content even on error
+                    loadingDiv.classList.add('hidden');
+                    contentDiv.classList.remove('hidden');
+
+                    // Show form as fallback
+                    btnTambah.classList.add('hidden');
+                    showAddendumForm();
+
+                    // Optional: show error notification
+                    Swal.fire('Warning!', 'Data addendum tidak dapat dimuat ulang. Refresh halaman jika diperlukan.',
+                        'warning');
+                });
+        }
+
+
+        function numberFormat(number) {
+            return new Intl.NumberFormat('id-ID').format(Number(number || 0));
+        }
+
+        // single DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // tombol tambah
+            document.getElementById('btnTambahAddendum').addEventListener('click', function() {
+                this.classList.add('hidden');
+                showAddendumForm();
+            });
+
+            // buat hidden inputs untuk dikirim ke server
+            const form = document.getElementById('addendumForm');
+
+            const hiddenNilai = document.createElement('input');
+            hiddenNilai.type = 'hidden';
+            hiddenNilai.name = 'nilai_proyek_addendum';
+            form.appendChild(hiddenNilai);
+
+            const hiddenHpp = document.createElement('input');
+            hiddenHpp.type = 'hidden';
+            hiddenHpp.name = 'estimasi_hpp_addendum';
+            form.appendChild(hiddenHpp);
+
+            // tampilan inputs
+            const nilaiInput = document.getElementById('nilai_proyek_addendum');
+            const hppInput = document.getElementById('estimasi_hpp_addendum');
+
+            function formatRupiahRaw(raw) {
+                if (!raw) return '';
+                return 'Rp ' + new Intl.NumberFormat('id-ID').format(Number(raw));
+            }
+
+            nilaiInput.addEventListener('input', function() {
+                const raw = this.value.replace(/[^0-9]/g, '');
+                hiddenNilai.value = raw;
+                this.value = raw ? formatRupiahRaw(raw) : '';
+            });
+
+            hppInput.addEventListener('input', function() {
+                const raw = this.value.replace(/[^0-9]/g, '');
+                hiddenHpp.value = raw;
+                this.value = raw ? raw + '%' : '';
+            });
+
+            // submit form via fetch
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                if (!currentProyekId) {
+                    Swal.fire('Error!', 'ID Proyek tidak ditemukan. Coba buka ulang modal.', 'error');
+                    return;
+                }
+
+                const action = this.action || `/projects/${currentProyekId}/addendums`;
+                const fd = new FormData(this);
+
+                fd.set('nilai_proyek_addendum', hiddenNilai.value || 0);
+                fd.set('estimasi_hpp_addendum', hiddenHpp.value || 0);
+
+                fetch(action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: fd
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success || data.status === 'success' || data.message?.includes(
+                                'berhasil')) {
+                            Swal.fire('Berhasil!', 'Addendum telah ditambahkan.', 'success');
+                            form.reset();
+                            cancelAddendumForm();
+                            loadAddendumData(currentProyekId);
+                        } else {
+                            Swal.fire('Error!', data.message || 'Gagal menambahkan addendum.', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Error!', 'Terjadi kesalahan saat menyimpan addendum.', 'error');
+                    });
+            });
+            // === Tambahan: handle field termin dinamis ===
+            const terminInput = document.getElementById('tambahan_termin_addendum');
+            const terminContainer = document.getElementById('terminContainer');
+            terminInput.addEventListener('input', function() {
+                const jumlahTermin = parseInt(this.value) || 0;
+                terminContainer.innerHTML = ''; // reset dulu
+
+                for (let i = 1; i <= jumlahTermin; i++) {
+                    const group = document.createElement('div');
+                    group.className = "p-4 border border-gray-200 dark:border-gray-600 rounded-lg";
+
+                    group.innerHTML = `
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Termin ${i}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Tanggal Jatuh Tempo</label>
+                    <input type="date" name="termins[${i}][tanggal_jatuh_tempo]" 
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Jumlah</label>
+                    <input type="text" 
+                           name="termins[${i}][jumlah_display]" 
+                           data-real-input="termin-${i}" 
+                           placeholder="Rp." 
+                           class="jumlahInput mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
+                    <input type="hidden" name="termins[${i}][jumlah]" id="termin-${i}">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Keterangan</label>
+                    <input type="text" name="termins[${i}][keterangan]" 
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
+                </div>
+            </div>
+        `;
+                    terminContainer.appendChild(group);
+                }
+
+                // tambahin event listener buat format rupiah
+                document.querySelectorAll('.jumlahInput').forEach(input => {
+                    input.addEventListener('input', function(e) {
+                        let raw = this.value.replace(/[^0-9]/g, ''); // ambil angka aja
+                        let formatted = new Intl.NumberFormat('id-ID').format(raw);
+                        this.value = raw ? `Rp. ${formatted}` : '';
+
+                        // simpan angka asli ke hidden input
+                        let targetHidden = document.getElementById(this.dataset.realInput);
+                        if (targetHidden) targetHidden.value = raw;
+                    });
+                });
+            });
+
+
+        });
+    </script>
 
     {{-- CDN Datatables Standar --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css">
@@ -210,9 +1129,6 @@
                     [10, 25, 50, -1],
                     [10, 25, 50, "Semua"]
                 ],
-                // "language": {
-                //     "url": "{{ asset('js/id.json') }}"
-                // }
             });
 
             // Logika SweetAlert

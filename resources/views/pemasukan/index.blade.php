@@ -46,7 +46,11 @@
                                 <th class="px-3 py-2 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">
                                     Nilai Proyek</th>
                                 <th class="px-3 py-2 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                                    Nilai Proyek Addendum</th>
+                                <th class="px-3 py-2 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">
                                     Total Termin</th>
+                                <th class="px-3 py-2 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                                    Termin Addendum</th>
                                 <th class="px-3 py-2 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">
                                     Total Dibayar</th>
                                 <th class="px-3 py-2 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">
@@ -62,14 +66,18 @@
                                         {{ $index + 1 }}</td>
                                     <td class="px-3 py-2 text-gray-900 dark:text-gray-100 font-medium">
                                         {{ $item->nama_proyek }}</td>
-                                    <td class="px-3 py-2 text-right text-gray-900 dark:text-gray-100 font-semibold">Rp
-                                        {{ number_format($item->nilai_proyek, 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 text-right text-gray-900 dark:text-gray-100 font-semibold">
+                                        Rp {{ number_format($item->nilai_proyek, 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 text-right text-indigo-600 dark:text-indigo-400 font-semibold">
+                                        Rp {{ number_format($item->nilai_proyek_addendum, 0, ',', '.') }}</td>
                                     <td class="px-3 py-2 text-right text-gray-900 dark:text-gray-100">
                                         {{ number_format($item->termin, 0, ',', '.') }}</td>
-                                    <td class="px-3 py-2 text-right text-green-600 dark:text-green-400 font-semibold">Rp
-                                        {{ number_format($item->total_dibayar, 0, ',', '.') }}</td>
-                                    <td class="px-3 py-2 text-right text-red-600 dark:text-red-400 font-semibold">Rp
-                                        {{ number_format($item->sisa_bayar, 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 text-right text-indigo-600 dark:text-indigo-400">
+                                        {{ number_format($item->termin_addendum, 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 text-right text-green-600 dark:text-green-400 font-semibold">
+                                        Rp {{ number_format($item->total_dibayar, 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 text-right text-red-600 dark:text-red-400 font-semibold">
+                                        Rp {{ number_format($item->sisa_bayar, 0, ',', '.') }}</td>
                                     <td class="px-3 py-2 text-center">
                                         <a href="{{ route('pemasukan.show', $item->id_proyek) }}"
                                             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs shadow">
@@ -79,9 +87,11 @@
                                 </tr>
                             @endforeach
                         </tbody>
+                    </table>
 
         @endif
     </div>
     </div>
     </div>
+
 @endsection

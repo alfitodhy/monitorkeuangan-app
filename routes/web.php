@@ -12,6 +12,8 @@ use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PemasukanProyekController;
 use App\Http\Controllers\PengeluaranProyekController;
+use App\Http\Controllers\AddendumController;
+
 
 
 // Login routes (di luar auth)
@@ -47,6 +49,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/projects/{id}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+
+    Route::post('projects/{id_proyek}/addendum/store', [ProjectController::class, 'addendumStore'])
+        ->name('projects.addendum.store');
+
+
+
+    Route::get('projects/{idProyek}/addendums', [AddendumController::class, 'index']);
+    Route::post('projects/{idProyek}/addendums', [AddendumController::class, 'store']);
+    Route::delete('/projects/{project}/addendums/{addendum}', [AddendumController::class, 'destroy'])
+        ->name('addendums.destroy');
+
+
 
 
     //vendor 

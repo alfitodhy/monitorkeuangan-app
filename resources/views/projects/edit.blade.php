@@ -46,7 +46,7 @@
                         <label for="kode_proyek"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Kode Proyek</label>
                         <input type="text" id="kode_proyek" name="kode_proyek"
-                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-gray-100 dark:bg-gray-600"
+                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
                             value="{{ old('kode_proyek', $project->kode_proyek) }}" required readonly>
                     </div>
 
@@ -137,7 +137,7 @@
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Nominal
                                     HPP</label>
                                 <input type="text" id="nominal_hpp" name="nominal_hpp"
-                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
                                     readonly placeholder="Nominal HPP anda">
                             </div>
 
@@ -146,7 +146,7 @@
                                 <label for="profit"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Profit</label>
                                 <input type="text" id="profit" name="profit"
-                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
                                     readonly placeholder="Profit anda">
                             </div>
                         </div>
@@ -304,13 +304,23 @@
 
                 <div class="mt-6 flex justify-end gap-4">
                     <a href="{{ route('projects.index') }}"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-gray-500 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
+          bg-gray-100 text-gray-700 hover:bg-gray-200 
+          dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 
+          transition duration-200">
                         Kembali
                     </a>
+
                     <button type="submit"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
+          bg-indigo-600 text-white hover:bg-indigo-700 
+          dark:bg-indigo-500 dark:hover:bg-indigo-600 
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
+          transition duration-200">
                         Simpan Perubahan
                     </button>
+
                 </div>
             </form>
         </div>
@@ -414,16 +424,26 @@
                                 <!-- Grid atas -->
                                 <div class="grid grid-cols-6 gap-4 items-start">
                                     <!-- Termin Ke -->
-                                    <div class="col-span-1">
-                                        <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5 whitespace-nowrap">
-                                            Termin Ke
-                                        </label>
-                                        <input type="number" name="termins[${i}][termin_ke]" value="${i}"
-                                            class="w-16 border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
-                                                   bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white text-center"
-                                            readonly>
-                                    <input type="hidden" name="termins[${i}][id_termin]" value="${existingTermin ? existingTermin.id_termin : ''}">
-                                            </div>
+                                   <div class="col-span-1">
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 whitespace-nowrap">
+        Termin Ke
+    </label>
+    <input 
+        type="number" 
+        name="termins[${i}][termin_ke]" 
+        value="${i}" 
+        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
+                                                       focus:ring-indigo-500 focus:border-indigo-500 
+                                                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+        readonly
+    >
+    <input 
+        type="hidden" 
+        name="termins[${i}][id_termin]" 
+        value="${existingTermin ? existingTermin.id_termin : ''}"
+    >
+</div>
+
 
                                     <!-- Jatuh Tempo & Jumlah (kasih jarak dari Termin Ke) -->
                                     <div class="col-span-5 flex gap-4 ml-2">

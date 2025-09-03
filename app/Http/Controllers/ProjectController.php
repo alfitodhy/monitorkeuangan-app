@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Proyek;
 use App\Models\TerminProyek;
+use App\Models\AddendumProyek;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
@@ -16,8 +17,8 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $data = Proyek::where('is_active', 'Y')->latest()->get();
-        return view('projects.index', compact('data'));
+        $proyek = Proyek::where('is_active', 'Y')->latest()->get();
+        return view('projects.index', compact('proyek'));
     }
 
 
@@ -54,12 +55,12 @@ class ProjectController extends Controller
             'nama_proyek' => 'required|string|unique:tb_proyek,nama_proyek',
             'nama_klien' => 'required|string',
             'nilai_proyek' => 'required|numeric',
-            'estimasi_hpp' => 'nullable|numeric|min:0|max:100',
+            'estimasi_hpp' => 'required|numeric|min:0|max:100',
             'termin' => 'nullable|integer|min:1',
             'tipe_proyek' => 'required|string',
             'tipe_lainnya' => 'nullable|string',
             'tanggal_start_proyek' => 'nullable|date',
-            'tanggal_deadline' => 'nullable|date|after_or_equal:tanggal_start_proyek', // tidak boleh lebih kecil
+            'tanggal_deadline' => 'nullable|date|after_or_equal:tanggal_start_proyek', 
             'durasi_pengerjaan_bulan' => 'nullable|integer',
             'keterangan' => 'nullable|string',
             'attachment_file.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,png|max:5120',
@@ -137,7 +138,7 @@ class ProjectController extends Controller
                     'termin_ke' => $termin['termin_ke'],
                     'tanggal_jatuh_tempo' => $termin['tanggal_jatuh_tempo'],
                     'jumlah' => (int) $termin['jumlah'],
-                    'keterangan' => $termin['keterangan'] ?? null,
+                    'keterangan' => $termin['keterangan'] ?? '',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

@@ -14,7 +14,10 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.tailwindcss.css">
-    <!-- jQuery dulu -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+
+
     <!-- jQuery (untuk Select2) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -68,7 +71,7 @@
 
 
                     {{-- Master Data (Dropdown) --}}
-                    @if ($role === 'super admin' || $role === 'admin keuangan' || $role === 'bod')
+                    @if ($role === 'super admin' || $role === 'admin keuangan' || $role === 'bod' || $role === 'kepala operational')
                         {{-- Menu Master Data --}}
                         <li x-data="{ open: {{ request()->routeIs('projects.*') || request()->routeIs('vendors.*') ? 'true' : 'false' }} }" class="relative">
                             <button @click="open = !open"
@@ -93,15 +96,18 @@
 
                             {{-- Dropdown (nested list) --}}
                             <ul x-show="open" x-transition class="ml-8 mt-1 space-y-1">
-                                <li>
-                                    <a href="{{ route('projects.index') }}"
-                                        class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
-                    {{ request()->routeIs('projects.*')
-                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold'
-                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                        Management Proyek
-                                    </a>
-                                </li>
+                                @if ($role !== 'kepala operational')
+                                    <li>
+                                        <a href="{{ route('projects.index') }}"
+                                            class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
+                        {{ request()->routeIs('projects.*')
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold'
+                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                            Management Proyek
+                                        </a>
+                                    </li>
+                                @endif
+
                                 <li>
                                     <a href="{{ route('vendors.index') }}"
                                         class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
