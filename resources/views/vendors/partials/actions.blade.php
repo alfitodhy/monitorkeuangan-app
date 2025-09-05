@@ -1,4 +1,4 @@
-<a href="{{ route('vendors.show', $item->id_vendor) }}"
+<a href="{{ route('vendors.show', $vendor->id_vendor) }}"
    title="Lihat Detail"
    class="inline-flex items-center justify-center w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded shadow">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -9,7 +9,7 @@
     </svg>
 </a>
 
-<a href="{{ route('vendors.edit', $item->id_vendor) }}"
+<a href="{{ route('vendors.edit', $vendor->id_vendor) }}"
    title="Edit Vendor"
    class="inline-flex items-center justify-center w-7 h-7 bg-yellow-500 hover:bg-yellow-600 text-white rounded shadow">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -18,7 +18,7 @@
     </svg>
 </a>
 
-<form action="{{ route('vendors.destroy', $item->id_vendor) }}" method="POST" class="inline-block delete-form">
+<form action="{{ route('vendors.destroy', $vendor->id_vendor) }}" method="POST" class="inline-block delete-form">
     @csrf
     @method('DELETE')
     <button type="button"

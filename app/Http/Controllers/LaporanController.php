@@ -14,7 +14,7 @@ class LaporanController extends Controller
 
 
 
-    public function index(Request $request)
+    public function indexlama(Request $request)
     {
         $proyekList = Proyek::all(); // untuk dropdown
         $laporan = null;
@@ -144,7 +144,175 @@ class LaporanController extends Controller
 
 
 
+
+    public function index(Request $request)
+    {
+        $proyekList = Proyek::all(); // untuk dropdown
+        $laporan = null;
+        $detailTransaksi = collect();
+
+        if ($request->id_proyek) {
+            $proyek = Proyek::find($request->id_proyek);
+
+            if ($proyek) {
+                // Ambil total addendum dari tb_addendum_proyek
+                $totalAddendum = \DB::table('tb_addendum_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->selectRaw('COALESCE(SUM(nilai_proyek_addendum), 0) as nilai_addendum,
+                             COALESCE(SUM(estimasi_hpp_addendum), 0) as estimasi_hpp_addendum')
+                    ->first();
+
+                $nilaiProyek = $proyek->nilai_proyek;
+                $adendum = $totalAddendum->nilai_addendum; // total nilai addendum
+
+                // Estimasi HPP proyek + addendum
+                $estimasiPersen = $proyek->estimasi_hpp ?? 0;
+                $estimasiHpp = ($nilaiProyek * $estimasiPersen / 100)
+                    + ($totalAddendum->estimasi_hpp_addendum ?? 0);
+
+                // Total nilai proyek termasuk addendum
+                $totalNilaiProyek = $nilaiProyek + $adendum;
+
+                // Estimasi profit = total nilai proyek - estimasi HPP
+                $estimasiProfit = $totalNilaiProyek - $estimasiHpp;
+
+                // total pemasukan dari client
+                $totalPembayaranClient = \DB::table('tb_pemasukan_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->sum('jumlah');
+
+                // total pengeluaran aktual
+                $totalPengeluaran = \DB::table('tb_pengeluaran_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->sum('jumlah');
+
+                // real profit = total nilai proyek - pengeluaran aktual
+                $realProfit = $totalNilaiProyek - $totalPengeluaran;
+
+                // persentase margin
+                $marginHpp = $estimasiHpp > 0 ? round(($estimasiProfit / $estimasiHpp) * 100, 2) : 0;
+                $marginNilai = $totalNilaiProyek > 0 ? round(($estimasiProfit / $totalNilaiProyek) * 100, 2) : 0;
+
+                $detailTransaksi = \DB::table('tb_pemasukan_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->select(
+                        'tanggal_pemasukan as tanggal',
+                        'jumlah',
+                        'keterangan',
+                        \DB::raw("'pemasukan' as tipe")
+                    )
+                    ->unionAll(
+                        \DB::table('tb_pengeluaran_proyek')
+                            ->where('id_proyek', $proyek->id_proyek)
+                            ->select(
+                                'tanggal_pengeluaran as tanggal',
+                                'jumlah',
+                                'keterangan',
+                                \DB::raw("'pengeluaran' as tipe")
+                            )
+                    )
+                    ->orderBy('tanggal')
+                    ->get();
+
+
+
+
+
+
+                $laporan = [
+                    'nama_proyek' => $proyek->nama_proyek,
+                    'nilai_proyek' => $nilaiProyek,
+                    'adendum' => $adendum,
+                    'total_nilai_proyek' => $totalNilaiProyek,
+                    'estimasi_hpp' => $estimasiHpp,
+                    'estimasi_profit' => $estimasiProfit,
+                    'margin_hpp' => $marginHpp,
+                    'margin_nilai' => $marginNilai,
+                    'real_hpp' => $totalPengeluaran,
+                    'real_profit' => $realProfit,
+                    'total_pembayaran_client' => $totalPembayaranClient,
+                    'sisa_kewajiban_client' => $totalNilaiProyek - $totalPembayaranClient,
+                    'sisa_kas' => $totalPembayaranClient - $totalPengeluaran,
+                ];
+            }
+        }
+
+        return view('laporan.index', compact('proyekList', 'laporan', 'detailTransaksi'));
+    }
+
+
+
+
     public function keuangan(Request $request)
+    {
+        // Ambil input dari user
+        $tgl_mulai = $request->input('tgl_mulai') ? Carbon::parse($request->input('tgl_mulai'))->startOfDay() : now()->startOfMonth();
+        $tgl_akhir = $request->input('tgl_akhir') ? Carbon::parse($request->input('tgl_akhir'))->endOfDay() : now()->endOfMonth();
+        $periode = $request->input('periode', 'minggu'); // minggu / bulan
+        $jenis = $request->input('jenis', 'semua');
+
+        // Ambil data transaksi
+        $pemasukan = PemasukanProyek::whereBetween('tanggal_pemasukan', [$tgl_mulai, $tgl_akhir])
+            ->get()
+            ->map(function ($item) {
+                return (object)[
+                    'tanggal' => $item->tanggal_pemasukan,
+                    'jumlah' => $item->jumlah,
+                    'deskripsi' => $item->keterangan,
+                    'nama_proyek' => $item->nama_proyek ?? ($item->proyek->nama_proyek ?? '-'),
+                    'tipe' => 'pemasukan',
+                ];
+            });
+
+        $pengeluaran = PengeluaranProyek::whereBetween('tanggal_pengeluaran', [$tgl_mulai, $tgl_akhir])
+            ->get()
+            ->map(function ($item) {
+                return (object)[
+                    'tanggal' => $item->tanggal_pengeluaran,
+                    'jumlah' => $item->jumlah,
+                    'deskripsi' => $item->keterangan,
+                    'nama_proyek' => $item->nama_proyek ?? ($item->proyek->nama_proyek ?? '-'),
+                    'tipe' => 'pengeluaran',
+                ];
+            });
+
+        $transaksi = $pemasukan->merge($pengeluaran);
+
+        // Filter jenis transaksi
+        if ($jenis !== 'semua') {
+            $transaksi = $transaksi->where('tipe', $jenis);
+        }
+
+        // Grouping berdasarkan periode
+        $grouped = $transaksi->groupBy(function ($item) use ($periode) {
+            $itemDate = Carbon::parse($item->tanggal);
+
+            if ($periode === 'bulan') {
+                // format: 2025-08
+                return $itemDate->format('Y-m');
+            } elseif ($periode === 'minggu') {
+                // format: 2025-08-W2
+                return $itemDate->format('Y-m') . '-W' . $itemDate->weekOfMonth;
+            } else {
+                // default: per hari
+                return $itemDate->format('Y-m-d');
+            }
+        });
+
+        $grouped = $grouped->sortKeys();
+
+        return view('laporan.keuangan', compact(
+            'tgl_mulai',
+            'tgl_akhir',
+            'periode',
+            'jenis',
+            'grouped'
+        ));
+    }
+
+
+
+    public function keuangan2(Request $request)
     {
         $tahun = $request->input('tahun', date('Y'));
         $periode = $request->input('periode', 'bulan'); // bulan/minggu/hari

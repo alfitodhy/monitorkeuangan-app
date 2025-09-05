@@ -17,18 +17,73 @@ class VendorController extends Controller
     }
 
 
-    public function datatable()
+    public function datatable(Request $request)
     {
-        $query = Vendor::query();
+        try {
+            $start = $request->get('start', 0);
+            $length = $request->get('length', 10);
+            $search = $request->get('search')['value'] ?? '';
 
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('aksi', function ($item) {
-                return view('vendors.partials.actions', compact('item'))->render();
-            })
-            ->rawColumns(['aksi'])
-            ->toJson();
+            $query = Vendor::query();
+
+            // Search
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_vendor', 'like', "%{$search}%")
+                        ->orWhere('kode_vendor', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            // Sorting
+            $columns = ['kode_vendor', 'nama_vendor', 'alamat', 'no_telp', 'email']; // hanya kolom database
+
+            if ($request->has('order')) {
+                foreach ($request->get('order') as $order) {
+                    $columnIdx = intval($order['column']) - 1; // kurangi 1 karena DT_RowIndex
+                    $dir = $order['dir'] === 'desc' ? 'desc' : 'asc';
+                    if ($columnIdx >= 0 && isset($columns[$columnIdx])) {
+                        $query->orderBy($columns[$columnIdx], $dir);
+                    }
+                }
+            } else {
+                $query->orderBy('nama_vendor', 'asc'); // default
+            }
+
+
+            $totalRecords = Vendor::count();
+            $filteredRecords = $query->count();
+
+            $vendors = $query->offset($start)
+                ->limit($length)
+                ->get();
+
+            $data = [];
+            foreach ($vendors as $index => $vendor) {
+                $data[] = [
+                    'DT_RowIndex' => $start + $index + 1,
+                    'kode_vendor' => $vendor->kode_vendor,
+                    'nama_vendor' => $vendor->nama_vendor,
+                    'alamat' => $vendor->alamat,
+                    'no_telp' => $vendor->no_telp,
+                    'email' => $vendor->email,
+                    'aksi' => view('vendors.partials.actions', compact('vendor'))->render()
+                ];
+            }
+
+            return response()->json([
+                'draw' => intval($request->get('draw')),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data' => $data
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
 
     public function getByJenis($jenis)
@@ -62,7 +117,6 @@ class VendorController extends Controller
             'nama_bank' => array_unique($nama_bank) // Pastikan unik
 
         ]);
-
     }
 
     /**
