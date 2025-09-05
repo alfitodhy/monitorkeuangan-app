@@ -100,12 +100,14 @@
                                         {{ \Carbon\Carbon::parse($termin->tanggal_lunas)->format('d M Y') }}
                                     </li>
                                 @endif
-                                @if ($termin->keterangan)
+                                @if (!empty($termin->keterangan) && strtolower($termin->keterangan) !== 'null')
                                     <li>
                                         <span class="font-semibold text-gray-800 dark:text-gray-200">Keterangan:</span>
                                         {{ $termin->keterangan }}
                                     </li>
                                 @endif
+
+
                             </ul>
                         </div>
                     @endforeach
@@ -113,7 +115,7 @@
             </div>
         @endif
 
-    
+
 
         {{-- Lampiran --}}
         <div class="mt-8">

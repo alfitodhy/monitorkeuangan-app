@@ -139,16 +139,23 @@
 
                                             {{-- Tombol Addendum --}}
                                             @if ($item->status_proyek === 'progress')
-                                                <button type="button"
-                                                    onclick="openAddendumModal({{ $item->id_proyek }}, '{{ $item->nama_proyek }}')"
-                                                    title="Tambah Addendum"
-                                                    class="inline-flex items-center justify-center w-7 h-7 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg shadow">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M12 4v16m8-8H4" />
-                                                    </svg>
-                                                </button>
+                                               <button type="button"
+    onclick="openAddendumModal({{ $item->id_proyek }}, '{{ $item->nama_proyek }}')"
+    title="Tambah Addendum"
+    class="inline-flex items-center justify-center w-7 h-7 
+           bg-orange-500 hover:bg-orange-600 text-white 
+           rounded-lg shadow transition duration-200 ease-in-out">
+    <!-- Ikon Dokumen + Plus -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <!-- Dokumen -->
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M7 2h8l5 5v13a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+        <!-- Tanda Plus -->
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 11v6m-3-3h6" />
+    </svg>
+</button>
                                             @endif
 
 

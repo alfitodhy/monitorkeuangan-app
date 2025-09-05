@@ -64,8 +64,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     //vendor 
+    Route::get('vendors/datatable', [VendorController::class, 'datatable'])->name('vendors.datatable');
     Route::resource('vendors', VendorController::class);
-
 
 
     // Monitoring pemasukan

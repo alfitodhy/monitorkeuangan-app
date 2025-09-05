@@ -60,7 +60,7 @@ class ProjectController extends Controller
             'tipe_proyek' => 'required|string',
             'tipe_lainnya' => 'nullable|string',
             'tanggal_start_proyek' => 'nullable|date',
-            'tanggal_deadline' => 'nullable|date|after_or_equal:tanggal_start_proyek', 
+            'tanggal_deadline' => 'nullable|date|after_or_equal:tanggal_start_proyek',
             'durasi_pengerjaan_bulan' => 'nullable|integer',
             'keterangan' => 'nullable|string',
             'attachment_file.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,png|max:5120',
@@ -232,7 +232,7 @@ class ProjectController extends Controller
             'tanggal_start_proyek' => $validated['tanggal_start_proyek'] ?? null,
             'tanggal_deadline' => $validated['tanggal_deadline'] ?? null,
             'durasi_pengerjaan_bulan' => $validated['durasi_pengerjaan_bulan'] ?? null,
-            'keterangan' => $validated['keterangan'] ?? null,
+            'keterangan' => $validated['keterangan'] ?? '',
         ]);
 
         // 🔹 Handle Attachment (tetap sama seperti punyamu)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class VendorController extends Controller
 {
@@ -12,9 +13,23 @@ class VendorController extends Controller
      */
     public function index()
     {
-        $vendors = Vendor::all();
-        return view('vendors.index', compact('vendors'));
+        return view('vendors.index');
     }
+
+
+    public function datatable()
+    {
+        $query = Vendor::query();
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('aksi', function ($item) {
+                return view('vendors.partials.actions', compact('item'))->render();
+            })
+            ->rawColumns(['aksi'])
+            ->toJson();
+    }
+
 
     public function getByJenis($jenis)
     {

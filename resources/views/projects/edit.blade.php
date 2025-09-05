@@ -472,12 +472,16 @@
                                 <!-- Keterangan (full width di bawah) -->
                                 <div class="mt-3">
                                     <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5">Keterangan</label>
-                                    <input type="text" name="termins[${i}][keterangan]" value="${existingKeterangan}"
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
-                                               focus:ring-indigo-500 focus:border-indigo-500 
-                                               bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
-                                               placeholder-gray-400 dark:placeholder-gray-500"
-                                        placeholder="Opsional">
+                                   <input 
+    type="text" 
+    name="termins[${i}][keterangan]" 
+    value="${existingKeterangan && existingKeterangan.toLowerCase() !== 'null' ? existingKeterangan : ''}"
+    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
+           focus:ring-indigo-500 focus:border-indigo-500 
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
+           placeholder-gray-400 dark:placeholder-gray-500"
+    placeholder="Opsional">
+
                                 </div>
                             </div>
                         `;
