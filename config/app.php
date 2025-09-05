@@ -124,35 +124,4 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-
-    'providers' => [
-        /*
-     * Laravel Framework Service Providers...
-     */
-        Illuminate\Auth\AuthServiceProvider::class,
-        Illuminate\Broadcasting\BroadcastServiceProvider::class,
-        Illuminate\Filesystem\FilesystemServiceProvider::class, // Wajib ada supaya File alias jalan
-        Illuminate\Foundation\Providers\FoundationServiceProvider::class,
-        Illuminate\Notifications\NotificationServiceProvider::class,
-        Illuminate\Pagination\PaginationServiceProvider::class,
-        Illuminate\Session\SessionServiceProvider::class,
-        Illuminate\View\ViewServiceProvider::class,
-
-        /*
-     * Package Service Providers
-     */
-        Yajra\DataTables\DataTablesServiceProvider::class,
-    ],
-
-
-
-    'aliases' => [
-        'App' => Illuminate\Support\Facades\App::class,
-        'Auth' => Illuminate\Support\Facades\Auth::class,
-        'File' => Illuminate\Support\Facades\File::class,
-
-        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
-    ],
-
-
 ];
