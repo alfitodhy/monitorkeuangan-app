@@ -131,7 +131,12 @@ return [
      */
         Illuminate\Auth\AuthServiceProvider::class,
         Illuminate\Broadcasting\BroadcastServiceProvider::class,
-        // ... yang lain
+        Illuminate\Filesystem\FilesystemServiceProvider::class, // Wajib ada supaya File alias jalan
+        Illuminate\Foundation\Providers\FoundationServiceProvider::class,
+        Illuminate\Notifications\NotificationServiceProvider::class,
+        Illuminate\Pagination\PaginationServiceProvider::class,
+        Illuminate\Session\SessionServiceProvider::class,
+        Illuminate\View\ViewServiceProvider::class,
 
         /*
      * Package Service Providers
