@@ -144,7 +144,7 @@ return [
     'aliases' => [
         'App' => Illuminate\Support\Facades\App::class,
         'Auth' => Illuminate\Support\Facades\Auth::class,
-        // ... yang lain
+        'File' => Illuminate\Support\Facades\File::class,
 
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
     ],
