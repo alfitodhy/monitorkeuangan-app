@@ -124,4 +124,30 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    'providers' => [
+        /*
+     * Laravel Framework Service Providers...
+     */
+        Illuminate\Auth\AuthServiceProvider::class,
+        Illuminate\Broadcasting\BroadcastServiceProvider::class,
+        // ... yang lain
+
+        /*
+     * Package Service Providers
+     */
+        Yajra\DataTables\DataTablesServiceProvider::class,
+    ],
+
+
+
+    'aliases' => [
+        'App' => Illuminate\Support\Facades\App::class,
+        'Auth' => Illuminate\Support\Facades\Auth::class,
+        // ... yang lain
+
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+    ],
+
+
 ];
