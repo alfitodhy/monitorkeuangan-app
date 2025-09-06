@@ -24,7 +24,7 @@ class PengeluaranProyekController extends Controller
     }
 
     // DataTables AJAX
-    public function getData(Request $request)
+    public function getData2(Request $request)
     {
         if ($request->ajax()) {
             $query = PengeluaranProyek::select('tb_pengeluaran_proyek.*');
@@ -34,7 +34,7 @@ class PengeluaranProyekController extends Controller
             if ($request->has('status_filter') && !empty($request->status_filter)) {
                 $query->where('status', $request->status_filter);
             }
-            
+
 
             // Custom search filter
             if ($request->has('custom_search') && !empty($request->custom_search)) {
@@ -93,6 +93,85 @@ class PengeluaranProyekController extends Controller
     }
 
 
+    public function getData(Request $request)
+    {
+        try {
+            $start = $request->get('start', 0);
+            $length = $request->get('length', 10);
+            $search = $request->get('search')['value'] ?? '';
+
+            $query = PengeluaranProyek::query();
+
+            // 🔹 Filter berdasarkan status
+            if ($request->has('status_filter') && !empty($request->status_filter)) {
+                $query->where('status', $request->status_filter);
+            }
+
+            // 🔹 Custom search filter
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_proyek', 'like', "%{$search}%")
+                        ->orWhere('nama_vendor', 'like', "%{$search}%")
+                        ->orWhere('keterangan', 'like', "%{$search}%")
+                        ->orWhere('jumlah', 'like', "%{$search}%");
+                });
+            }
+
+            // 🔹 Sorting (urutan kolom sesuai tabel DataTables lu)
+            $columns = ['nama_proyek', 'nama_vendor', 'tanggal_pengeluaran', 'jumlah', 'status'];
+            if ($request->has('order')) {
+                foreach ($request->get('order') as $order) {
+                    $columnIdx = intval($order['column']) - 1; // -1 karena DT_RowIndex
+                    $dir = $order['dir'] === 'desc' ? 'desc' : 'asc';
+                    if ($columnIdx >= 0 && isset($columns[$columnIdx])) {
+                        $query->orderBy($columns[$columnIdx], $dir);
+                    }
+                }
+            } else {
+                $query->orderBy('tanggal_pengeluaran', 'desc'); // default
+            }
+
+            // 🔹 Hitung total
+            $totalRecords = PengeluaranProyek::count();
+            $filteredRecords = $query->count();
+
+            // 🔹 Ambil data
+            $items = $query->offset($start)->limit($length)->get();
+
+            $data = [];
+            foreach ($items as $index => $item) {
+                $statusClass = match ($item->status) {
+                    'Pengajuan' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
+                    'Sedang diproses' => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
+                    'Sudah dibayar' => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
+                    'Ditolak' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
+                    default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+                };
+
+                $data[] = [
+                    'DT_RowIndex' => $start + $index + 1,
+                    'nama_proyek' => $item->nama_proyek ?? '-',
+                    'nama_vendor' => $item->nama_vendor ?? '-',
+                    'tanggal' => \Carbon\Carbon::parse($item->tanggal_pengeluaran)->format('d/m/Y'),
+                    'jumlah' => $item->jumlah,
+                    'status' => '<span class="px-2 py-1 text-xs font-medium rounded ' . $statusClass . '">' .
+                        ucfirst($item->status ?: 'Pengajuan') . '</span>',
+                    'aksi' => view('pengeluaran.partials.actions', compact('item'))->render()
+                ];
+            }
+
+            return response()->json([
+                'draw' => intval($request->get('draw')),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
 
     public function create()
