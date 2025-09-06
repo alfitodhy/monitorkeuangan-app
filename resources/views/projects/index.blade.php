@@ -1218,43 +1218,43 @@
     </script>
 
     
-    <script>
-        $(document).ready(function() {
+   <script>
+$(document).ready(function() {
+    $(document).on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
 
-            // Logika SweetAlert
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    let form = this.closest('form');
-                    Swal.fire({
-                        title: 'Anda Yakin ingin menghapus Data?',
-                        text: "Data proyek ini akan dihapus secara permanen.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc2626',
-                        cancelButtonColor: '#6b7280',
-                        confirmButtonText: 'Hapus',
-                        cancelButtonText: 'Batal',
-                        width: '440px',
-                        padding: '1em',
-                        background: document.documentElement.classList.contains('dark') ?
-                            '#1f2937' : '#ffffff',
-                        color: document.documentElement.classList.contains('dark') ?
-                            '#f3f4f6' : '#111827',
-                        customClass: {
-                            popup: 'rounded-lg shadow-md',
-                            title: 'text-lg font-semibold',
-                            htmlContainer: 'text-base',
-                            confirmButton: 'text-base px-5 py-2.5 rounded-md',
-                            cancelButton: 'text-base px-5 py-2.5 rounded-md'
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
+        Swal.fire({
+            title: 'Anda Yakin ingin menghapus Data?',
+            text: "Data proyek ini akan dihapus secara permanen.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Hapus',
+            cancelButtonText: 'Batal',
+            width: '440px',
+            padding: '1em',
+            background: document.documentElement.classList.contains('dark')
+                ? '#1f2937' : '#ffffff',
+            color: document.documentElement.classList.contains('dark')
+                ? '#f3f4f6' : '#111827',
+            customClass: {
+                popup: 'rounded-lg shadow-md',
+                title: 'text-lg font-semibold',
+                htmlContainer: 'text-base',
+                confirmButton: 'text-base px-5 py-2.5 rounded-md',
+                cancelButton: 'text-base px-5 py-2.5 rounded-md'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
         });
-    </script>
+    });
+});
+</script>
+
+
+
 @endsection

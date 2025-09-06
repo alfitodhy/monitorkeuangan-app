@@ -28,18 +28,21 @@
         </div>
 
         {{-- Filter Status --}}
-        <div class="flex gap-2 mb-4 flex-wrap">
-            <button class="status-filter-btn btn btn-sm btn-active border-gray-400" data-status="">Semua</button>
-            <button class="status-filter-btn btn btn-sm btn-outline border-yellow-500 text-yellow-700"
-                data-status="Pengajuan">Pengajuan</button>
-            <button class="status-filter-btn btn btn-sm btn-outline border-blue-500 text-blue-700"
-                data-status="Sedang diproses">Sedang diproses</button>
-            <button class="status-filter-btn btn btn-sm btn-outline border-green-500 text-green-700"
-                data-status="Sudah dibayar">Sudah dibayar</button>
-            <button class="status-filter-btn btn btn-sm btn-outline border-red-500 text-red-700"
-                data-status="Ditolak">Ditolak</button>
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+            <div class="flex gap-2 flex-wrap flex-1">
+                <button class="status-filter-btn btn btn-sm btn-active border-gray-400" data-status="">Semua</button>
+                <button class="status-filter-btn btn btn-sm btn-outline border-yellow-500 text-yellow-700"
+                    data-status="Pengajuan">Pengajuan</button>
+                <button class="status-filter-btn btn btn-sm btn-outline border-blue-500 text-blue-700"
+                    data-status="Sedang diproses">Sedang diproses</button>
+                <button class="status-filter-btn btn btn-sm btn-outline border-green-500 text-green-700"
+                    data-status="Sudah dibayar">Sudah dibayar</button>
+                <button class="status-filter-btn btn btn-sm btn-outline border-red-500 text-red-700"
+                    data-status="Ditolak">Ditolak</button>
+            </div>
+
             <input id="pengeluaranSearch" type="text" placeholder="Cari..."
-                class="input input-sm ml-auto border-gray-400">
+                class="input input-sm border-gray-400 ml-auto">
         </div>
 
 
@@ -190,49 +193,49 @@
     @endpush
 
 
-  @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        document.addEventListener("click", function (e) {
-            const btn = e.target.closest(".delete-btn");
-            if (btn) {
-                e.preventDefault();
-                const form = btn.closest("form");
+    @push('scripts')
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                document.addEventListener("click", function(e) {
+                    const btn = e.target.closest(".delete-btn");
+                    if (btn) {
+                        e.preventDefault();
+                        const form = btn.closest("form");
 
-                Swal.fire({
-                    title: 'Apakah kamu yakin?',
-                    text: "Data yang dihapus tidak bisa dikembalikan!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444', // merah modern
-                    cancelButtonColor: '#6b7280',  // abu-abu netral
-                    confirmButtonText: 'Ya, Hapus',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true,
-                    customClass: {
-                        popup: 'rounded-xl shadow-lg',
-                        title: 'text-lg font-semibold text-gray-800',
-                        confirmButton: 'px-4 py-2 rounded-lg text-sm font-medium',
-                        cancelButton: 'px-4 py-2 rounded-lg text-sm font-medium'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
                         Swal.fire({
-                            title: 'Terhapus!',
-                            text: 'Data berhasil dihapus.',
-                            icon: 'success',
-                            confirmButtonColor: '#10b981',
-                            timer: 1500,
-                            showConfirmButton: false
+                            title: 'Apakah kamu yakin?',
+                            text: "Data yang dihapus tidak bisa dikembalikan!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#ef4444', // merah modern
+                            cancelButtonColor: '#6b7280', // abu-abu netral
+                            confirmButtonText: 'Ya, Hapus',
+                            cancelButtonText: 'Batal',
+                            reverseButtons: true,
+                            customClass: {
+                                popup: 'rounded-xl shadow-lg',
+                                title: 'text-lg font-semibold text-gray-800',
+                                confirmButton: 'px-4 py-2 rounded-lg text-sm font-medium',
+                                cancelButton: 'px-4 py-2 rounded-lg text-sm font-medium'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Swal.fire({
+                                    title: 'Terhapus!',
+                                    text: 'Data berhasil dihapus.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#10b981',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                setTimeout(() => form.submit(), 1500);
+                            }
                         });
-                        setTimeout(() => form.submit(), 1500);
                     }
                 });
-            }
-        });
-    });
-</script>
-@endpush
+            });
+        </script>
+    @endpush
 
 
 
@@ -356,7 +359,7 @@
                     language: window.dtLangId,
                     stripeClasses: ['table-zebra', 'table-zebra'],
                     dom: 'rt',
-                    pageLength: 5,
+                    pageLength: 10,
                     drawCallback: function() {
                         const info = table.page.info();
                         $('#pengeluaranInfo').html(
