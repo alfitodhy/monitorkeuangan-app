@@ -84,7 +84,9 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Monitoring Pengeluaran
+    Route::get('pengeluaran/data', [PengeluaranProyekController::class, 'getData'])->name('pengeluaran.data');
     Route::resource('pengeluaran', PengeluaranProyekController::class);
+
     Route::post('pengeluaran/{id}/approve', [PengeluaranProyekController::class, 'approve'])->name('pengeluaran.approve');
     Route::post('pengeluaran/{id}/reject', [PengeluaranProyekController::class, 'reject'])->name('pengeluaran.reject');
 

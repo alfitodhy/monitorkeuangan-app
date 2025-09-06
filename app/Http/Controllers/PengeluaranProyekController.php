@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
 
 class PengeluaranProyekController extends Controller
 {
@@ -18,9 +20,79 @@ class PengeluaranProyekController extends Controller
      */
     public function index()
     {
-        $pengeluaran = PengeluaranProyek::latest()->get();
-        return view('pengeluaran.index', compact('pengeluaran'));
+        return view('pengeluaran.index');
     }
+
+    // DataTables AJAX
+    public function getData(Request $request)
+    {
+        if ($request->ajax()) {
+            $query = PengeluaranProyek::select('tb_pengeluaran_proyek.*');
+
+
+            // Filter berdasarkan status jika ada
+            if ($request->has('status_filter') && !empty($request->status_filter)) {
+                $query->where('status', $request->status_filter);
+            }
+            
+
+            // Custom search filter
+            if ($request->has('custom_search') && !empty($request->custom_search)) {
+                $searchTerm = $request->custom_search;
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('nama_proyek', 'like', "%{$searchTerm}%")
+                        ->orWhere('nama_vendor', 'like', "%{$searchTerm}%")
+                        ->orWhere('keterangan', 'like', "%{$searchTerm}%")
+                        ->orWhere('keterangan', 'like', "%{$searchTerm}%")
+                        ->orWhere('jumlah', 'like', "%{$searchTerm}%");
+                });
+            }
+
+            return DataTables::eloquent($query)
+                ->addIndexColumn()
+                ->addColumn('nama_proyek', fn($row) => $row->nama_proyek ?? '-')
+                ->addColumn('nama_vendor', fn($row) => $row->nama_vendor ?? '-')
+                ->addColumn('tanggal', fn($row) => Carbon::parse($row->tanggal_pengeluaran)->format('d/m/Y'))
+                ->addColumn('jumlah', fn($row) => $row->jumlah)
+                ->addColumn('status', function ($row) {
+                    $statusClass = match ($row->status) {
+                        'Pengajuan' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
+                        'Sedang diproses' => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
+                        'Sudah dibayar' => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
+                        'Ditolak' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
+                        default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+                    };
+                    return '<span class="px-2 py-1 text-xs font-medium rounded ' . $statusClass . '">' .
+                        ucfirst($row->status ?: 'Pengajuan') . '</span>';
+                })
+                ->addColumn('aksi', fn($row) => view('pengeluaran.partials.actions', ['item' => $row])->render())
+
+                // 🔹 Kolom yang bisa di-sort
+                ->orderColumn('nama_proyek', fn($q, $order) => $q->orderBy('nama_proyek', $order))
+                ->orderColumn('nama_vendor', fn($q, $order) => $q->orderBy('nama_vendor', $order))
+                ->orderColumn('tanggal', fn($q, $order) => $q->orderBy('tanggal_pengeluaran', $order))
+                ->orderColumn('jumlah', fn($q, $order) => $q->orderBy('jumlah', $order))
+
+                // 🔹 Filter built-in DataTables
+                ->filter(function ($q) use ($request) {
+                    if ($request->has('search') && !empty($request->search['value'])) {
+                        $searchValue = $request->search['value'];
+                        $q->where(function ($sub) use ($searchValue) {
+                            $sub->where('nama_proyek', 'like', "%{$searchValue}%")
+                                ->orWhere('nama_vendor', 'like', "%{$searchValue}%")
+                                ->orWhere('keterangan', 'like', "%{$searchValue}%")
+                                ->orWhere('keterangan', 'like', "%{$searchValue}%");
+                        });
+                    }
+                })
+                ->rawColumns(['status', 'aksi'])
+                ->make(true);
+        }
+
+        return response()->json(['error' => 'Invalid request'], 400);
+    }
+
+
 
 
     public function create()
@@ -41,84 +113,9 @@ class PengeluaranProyekController extends Controller
             });
 
         return response()->json($vendors);
-
     }
 
 
-
-
-    public function storelama(Request $request)
-    {
-        // Validasi data yang masuk
-        $request->validate([
-            'id_proyek' => 'required|integer',
-            'id_vendor' => 'required|integer',
-            'nama_proyek' => 'required|string',
-            'tanggal_pengeluaran' => 'required|date',
-            'jumlah' => 'required|integer',
-            'keterangan' => 'nullable|string',
-            'file_nota' => 'required|image|mimes:jpeg,png,jpg|max:2048', // 2MB
-        ]);
-
-        // Ambil data vendor untuk mendapatkan nama vendor
-        $vendor = Vendor::findOrFail($request->id_vendor);
-        $namaVendor = $vendor->nama_vendor;
-
-        // Tangani input rekening vendor
-        $rekening = $request->rekening;
-        if ($rekening === 'lainnya') {
-            $request->validate([
-                'atas_nama' => 'required|string',
-                'nama_bank' => 'required|string',
-                'no_rekening' => 'required|string',
-            ]);
-
-            $rekening_baru = [
-                'nama_bank' => $request->nama_bank,
-                'no_rekening' => $request->no_rekening,
-                'atas_nama' => $request->atas_nama,
-            ];
-
-            $daftar_rekening = json_decode($vendor->rekening, true) ?? [];
-            $daftar_rekening[] = $rekening_baru;
-            $vendor->rekening = json_encode($daftar_rekening);
-            $vendor->save();
-
-            $rekening = "{$request->nama_bank} - {$request->no_rekening} a/n {$request->atas_nama}";
-        }
-
-        // Tangani upload file bukti
-        $filePath = null;
-        if ($request->hasFile('file_nota')) {
-            $file = $request->file('file_nota');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $path = 'uploads/pengeluaran/pr_' . $request->id_proyek;
-
-            if (!Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->makeDirectory($path);
-            }
-
-            $file->move(public_path($path), $fileName);
-            $filePath = $path . '/' . $fileName;
-        }
-
-        // Simpan pengeluaran ke database
-        PengeluaranProyek::create([
-            'id_proyek' => $request->id_proyek,
-            'nama_proyek' => $request->nama_proyek,
-            'id_vendor' => $request->id_vendor,
-            'nama_vendor' => $namaVendor,
-            'rekening' => $rekening,
-            'status' => 'Pengajuan',
-            'tanggal_pengeluaran' => $request->tanggal_pengeluaran,
-            'jumlah' => $request->jumlah,
-            'keterangan' => $request->keterangan,
-            'file_nota' => $filePath,
-            'user_created' => Auth::user()->username // atau session('username')
-        ]);
-
-        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran proyek berhasil ditambahkan!');
-    }
 
 
     public function store(Request $request)
@@ -297,8 +294,8 @@ class PengeluaranProyekController extends Controller
         }
     }
 
- 
-    
+
+
 
     public function approve(Request $request, $id)
     {
@@ -356,7 +353,7 @@ class PengeluaranProyekController extends Controller
         $vendor = Vendor::all();
         $jenisVendor = Vendor::select('jenis_vendor')->distinct()->pluck('jenis_vendor');
         $pengeluaran = PengeluaranProyek::findOrFail($id);
-        return view('pengeluaran.edit', compact('pengeluaran','proyek','jenisVendor','vendor'));
+        return view('pengeluaran.edit', compact('pengeluaran', 'proyek', 'jenisVendor', 'vendor'));
     }
 
     /**

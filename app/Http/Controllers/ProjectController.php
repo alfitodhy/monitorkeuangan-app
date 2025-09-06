@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
 
 use Carbon\Carbon;
 
@@ -21,6 +22,55 @@ class ProjectController extends Controller
         return view('projects.index', compact('proyek'));
     }
 
+    public function datatable(Request $request)
+    {
+        $query = Proyek::query();
+
+        // Search custom
+        if ($request->has('search') && $request->search['value'] != '') {
+            $search = $request->search['value'];
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_proyek', 'like', "%{$search}%")
+                    ->orWhere('nama_proyek', 'like', "%{$search}%")
+                    ->orWhere('nama_klien', 'like', "%{$search}%");
+            });
+        }
+
+        return DataTables::of($query)
+            ->addIndexColumn() // DT_RowIndex
+            ->addColumn('aksi', function ($row) {
+                $btn  = '<a href="' . route('projects.show', $row->id_proyek) . '" class="btn btn-xs btn-primary mr-1">Detail</a>';
+                if ($row->status_proyek === 'process') {
+                    $btn .= '<a href="' . route('projects.edit', $row->id_proyek) . '" class="btn btn-xs btn-warning mr-1">Edit</a>';
+                }
+                if ($row->status_proyek === 'progress') {
+                    $btn .= '<button type="button" onclick="openAddendumModal(' . $row->id_proyek . ', \'' . $row->nama_proyek . '\')" class="btn btn-xs btn-secondary mr-1">Addendum</button>';
+                }
+                $btn .= '<form action="' . route('projects.destroy', $row->id_proyek) . '" method="POST" class="inline">@csrf @method("DELETE")<button type="submit" class="btn btn-xs btn-error">Hapus</button></form>';
+                return $btn;
+            })
+            ->editColumn('nilai_proyek', function ($row) {
+                return 'Rp ' . number_format($row->nilai_proyek, 0, ',', '.');
+            })
+            ->editColumn('estimasi_hpp', function ($row) {
+                return $row->estimasi_hpp !== null ? number_format($row->estimasi_hpp, 0, ',', '.') . ' %' : '-';
+            })
+            ->editColumn('tipe_proyek', function ($row) {
+                return '<span class="badge badge-info">' . $row->tipe_proyek . '</span>';
+            })
+            ->editColumn('status_proyek', function ($row) {
+                $statusColors = [
+                    'process' => 'badge badge-outline',
+                    'progress' => 'badge badge-warning',
+                    'completed' => 'badge badge-success',
+                    'canceled' => 'badge badge-error'
+                ];
+                $colorClass = $statusColors[$row->status_proyek] ?? 'badge';
+                return '<span class="' . $colorClass . '">' . ucfirst($row->status_proyek ?: '-') . '</span>';
+            })
+            ->rawColumns(['aksi', 'tipe_proyek', 'status_proyek'])
+            ->make(true);
+    }
 
     public function create()
     {

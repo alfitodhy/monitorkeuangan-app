@@ -5,413 +5,402 @@
 @section('content')
 
 
+    @if (session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline">{{ $errors->first() }}</span>
+        </div>
+    @endif
+
+
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
 
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
             <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-0">Data Pengeluaran Proyek</h1>
-            <div class="flex gap-2">
-                <a href="{{ route('pengeluaran.create') }}"
-                    class="px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-medium">
-                    + Tambah
-                </a>
-
-            </div>
+            <a href="{{ route('pengeluaran.create') }}" class="btn btn-sm btn-primary">+ Tambah</a>
         </div>
 
-       @if ($errors->any())
-    <div class="mb-4 p-4 rounded-xl bg-red-100 border border-red-400 text-red-700">
-        <div class="mt-2 text-sm space-y-1">
-            @foreach ($errors->all() as $error)
-                <p>{{ $error }}</p>
-            @endforeach
+        {{-- Filter Status --}}
+        <div class="flex gap-2 mb-4 flex-wrap">
+            <button class="status-filter-btn btn btn-sm btn-active border-gray-400" data-status="">Semua</button>
+            <button class="status-filter-btn btn btn-sm btn-outline border-yellow-500 text-yellow-700"
+                data-status="Pengajuan">Pengajuan</button>
+            <button class="status-filter-btn btn btn-sm btn-outline border-blue-500 text-blue-700"
+                data-status="Sedang diproses">Sedang diproses</button>
+            <button class="status-filter-btn btn btn-sm btn-outline border-green-500 text-green-700"
+                data-status="Sudah dibayar">Sudah dibayar</button>
+            <button class="status-filter-btn btn btn-sm btn-outline border-red-500 text-red-700"
+                data-status="Ditolak">Ditolak</button>
+            <input id="pengeluaranSearch" type="text" placeholder="Cari..."
+                class="input input-sm ml-auto border-gray-400">
         </div>
-    </div>
-@endif
-        {{-- Flash message --}}
-        @if (session('success'))
-            <div class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">
-                {{ session('success') }}
-            </div>
-        @endif
+
+
+        {{-- Loading Indicator --}}
+        <div id="loadingIndicator" class="text-center py-4 hidden">
+            <span class="loading loading-spinner loading-md"></span>
+            <span class="ml-2">Memuat data...</span>
+        </div>
 
         {{-- Table --}}
-        @if ($pengeluaran->isEmpty())
-            <div class="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-                <div class="text-center text-gray-500 dark:text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p class="font-semibold text-lg">Belum ada data pengeluaran proyek.</p>
+        <div class="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
+            <table id="pengeluaranTable" class="table table-zebra w-full text-sm text-gray-500 dark:text-gray-400">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                            data-column="0">
+                            No
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                            data-column="1">
+                            Proyek
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                            data-column="2">
+                            Vendor
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                            data-column="3">
+                            Tanggal
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                            data-column="4">
+                            Jumlah
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Aksi
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {{-- Data akan dimuat oleh DataTables --}}
+                </tbody>
+            </table>
+
+            {{-- Custom Pagination --}}
+            <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <div id="pengeluaranInfo" class="text-sm text-gray-700 dark:text-gray-300"></div>
+                    <ul id="pengeluaranPagination" class="flex gap-1"></ul>
                 </div>
             </div>
-        @else
-            <div class="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
-                        <tr>
-                            <th class="px-4 py-3">No</th>
-                            <th class="px-4 py-3">Proyek</th>
-                            <th class="px-4 py-3">Vendor</th>
-                            <th class="px-4 py-3">Tanggal</th>
-                            <th class="px-4 py-3">Jumlah</th>
-                            <th class="px-4 py-3">Status</th>
-                            <th class="px-4 py-3">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($pengeluaran as $index => $item)
-                            <tr
-                                class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <td class="px-4 py-2">{{ $index + 1 }}</td>
-                                <td class="px-4 py-2">{{ $item->nama_proyek }}</td>
-                                <td class="px-4 py-2">{{ $item->nama_vendor ?? '-' }}</td>
-                                <td class="px-4 py-2">
-                                    {{ \Carbon\Carbon::parse($item->tanggal_pengeluaran)->format('d/m/Y') }}</td>
-                                <td class="px-4 py-2">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-                                <td class="px-4 py-2">
-                                    @php
-                                        $statusClass = match ($item->status) {
-                                            'Pengajuan'
-                                                => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
-                                            'Sedang diproses'
-                                                => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
-                                            'Sudah dibayar'
-                                                => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
-                                            'Ditolak' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
-                                            default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-                                        };
-                                    @endphp
-
-                                    <span class="px-2 py-1 text-xs font-medium rounded {{ $statusClass }}">
-                                        {{ ucfirst($item->status ?: 'Pengajuan') }}
-                                    </span>
-                                </td>
-
-                                <td class="px-3 py-2 text-center space-x-1">
-
-                                    {{-- Tombol Detail --}}
-                                    <a href="{{ route('pengeluaran.show', $item->id_pengeluaran) }}" title="Lihat Detail"
-                                        class="inline-flex items-center justify-center w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded shadow">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    </a>
-
-                                    {{-- Tombol Edit --}}
-                                    {{-- @if ($item->status === 'Pengajuan' && (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) || auth()->user()->id_user === $item->user_created))
-                                        <a href="{{ route('pengeluaran.edit', $item->id_pengeluaran) }}"
-                                            title="Edit Pengeluaran"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-yellow-500 hover:bg-yellow-600 text-white rounded shadow">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11 16H7v-4l2-2z" />
-                                            </svg>
-                                        </a>
-                                    @endif --}}
-
-                                    {{-- Tombol Hapus --}}
-                                    @if (
-                                        $item->status === 'Ditolak' &&
-                                            (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) ||
-                                                auth()->user()->id_user === $item->user_created))
-                                        <form action="{{ route('pengeluaran.destroy', $item->id_pengeluaran) }}"
-                                            method="POST" class="inline-block delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" title="Hapus Pengeluaran"
-                                                class="delete-btn inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded shadow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    {{-- Tombol Proses --}}
-                                    {{-- Tombol Buka Modal --}}
-                                    @if ($item->status === 'Pengajuan' && in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']))
-                                        <button type="button"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded shadow"
-                                            x-data x-on:click="$dispatch('open-modal-{{ $item->id_pengeluaran }}')"
-                                            title="Proses Data Pengeluaran">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </button>
-                                    @endif
-
-                                    {{-- Modal --}}
-                                    <div x-data="{ open: false, pilihan: '' }"
-                                        x-on:open-modal-{{ $item->id_pengeluaran }}.window="open = true" x-show="open"
-                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-                                        x-cloak>
-
-                                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-sm transform transition-all duration-300 scale-95 opacity-0"
-                                            :class="{ 'scale-100 opacity-100': open }">
-
-                                            {{-- Icon Header --}}
-                                            <div
-                                                class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mx-auto mb-4">
-                                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-
-                                            <h3
-                                                class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
-                                                Proses Pengeluaran
-                                            </h3>
-                                            <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">
-                                                Pilih tindakan untuk pengeluaran ini
-                                            </p>
-
-                                            {{-- Form --}}
-                                            <form
-                                                action="{{ route('pengeluaran.prosesPengeluaran', $item->id_pengeluaran) }}"
-                                                method="POST" enctype="multipart/form-data">
-                                                @csrf
-
-                                                {{-- Dropdown Pilihan --}}
-                                                <label
-                                                    class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Pilih
-                                                    Aksi</label>
-                                                <select name="aksi" x-model="pilihan"
-                                                    class="block w-full text-sm border rounded-md p-2 mb-4 dark:bg-gray-700 dark:text-white">
-                                                    <option value="">-- Pilih --</option>
-                                                    <option value="proses">Proses Data</option>
-                                                    <option value="approve">Langsung Approve</option>
-                                                </select>
-
-                                                {{-- Upload File kalau Approve --}}
-                                                <div x-show="pilihan === 'approve'" x-transition>
-                                                    <label for="file_buktitf"
-                                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unggah
-                                                        Bukti Transfer</label>
-                                                    <input type="file" name="file_buktitf"
-                                                        class="block w-full text-sm text-gray-5s00 file:mr-4 file:py-2 file:px-4 
-    file:rounded-md file:border-0 file:text-sm file:font-semibold 
-    file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 mb-4">
-
-                                                </div>
-
-                                                {{-- Tombol --}}
-                                                <div class="flex justify-end space-x-2">
-                                                    <button type="button" @click="open=false"
-                                                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md 
-                           hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
-                                                        Batal
-                                                    </button>
-                                                    <button type="submit"
-                                                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md 
-                           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
-                           focus:ring-offset-2 transition-colors">
-                                                        Kirim
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-
-                                    {{-- Tombol Approve & Tolak untuk BOD/Admin Keuangan --}}
-                                    @if (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) && $item->status === 'Sedang diproses')
-                                        {{-- Modal Approve & Tolak --}}
-                                        <div x-data="{ openApprove: null, openReject: null }">
-                                            {{-- Approve --}}
-                                            <button type="button" title="Approve" @click="openApprove = true"
-                                                class="inline-flex items-center justify-center w-7 h-7 bg-green-500 hover:bg-green-600 text-white rounded shadow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-
-                                            {{-- Tolak --}}
-                                            <button type="button" title="Tolak" @click="openReject = true"
-                                                class="inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded shadow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M18.364 5.636A9 9 0 105.636 18.364 9 9 0 0018.364 5.636z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M6 6l12 12" />
-                                                </svg>
-                                            </button>
-
-
-
-
-
-                                            {{-- Modal Approve --}}
-                                            <div x-show="openApprove"
-                                                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-sm transform transition-all duration-300 scale-95 opacity-0"
-                                                    :class="{ 'scale-100 opacity-100': openApprove }">
-                                                    <div
-                                                        class="flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mx-auto mb-4">
-                                                        <svg class="h-6 w-6 text-green-600" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                    </div>
-                                                    <h3
-                                                        class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
-                                                        Approve Pengeluaran</h3>
-                                                    <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">
-                                                        Anda yakin ingin menyetujui pengeluaran ini?</p>
-                                                    <form
-                                                        action="{{ route('pengeluaran.approve', $item->id_pengeluaran) }}"
-                                                        method="POST" enctype="multipart/form-data">
-                                                        @csrf
-                                                        <label for="file_buktitf"
-                                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unggah
-                                                            Bukti Transfer</label>
-                                                        <input type="file" name="file_buktitf" multiple required
-                                                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 mb-4">
-                                                        <div class="flex justify-end space-x-2">
-                                                            <button type="button" @click="openApprove=false"
-                                                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">Batal</button>
-                                                            <button type="submit"
-                                                                class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">Approve</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-
-                                            <div x-show="openReject"
-                                                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-sm transform transition-all duration-300 scale-95 opacity-0"
-                                                    :class="{ 'scale-100 opacity-100': openReject }">
-                                                    <div
-                                                        class="flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mx-auto mb-4">
-                                                        <svg class="h-6 w-6 text-red-600" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                        </svg>
-                                                    </div>
-                                                    <h3
-                                                        class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
-                                                        Tolak Pengeluaran</h3>
-                                                    <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">
-                                                        Mohon berikan alasan penolakan.</p>
-                                                    <form
-                                                        action="{{ route('pengeluaran.reject', $item->id_pengeluaran) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        <textarea name="catatan_bod" rows="3" required
-                                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 mb-4 bg-white dark:bg-gray-700 dark:text-white placeholder-gray-400"></textarea>
-                                                        <div class="flex justify-end space-x-2">
-                                                            <button type="button" @click="openReject=false"
-                                                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">Batal</button>
-                                                            <button type="submit"
-                                                                class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">Tolak</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                    @endif
-
-
-                                </td>
-
-            </div>
+        </div>
     </div>
 
 
-    <script>
-        function openModal(id) {
-            document.querySelectorAll('[id^="approve-"], [id^="reject-"]').forEach(el => el.style.display = 'none');
-            document.getElementById(id).style.display = 'flex';
-        }
-    </script>
-
-
-    </tr>
-    @endforeach
-    </tbody>
-    </table>
+    {{-- Modal Proses Pengeluaran --}}
+    <div id="prosesModal"
+        class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
+            <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Proses Pengeluaran</h2>
+            <form id="prosesForm" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="status" value="Sedang diproses">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Apakah Anda yakin ingin memproses pengeluaran ini?</p>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('prosesModal')" class="btn btn-sm">Batal</button>
+                    <button type="submit" class="btn btn-sm bg-orange-500 hover:bg-orange-600 text-white">Proses</button>
+                </div>
+            </form>
+        </div>
     </div>
-    @endif
+
+    {{-- Modal Approve Pengeluaran --}}
+    <div id="approveModal"
+        class="modal hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
+            <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Approve Pengeluaran</h2>
+            <form id="approveForm" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="status" value="Sudah dibayar">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Yakin ingin meng-approve pengeluaran ini?</p>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('approveModal')" class="btn btn-sm">Batal</button>
+                    <button type="submit" class="btn btn-sm bg-green-500 hover:bg-green-600 text-white">Approve</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal Reject Pengeluaran --}}
+    <div id="rejectModal"
+        class="modal hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
+            <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Tolak Pengeluaran</h2>
+            <form id="rejectForm" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="status" value="Ditolak">
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alasan Penolakan</label>
+                    <textarea name="alasan" class="textarea textarea-bordered w-full" rows="3" required></textarea>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('rejectModal')" class="btn btn-sm">Batal</button>
+                    <button type="submit" class="btn btn-sm bg-red-500 hover:bg-red-600 text-white">Tolak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            function openProsesModal(id) {
+                let form = document.getElementById('prosesForm');
+                form.action = `/pengeluaran/${id}/update-status`;
+                document.getElementById('prosesModal').classList.remove('hidden');
+            }
+
+            function closeModal(modalId) {
+                document.getElementById(modalId).classList.add('hidden');
+            }
+
+            function openApproveModal(id) {
+                document.getElementById('approveForm').action = `/pengeluaran/${id}/approve`;
+                document.getElementById('approveModal').classList.remove('hidden');
+            }
+
+            function closeApproveModal() {
+                document.getElementById('approveModal').classList.add('hidden');
+            }
+
+            function openRejectModal(id) {
+                document.getElementById('rejectForm').action = `/pengeluaran/${id}/reject`;
+                document.getElementById('rejectModal').classList.remove('hidden');
+            }
+
+            function closeRejectModal() {
+                document.getElementById('rejectModal').classList.add('hidden');
+            }
+        </script>
+    @endpush
 
 
+  @push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("click", function (e) {
+            const btn = e.target.closest(".delete-btn");
+            if (btn) {
+                e.preventDefault();
+                const form = btn.closest("form");
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Konfirmasi hapus
-            document.querySelectorAll(".delete-btn").forEach(button => {
-                button.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    let form = this.closest("form");
-
-                    Swal.fire({
-                        title: 'Konfirmasi Penghapusan',
-                        text: "Yakin ingin menghapus data ini?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal',
-                        // Mengatur ukuran font pada judul
-                        titleStyle: {
-                            fontSize: '1em' // Atur ukuran font judul di sini
-                        },
-                        // Mengubah 'text' menjadi 'html' untuk mengatur ukuran font
-                        html: '<p style="font-size: 0.9em;">Yakin ingin menghapus data ini?</p>'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
+                Swal.fire({
+                    title: 'Apakah kamu yakin?',
+                    text: "Data yang dihapus tidak bisa dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444', // merah modern
+                    cancelButtonColor: '#6b7280',  // abu-abu netral
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-xl shadow-lg',
+                        title: 'text-lg font-semibold text-gray-800',
+                        confirmButton: 'px-4 py-2 rounded-lg text-sm font-medium',
+                        cancelButton: 'px-4 py-2 rounded-lg text-sm font-medium'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Terhapus!',
+                            text: 'Data berhasil dihapus.',
+                            icon: 'success',
+                            confirmButtonColor: '#10b981',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => form.submit(), 1500);
+                    }
                 });
-            });
-
-            // Konfirmasi proses
-            document.querySelectorAll(".proses-btn").forEach(button => {
-                button.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    let form = this.closest("form");
-
-                    Swal.fire({
-                        title: 'Proses Pengeluaran?',
-                        text: "Data akan diproses ke tahap berikutnya.",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Ya, Proses',
-                        cancelButtonText: 'Batal',
-                        // Mengatur ukuran font pada judul
-                        titleStyle: {
-                            fontSize: '1em' // Atur ukuran font judul di sini
-                        },
-                        // Mengubah 'text' menjadi 'html' untuk mengatur ukuran font
-                        html: '<p style="font-size: 0.9em;">Data akan diproses ke tahap berikutnya.</p>'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
+            }
         });
-    </script>
+    });
+</script>
+@endpush
+
+
+
+
+    {{-- Pastikan jQuery dan DataTables sudah dimuat --}}
+    @push('styles')
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <style>
+            .sort-indicator {
+                opacity: 0.5;
+                transition: opacity 0.2s;
+            }
+
+            .sorting_asc .sort-indicator::after {
+                content: "↑";
+                opacity: 1;
+            }
+
+            .sorting_desc .sort-indicator::after {
+                content: "↓";
+                opacity: 1;
+            }
+
+            th:hover .sort-indicator {
+                opacity: 1;
+            }
+
+            .status-badge {
+                display: inline-block;
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.375rem;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+
+            .status-pengajuan {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+
+            .status-diproses {
+                background-color: #dbeafe;
+                color: #1e40af;
+            }
+
+            .status-dibayar {
+                background-color: #d1fae5;
+                color: #065f46;
+            }
+
+            .status-ditolak {
+                background-color: #fee2e2;
+                color: #991b1b;
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const table = $('#pengeluaranTable').DataTable({
+                    processing: false,
+                    serverSide: true,
+                    responsive: true,
+                    ajax: {
+                        url: "{{ route('pengeluaran.data') }}",
+                        data: function(d) {
+                            d.status_filter = $('.status-filter-btn.btn-active').data('status') || '';
+                            d.custom_search = $('#pengeluaranSearch').val();
+                        }
+                    },
+
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            className: 'text-center',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'nama_proyek',
+                            name: 'nama_proyek'
+                        },
+                        {
+                            data: 'nama_vendor',
+                            name: 'nama_vendor'
+                        },
+                        {
+                            data: 'tanggal',
+                            name: 'tanggal_pengeluaran'
+                        },
+                        {
+                            data: 'jumlah',
+                            name: 'jumlah',
+                            render: data => 'Rp ' + parseFloat(data).toLocaleString('id-ID')
+                        },
+                        {
+                            data: 'status',
+                            name: 'status',
+                            orderable: false,
+                            searchable: false,
+                            render: data => {
+                                let cls = {
+                                    'Pengajuan': 'status-pengajuan',
+                                    'Sedang diproses': 'status-diproses',
+                                    'Sudah dibayar': 'status-dibayar',
+                                    'Ditolak': 'status-ditolak'
+                                } [data] || 'bg-gray-100 text-gray-800';
+                                return `<span class="status-badge ${cls}">${data}</span>`;
+                            }
+                        },
+                        {
+                            data: 'aksi',
+                            className: 'text-center',
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    order: [
+                        [3, 'desc']
+                    ],
+                    language: window.dtLangId,
+                    stripeClasses: ['table-zebra', 'table-zebra'],
+                    dom: 'rt',
+                    pageLength: 5,
+                    drawCallback: function() {
+                        const info = table.page.info();
+                        $('#pengeluaranInfo').html(
+                            `Menampilkan ${info.start + 1} sampai ${info.end} dari ${info.recordsTotal} data`
+                        );
+
+                        // Pagination custom
+                        const pagination = $('#pengeluaranPagination');
+                        pagination.empty();
+                        const totalPages = info.pages;
+                        const currentPage = info.page;
+
+                        const pageBtn = (label, page, disabled = false, active = false) =>
+                            `<li><button class="btn btn-sm ${active ? 'btn-active' : 'btn-outline'} ${disabled ? 'btn-disabled' : ''}" data-page="${page}">${label}</button></li>`;
+
+                        pagination.append(pageBtn('Prev', currentPage - 1, currentPage === 0));
+                        for (let i = 0; i < totalPages; i++) {
+                            pagination.append(pageBtn(i + 1, i, false, i === currentPage));
+                        }
+                        pagination.append(pageBtn('Next', currentPage + 1, currentPage === totalPages - 1));
+
+                        $('#pengeluaranPagination button').off('click').on('click', function() {
+                            const page = $(this).data('page');
+                            if (page >= 0 && page < totalPages) table.page(page).draw('page');
+                        });
+                    }
+                });
+
+                // Filter status
+                $('.status-filter-btn').on('click', function() {
+                    $('.status-filter-btn').removeClass('btn-active').addClass('btn-outline');
+                    $(this).removeClass('btn-outline').addClass('btn-active');
+                    table.ajax.reload();
+                });
+
+                // Custom search
+                $('#pengeluaranSearch').on('input', function() {
+                    table.search(this.value).draw();
+                });
+            });
+        </script>
+    @endpush
+
+
 
 
 @endsection

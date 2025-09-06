@@ -35,54 +35,44 @@
             </div>
         @else
             {{-- Tabel Data Proyek --}}
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden p-4">
+                <div class="flex justify-center gap-2 mb-4">
+                    <button class="status-filter-btn btn btn-sm btn-outline" data-status="">Semua</button>
+                    <button class="status-filter-btn btn btn-sm btn-gray" data-status="process">Process</button>
+                    <button class="status-filter-btn btn btn-sm btn-yellow" data-status="progress">Progress</button>
+                    <button class="status-filter-btn btn btn-sm btn-green" data-status="completed">Completed</button>
+                </div>
+
+                <div class="flex justify-between mb-2 items-center">
+                    <input type="text" id="proyekSearch" placeholder="Cari proyek..."
+                        class="input input-sm input-bordered w-64">
+                    <div id="proyekInfo" class="text-sm"></div>
+                </div>
+
                 <div class="overflow-x-auto">
-                    <table id="proyekTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
+                    <table id="proyekTable" class="table table-zebra table-compact w-full text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-700">
                             <tr>
-                                <th
-                                    class="px-2 py-1 text-center font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    No</th>
-                                <th
-                                    class="px-2 py-1 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Kode</th>
-                                <th
-                                    class="px-2 py-1 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Proyek</th>
-                                <th
-                                    class="px-2 py-1 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Klien</th>
-                                <th
-                                    class="px-2 py-1 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Nilai</th>
-                                <th
-                                    class="px-2 py-1 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Estimasi HPP</th>
-                                <th
-                                    class="px-2 py-1 text-center font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Tipe</th>
-                                <th
-                                    class="px-2 py-1 text-center font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Status</th>
-                                <th
-                                    class="px-2 py-1 text-center font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                                    Aksi</th>
+                                <th>No</th>
+                                <th>Kode</th>
+                                <th>Proyek</th>
+                                <th>Klien</th>
+                                <th>Nilai</th>
+                                <th>Estimasi HPP</th>
+                                <th>Tipe</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody>
                             @foreach ($proyek as $index => $item)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-75">
-                                    <td class="px-2 py-1 text-center text-gray-700 dark:text-gray-200 font-medium">
-                                        {{ $index + 1 }}</td>
-                                    <td class="px-2 py-1 text-gray-900 dark:text-gray-100 font-medium">
-                                        {{ $item->kode_proyek }}</td>
-                                    <td class="px-2 py-1 text-gray-700 dark:text-gray-200">{{ $item->nama_proyek }}</td>
-                                    <td class="px-2 py-1 text-gray-700 dark:text-gray-200">{{ $item->nama_klien }}</td>
-                                    <td class="px-2 py-1 text-right text-gray-900 dark:text-gray-100">
-                                        Rp {{ number_format($item->nilai_proyek, 0, ',', '.') }}
-                                    </td>
-                                    <td class="px-2 py-1 text-right text-gray-900 dark:text-gray-100">
-                                        {{ $item->estimasi_hpp !== null ? number_format($item->estimasi_hpp, 0, ',', '.') . ' %' : '-' }}
+                                <tr class="transition-all hover:scale-102 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $item->kode_proyek }}</td>
+                                    <td>{{ $item->nama_proyek }}</td>
+                                    <td>{{ $item->nama_klien }}</td>
+                                    <td>Rp {{ number_format($item->nilai_proyek, 0, ',', '.') }}</td>
+                                    <td>{{ $item->estimasi_hpp !== null ? number_format($item->estimasi_hpp, 0, ',', '.') . ' %' : '-' }}
                                     </td>
                                     <td class="px-2 py-1 text-center">
                                         <span
@@ -139,23 +129,23 @@
 
                                             {{-- Tombol Addendum --}}
                                             @if ($item->status_proyek === 'progress')
-                                               <button type="button"
-    onclick="openAddendumModal({{ $item->id_proyek }}, '{{ $item->nama_proyek }}')"
-    title="Tambah Addendum"
-    class="inline-flex items-center justify-center w-7 h-7 
+                                                <button type="button"
+                                                    onclick="openAddendumModal({{ $item->id_proyek }}, '{{ $item->nama_proyek }}')"
+                                                    title="Tambah Addendum"
+                                                    class="inline-flex items-center justify-center w-7 h-7 
            bg-orange-500 hover:bg-orange-600 text-white 
            rounded-lg shadow transition duration-200 ease-in-out">
-    <!-- Ikon Dokumen + Plus -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <!-- Dokumen -->
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M7 2h8l5 5v13a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
-        <!-- Tanda Plus -->
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 11v6m-3-3h6" />
-    </svg>
-</button>
+                                                    <!-- Ikon Dokumen + Plus -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <!-- Dokumen -->
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M7 2h8l5 5v13a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                                                        <!-- Tanda Plus -->
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M12 11v6m-3-3h6" />
+                                                    </svg>
+                                                </button>
                                             @endif
 
 
@@ -181,7 +171,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                <ul id="proyekPagination" class="flex justify-center mt-2 gap-1"></ul>
             </div>
+
+
+
         @endif
     </div>
 
@@ -589,13 +584,13 @@
                         </div>
 
                         ${addendum.deskripsi_perubahan ? `
-                                                                    <div class="mb-4">
-                                                                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
-                                                                        <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-                                                                            ${addendum.deskripsi_perubahan}
-                                                                        </div>
-                                                                    </div>
-                                                                ` : ''}
+                                                                                                                                                                                                <div class="mb-4">
+                                                                                                                                                                                                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
+                                                                                                                                                                                                    <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                                                                                                                                                                                        ${addendum.deskripsi_perubahan}
+                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                </div>
+                                                                                                                                                                                            ` : ''}
 
                         ${attachmentsHtml}
 
@@ -619,7 +614,7 @@
 
 
 
-        
+
         // Helper functions untuk attachment handling
         function getFileName(attachment) {
             if (typeof attachment === 'string') {
@@ -1089,54 +1084,142 @@
         });
     </script>
 
-    {{-- CDN Datatables Standar --}}
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.dataTables.css">
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.2/js/responsive.dataTables.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
 
-    <style>
-        div.dt-container .dt-length,
-        div.dt-container .dt-search,
-        div.dt-container .dt-info,
-        div.dt-container .dt-processing,
-        div.dt-container .dt-paging {
-            color: inherit;
-            font-size: 13px;
-        }
+            var table = $('#proyekTable').DataTable({
+                processing: false,
+                serverSide: false,
+                responsive: true,
+                order: [
+                    [1, 'asc']
+                ],
+                stripeClasses: ['table-zebra', 'table-zebra'],
+                pageLength: 5,
+                lengthChange: false,
+                dom: 't',
+                drawCallback: function() {
+                    const dt = this.api();
+                    const info = dt.page.info();
 
-        .dt-container .dt-search input,
-        .dt-container .dt-length select {
-            @apply text-xs border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg shadow-sm w-full sm:w-auto h-7 px-2 py-1 !important;
-        }
+                    const pagination = $('#proyekPagination');
+                    pagination.empty();
+                    const totalPages = info.pages;
+                    const currentPage = info.page;
 
-        .dt-container .dt-paging .dt-paging-button {
-            @apply bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium py-1 px-2 rounded-lg mx-0.5 text-xs shadow-sm !important;
-        }
+                    const pageBtn = (content, page, disabled = false, active = false) =>
+                        `<li><button class="btn btn-sm ${active?'btn-active':'btn-outline'} ${disabled?'btn-disabled':''}" data-page="${page}">${content}</button></li>`;
 
-        .dt-container .dt-paging .dt-paging-button.current {
-            @apply bg-indigo-600 text-white hover:bg-indigo-600 ring-2 ring-indigo-300 dark:ring-indigo-500 !important;
-        }
+                    pagination.append(pageBtn('Prev', currentPage - 1, currentPage === 0));
+                    for (let i = 0; i < totalPages; i++) {
+                        pagination.append(pageBtn(i + 1, i, false, i === currentPage));
+                    }
+                    pagination.append(pageBtn('Next', currentPage + 1, currentPage === totalPages - 1));
 
-        .dt-container .dt-info {
-            @apply text-xs !important;
-        }
-    </style>
+                    $('#proyekPagination button').off('click').on('click', function() {
+                        const page = $(this).data('page');
+                        if (page >= 0 && page < totalPages) dt.page(page).draw('page');
+                    });
+                }
+            });
 
+            // Debug: Log struktur data untuk memahami masalah
+            console.log('=== DEBUG TABLE DATA ===');
+            table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                const data = this.data();
+                console.log(`Row ${rowIdx}:`, data);
+                console.log(`Status column (index 7):`, data[7]);
+            });
+
+            // Filter status dengan custom search function
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                // Pastikan ini hanya untuk table proyekTable
+                if (settings.nTable.id !== 'proyekTable') {
+                    return true;
+                }
+
+                const activeFilter = $('.status-filter-btn.btn-active').data('status');
+                console.log('Active filter:', activeFilter);
+
+                // Jika filter "Semua" (tidak ada status) atau tidak ada filter aktif
+                if (!activeFilter) {
+                    return true;
+                }
+
+                // Ambil teks dari kolom status (kolom index 7)
+                const statusText = data[7] || '';
+                console.log('Status text from data[7]:', statusText);
+
+                // Coba berbagai cara extract status
+                let actualStatus = '';
+
+                // Method 1: Extract dari HTML menggunakan jQuery
+                const $temp = $('<div>').html(statusText);
+                const spanText = $temp.find('span').text().trim();
+                console.log('Extracted via jQuery:', spanText);
+
+                // Method 2: Extract menggunakan regex
+                const regexMatch = statusText.match(/>(.*?)</);
+                const regexStatus = regexMatch ? regexMatch[1].trim() : '';
+                console.log('Extracted via regex:', regexStatus);
+
+                // Method 3: Strip all HTML tags
+                const stripHtml = statusText.replace(/<[^>]*>/g, '').trim();
+                console.log('Stripped HTML:', stripHtml);
+
+                // Gunakan yang paling berhasil
+                actualStatus = spanText || regexStatus || stripHtml;
+                console.log('Final actual status:', actualStatus);
+                console.log('Comparing:', actualStatus.toLowerCase(), 'vs', activeFilter.toLowerCase());
+
+                const match = actualStatus.toLowerCase() === activeFilter.toLowerCase();
+                console.log('Match result:', match);
+                console.log('---');
+
+                return match;
+            });
+
+            // Filter status via tombol
+            $('.status-filter-btn').on('click', function() {
+                const status = $(this).data('status');
+
+                // Update tampilan tombol
+                $('.status-filter-btn').removeClass('btn-active').addClass('btn-outline');
+                $(this).removeClass('btn-outline').addClass('btn-active');
+
+                // Clear existing search and trigger redraw
+                table.search('').draw();
+            });
+
+            // Search input
+            $('#proyekSearch').on('keyup', function() {
+                // Clear status filter when searching
+                $('.status-filter-btn').removeClass('btn-active').addClass('btn-outline');
+                $('.status-filter-btn[data-status=""]').addClass('btn-active').removeClass('btn-outline');
+
+                table.search(this.value).draw();
+            });
+
+            // Update info display
+            table.on('draw', function() {
+                const info = table.page.info();
+                $('#proyekInfo').text(
+                    `Menampilkan ${info.start + 1}-${info.end} dari ${info.recordsDisplay} data`
+                    );
+            });
+
+            // Set default filter ke "Semua"
+            $('.status-filter-btn[data-status=""]').addClass('btn-active').removeClass('btn-outline');
+
+            // Initial draw untuk menampilkan info
+            table.draw();
+
+        });
+    </script>
+
+    
     <script>
         $(document).ready(function() {
-            // Inisialisasi Datatables
-            $('#proyekTable').DataTable({
-                responsive: true,
-                "pageLength": 10,
-                "lengthMenu": [
-                    [10, 25, 50, -1],
-                    [10, 25, 50, "Semua"]
-                ],
-            });
 
             // Logika SweetAlert
             const deleteButtons = document.querySelectorAll('.delete-btn');
