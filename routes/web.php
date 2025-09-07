@@ -69,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Monitoring pemasukan
+    Route::get('pemasukan/datatable', [PemasukanProyekController::class, 'datatable'])->name('pemasukan.datatable');
     Route::resource('pemasukan', PemasukanProyekController::class);
     Route::get('/pemasukan/{id}/bukti/{termin}', [PemasukanProyekController::class, 'lihatBukti'])
         ->name('pemasukan.bukti');

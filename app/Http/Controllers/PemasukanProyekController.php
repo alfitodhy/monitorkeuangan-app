@@ -14,35 +14,9 @@ class PemasukanProyekController extends Controller
 {
 
 
-    public function index2()
-    {
-        $pemasukan = DB::table('tb_proyek as pr')
-            ->where('pr.is_active', 'Y')
-            ->select(
-                'pr.id_proyek',
-                'pr.nama_proyek',
-                'pr.nilai_proyek',
-                'pr.termin',
-                // total tagihan dari tb_termin_proyek
-                DB::raw('(SELECT COALESCE(SUM(t.jumlah), 0) 
-                      FROM tb_termin_proyek t 
-                      WHERE t.id_proyek = pr.id_proyek) as total_tagihan'),
-                // total dibayar dari tb_pemasukan_proyek
-                DB::raw('(SELECT COALESCE(SUM(p.jumlah), 0) 
-                      FROM tb_pemasukan_proyek p 
-                      WHERE p.id_proyek = pr.id_proyek) as total_dibayar')
-            )
-            ->get()
-            ->map(function ($row) {
-                $row->sisa_bayar = $row->nilai_proyek - $row->total_dibayar;
-                return $row;
-            });
-
-        return view('pemasukan.index', compact('pemasukan'));
-    }
 
 
-    public function index()
+    public function indexlama()
     {
         $pemasukan = DB::table('tb_proyek as pr')
             ->where('pr.is_active', 'Y')
@@ -78,6 +52,84 @@ class PemasukanProyekController extends Controller
 
         return view('pemasukan.index', compact('pemasukan'));
     }
+
+    public function index()
+    {
+        return view('pemasukan.index'); // datanya akan di-load via AJAX
+    }
+
+    public function datatable(Request $request)
+    {
+        $start = $request->get('start', 0);
+        $length = $request->get('length', 10);
+        $search = $request->get('search')['value'] ?? '';
+
+        $query = DB::table('tb_proyek as pr')
+            ->where('pr.is_active', 'Y')
+            ->select(
+                'pr.id_proyek',
+                'pr.nama_proyek',
+                'pr.nilai_proyek',
+                'pr.termin',
+                DB::raw('(SELECT COALESCE(SUM(a.nilai_proyek_addendum),0) FROM tb_addendum_proyek a WHERE a.id_proyek = pr.id_proyek) as nilai_proyek_addendum'),
+                DB::raw('(SELECT COALESCE(SUM(a.tambahan_termin_addendum),0) FROM tb_addendum_proyek a WHERE a.id_proyek = pr.id_proyek) as termin_addendum'),
+                DB::raw('(SELECT COALESCE(SUM(p.jumlah),0) FROM tb_pemasukan_proyek p WHERE p.id_proyek = pr.id_proyek) as total_dibayar')
+            );
+
+        // Search
+        if (!empty($search)) {
+            $query->where('pr.nama_proyek', 'like', "%{$search}%");
+        }
+
+        $totalRecords = DB::table('tb_proyek')->where('is_active', 'Y')->count();
+        $filteredRecords = $query->count();
+
+        // Sorting
+        $columns = ['nama_proyek', 'nilai_proyek', 'nilai_proyek_addendum', 'termin', 'termin_addendum', 'total_dibayar'];
+        if ($request->has('order')) {
+            foreach ($request->get('order') as $order) {
+                $colIdx = intval($order['column']) - 1; // DT_RowIndex offset
+                $dir = $order['dir'] === 'desc' ? 'desc' : 'asc';
+                if ($colIdx >= 0 && isset($columns[$colIdx])) {
+                    $query->orderBy($columns[$colIdx], $dir);
+                }
+            }
+        } else {
+            $query->orderBy('nama_proyek', 'asc');
+        }
+
+        $pemasukan = $query->offset($start)->limit($length)->get()
+            ->map(function ($row) {
+                $total_nilai_proyek = $row->nilai_proyek + $row->nilai_proyek_addendum;
+                $row->sisa_bayar = $total_nilai_proyek - $row->total_dibayar;
+                return $row;
+            });
+
+        $data = [];
+        foreach ($pemasukan as $index => $item) {
+            $data[] = [
+                'DT_RowIndex' => $start + $index + 1,
+                'nama_proyek' => $item->nama_proyek,
+                'nilai_proyek' => $item->nilai_proyek,
+                'nilai_proyek_addendum' => $item->nilai_proyek_addendum,
+                'termin' => $item->termin,
+                'termin_addendum' => $item->termin_addendum,
+                'total_dibayar' => $item->total_dibayar,
+                'sisa_bayar' => $item->sisa_bayar,
+                'aksi' => '<a href="' . route('pemasukan.show', $item->id_proyek) . '" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs shadow">Detail</a>'
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($request->get('draw')),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data
+        ]);
+    }
+
+
+
 
 
 
@@ -530,7 +582,7 @@ class PemasukanProyekController extends Controller
             'sisa_bayar',
             'bukti_per_termin',
             'metodePembayaran',
-            'nilai_addendum', 
+            'nilai_addendum',
             'jumlah_termin_addendum',
             'total_nilai_proyek'
         ));
@@ -740,7 +792,7 @@ class PemasukanProyekController extends Controller
 
         if ($totalBayarTermin >= $nilaiTermin) {
             $termin->status_pembayaran = 'lunas';
-            $termin->tanggal_lunas = now(); 
+            $termin->tanggal_lunas = now();
         } else {
             $termin->status_pembayaran = 'sebagian';
             $termin->tanggal_lunas = null;
