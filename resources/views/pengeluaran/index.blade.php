@@ -87,8 +87,9 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {{-- Data akan dimuat oleh DataTables --}}
+                <tbody
+                    class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 
+              text-gray-700 dark:text-gray-100">
                 </tbody>
             </table>
 

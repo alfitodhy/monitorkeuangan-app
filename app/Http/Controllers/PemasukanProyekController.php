@@ -372,6 +372,40 @@ class PemasukanProyekController extends Controller
                 'updated_at' => now(),
             ]);
 
+
+        if ($terminSekarang->termin_ke == 1) {
+            if ($statusPembayaran === 'sebagian') {
+                DB::table('tb_proyek')
+                    ->where('id_proyek', $request->id_proyek)
+                    ->update([
+                        'status_proyek' => 'progress',
+                        'updated_at' => now(),
+                    ]);
+            } elseif ($statusPembayaran === 'lunas') {
+                DB::table('tb_proyek')
+                    ->where('id_proyek', $request->id_proyek)
+                    ->update([
+                        'status_proyek' => 'progress',
+                        'updated_at' => now(),
+                    ]);
+            }
+        }
+
+
+        $terminBelumLunas = DB::table('tb_termin_proyek')
+            ->where('id_proyek', $request->id_proyek)
+            ->where('status_pembayaran', '!=', 'lunas')
+            ->count();
+
+        if ($terminBelumLunas === 0) {
+            DB::table('tb_proyek')
+                ->where('id_proyek', $request->id_proyek)
+                ->update([
+                    'status_proyek' => 'completed',
+                    'updated_at' => now(),
+                ]);
+        }
+
         return redirect()->route('pemasukan.index')->with('success', 'Pemasukan berhasil ditambahkan!');
     }
 

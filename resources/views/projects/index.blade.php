@@ -227,95 +227,140 @@
                                 Tambah Addendum Baru
                             </button>
                         </div>
-
                         <div id="formAddendum" class="hidden">
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Form Addendum Baru
+                            <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                    Form Addendum Baru
                                 </h3>
-                                <form id="addendumForm" method="POST" enctype="multipart/form-data" data-proyek-id="">
 
+
+                                <form id="addendumForm" method="POST" enctype="multipart/form-data" data-proyek-id="">
                                     @csrf
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+
+                                        {{-- Nomor Addendum --}}
                                         <div>
                                             <label for="nomor_addendum"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Nomor
                                                 Addendum</label>
                                             <input type="text" id="nomor_addendum" name="nomor_addendum" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                               px-3 py-2 text-sm
+                               placeholder-gray-500 dark:placeholder-gray-400 
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                         </div>
+
+                                        {{-- Tanggal Addendum --}}
                                         <div>
                                             <label for="tanggal_addendum"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal
                                                 Addendum</label>
                                             <input type="date" id="tanggal_addendum" name="tanggal_addendum" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                               px-3 py-2 text-sm
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                         </div>
 
-                                        <!-- display input untuk nilai (type=text supaya bisa format "Rp ..."), name dihapus -->
+                                        {{-- Nilai Tambahan --}}
                                         <div>
                                             <label for="nilai_proyek_addendum"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nilai
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Nilai
                                                 Tambahan</label>
                                             <input type="text" id="nilai_proyek_addendum" placeholder="Rp "
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                               px-3 py-2 text-sm
+                               placeholder-gray-500 dark:placeholder-gray-400 
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                         </div>
 
-                                        <!-- display input untuk hpp (type=text supaya bisa tambah '%' di tampilan) -->
+                                        {{-- Estimasi HPP Tambahan --}}
                                         <div>
                                             <label for="estimasi_hpp_addendum"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estimasi
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Estimasi
                                                 HPP Tambahan (%)</label>
                                             <input type="text" id="estimasi_hpp_addendum" placeholder="0"
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                               px-3 py-2 text-sm
+                               placeholder-gray-500 dark:placeholder-gray-400 
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                         </div>
 
-                                        <div class="mb-3">
+                                        {{-- Tambahan Termin --}}
+                                        <div>
                                             <label for="tambahan_termin_addendum"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tambahan
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tambahan
                                                 Termin</label>
                                             <input type="number" id="tambahan_termin_addendum"
                                                 name="tambahan_termin_addendum"
-                                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                               px-3 py-2 text-sm
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                         </div>
 
-                                        <!-- Container tempat form termin dinamis -->
+                                        {{-- Tambahan Durasi --}}
                                         <div>
                                             <label for="durasi_addendum"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tambahan
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tambahan
                                                 Durasi (bulan)</label>
                                             <input type="number" id="durasi_addendum" name="durasi_addendum"
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                               px-3 py-2 text-sm
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                         </div>
+
+                                        {{-- Container Termin Dinamis --}}
                                         <div id="terminContainer" class="sm:col-span-2"></div>
+
+                                        {{-- Deskripsi Perubahan --}}
                                         <div class="sm:col-span-2">
                                             <label for="deskripsi_perubahan"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Deskripsi
                                                 Perubahan</label>
                                             <textarea id="deskripsi_perubahan" name="deskripsi_perubahan" rows="3"
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"></textarea>
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                               px-3 py-2 text-sm
+                               placeholder-gray-500 dark:placeholder-gray-400 
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"></textarea>
                                         </div>
+
+                                        {{-- Lampiran --}}
                                         <div class="sm:col-span-2">
                                             <label for="attachment_file"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lampiran</label>
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-200">Lampiran</label>
                                             <input type="file" id="attachment_file" name="attachment_file[]" multiple
-                                                class="mt-1 block w-full text-gray-700 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-200 dark:hover:file:bg-indigo-800">
+                                                class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                               text-gray-700 dark:text-gray-200 px-3 py-2 text-sm
+                               file:mr-3 file:py-1.5 file:px-3 
+                               file:rounded-md file:border-0 
+                               file:text-sm file:font-semibold 
+                               file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100
+                               dark:file:bg-indigo-900 dark:file:text-indigo-200 dark:hover:file:bg-indigo-800">
                                         </div>
                                     </div>
 
                                     {{-- Tombol Form --}}
                                     <div class="flex justify-end mt-6 space-x-2">
                                         <button type="button" onclick="cancelAddendumForm()"
-                                            class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 font-medium transition duration-150 ease-in-out">
+                                            class="px-4 py-2 rounded-md bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-medium transition">
                                             Batal
                                         </button>
                                         <button type="submit"
-                                            class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 font-medium transition duration-150 ease-in-out">
+                                            class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium transition">
                                             Simpan Addendum
                                         </button>
                                     </div>
                                 </form>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
 
@@ -584,13 +629,13 @@
                         </div>
 
                         ${addendum.deskripsi_perubahan ? `
-                                                                                                                                                                                                <div class="mb-4">
-                                                                                                                                                                                                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
-                                                                                                                                                                                                    <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-                                                                                                                                                                                                        ${addendum.deskripsi_perubahan}
-                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                </div>
-                                                                                                                                                                                            ` : ''}
+                               <div class="mb-4">
+                                   <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
+                                   <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                       ${addendum.deskripsi_perubahan}
+                                   </div>
+                               </div>
+                           ` : ''}
 
                         ${attachmentsHtml}
 
@@ -1042,26 +1087,50 @@
                     group.innerHTML = `
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Termin ${i}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Tanggal Jatuh Tempo</label>
-                    <input type="date" name="termins[${i}][tanggal_jatuh_tempo]" 
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Jumlah</label>
-                    <input type="text" 
-                           name="termins[${i}][jumlah_display]" 
-                           data-real-input="termin-${i}" 
-                           placeholder="Rp." 
-                           class="jumlahInput mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
-                    <input type="hidden" name="termins[${i}][jumlah]" id="termin-${i}">
-                </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Keterangan</label>
-                    <input type="text" name="termins[${i}][keterangan]" 
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm dark:bg-gray-700 dark:text-white sm:text-sm">
-                </div>
-            </div>
+    {{-- Tanggal Jatuh Tempo --}}
+    <div>
+        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400">
+            Tanggal Jatuh Tempo
+        </label>
+        <input type="date" 
+               name="termins[${i}][tanggal_jatuh_tempo]" 
+               class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                      bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                      px-3 py-2 text-sm
+                      focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+    </div>
+
+    {{-- Jumlah --}}
+    <div>
+        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400">
+            Jumlah
+        </label>
+        <input type="text" 
+               name="termins[${i}][jumlah_display]" 
+               data-real-input="termin-${i}" 
+               placeholder="Rp." 
+               class="jumlahInput mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                      bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                      px-3 py-2 text-sm
+                      placeholder-gray-500 dark:placeholder-gray-400
+                      focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+        <input type="hidden" name="termins[${i}][jumlah]" id="termin-${i}">
+    </div>
+
+    {{-- Keterangan --}}
+    <div class="sm:col-span-2">
+        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400">
+            Keterangan
+        </label>
+        <input type="text" 
+               name="termins[${i}][keterangan]" 
+               class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm 
+                      bg-white dark:bg-gray-900 text-gray-900 dark:text-white 
+                      px-3 py-2 text-sm
+                      focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+    </div>
+</div>
+
         `;
                     terminContainer.appendChild(group);
                 }
@@ -1205,7 +1274,7 @@
                 const info = table.page.info();
                 $('#proyekInfo').text(
                     `Menampilkan ${info.start + 1}-${info.end} dari ${info.recordsDisplay} data`
-                    );
+                );
             });
 
             // Set default filter ke "Semua"
@@ -1217,43 +1286,43 @@
         });
     </script>
 
-    
-   <script>
-$(document).ready(function() {
-    $(document).on('click', '.delete-btn', function(e) {
-        e.preventDefault();
-        let form = $(this).closest('form');
 
-        Swal.fire({
-            title: 'Anda Yakin ingin menghapus Data?',
-            text: "Data proyek ini akan dihapus secara permanen.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Hapus',
-            cancelButtonText: 'Batal',
-            width: '440px',
-            padding: '1em',
-            background: document.documentElement.classList.contains('dark')
-                ? '#1f2937' : '#ffffff',
-            color: document.documentElement.classList.contains('dark')
-                ? '#f3f4f6' : '#111827',
-            customClass: {
-                popup: 'rounded-lg shadow-md',
-                title: 'text-lg font-semibold',
-                htmlContainer: 'text-base',
-                confirmButton: 'text-base px-5 py-2.5 rounded-md',
-                cancelButton: 'text-base px-5 py-2.5 rounded-md'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
+    <script>
+        $(document).ready(function() {
+            $(document).on('click', '.delete-btn', function(e) {
+                e.preventDefault();
+                let form = $(this).closest('form');
+
+                Swal.fire({
+                    title: 'Anda Yakin ingin menghapus Data?',
+                    text: "Data proyek ini akan dihapus secara permanen.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Hapus',
+                    cancelButtonText: 'Batal',
+                    width: '440px',
+                    padding: '1em',
+                    background: document.documentElement.classList.contains('dark') ?
+                        '#1f2937' : '#ffffff',
+                    color: document.documentElement.classList.contains('dark') ?
+                        '#f3f4f6' : '#111827',
+                    customClass: {
+                        popup: 'rounded-lg shadow-md',
+                        title: 'text-lg font-semibold',
+                        htmlContainer: 'text-base',
+                        confirmButton: 'text-base px-5 py-2.5 rounded-md',
+                        cancelButton: 'text-base px-5 py-2.5 rounded-md'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
         });
-    });
-});
-</script>
+    </script>
 
 
 

@@ -14,12 +14,13 @@
 
         {{-- Pesan Sukses --}}
         @if (session('success'))
-            <div class="alert alert-success shadow-lg mb-6">
+            <div class="alert alert-success shadow-lg mb-6 text-white">
                 <div>
                     <span>{{ session('success') }}</span>
                 </div>
             </div>
         @endif
+
 
         {{-- Search --}}
         <div class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">

@@ -20,146 +20,145 @@
                 <h1 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-8 text-center tracking-tight">
                     Tambah Pengeluaran Proyek
                 </h1>
+<form action="{{ route('pengeluaran.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    @csrf
 
-                <form action="{{ route('pengeluaran.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                    @csrf
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Pilih Proyek --}}
+        <div class="space-y-1">
+            <label for="id_proyek" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Proyek</label>
+            <div class="relative">
+                <select name="id_proyek" id="id_proyek"
+                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                           dark:bg-gray-700 dark:text-white transition"
+                    required>
+                    <option value="">-- Pilih Proyek --</option>
+                    @foreach ($proyek as $p)
+                        <option value="{{ $p->id_proyek }}" data-nama="{{ $p->nama_proyek }}">
+                            {{ $p->nama_proyek }}
+                        </option>
+                    @endforeach
+                </select>
+                <input type="hidden" name="nama_proyek" id="nama_proyek">
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Pilih Proyek --}}
-                        <div class="space-y-1">
-                            <label for="id_proyek" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Proyek</label>
-                            <div class="relative">
-                                <select name="id_proyek" id="id_proyek"
-                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white
-                    focus:outline-none focus:ring-indigo-500 focus:border-indigo-500
-                    sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
-                                    required>
-                                    <option value="">-- Pilih Proyek --</option>
-                                    @foreach ($proyek as $p)
-                                        <option value="{{ $p->id_proyek }}" data-nama="{{ $p->nama_proyek }}">
-                                            {{ $p->nama_proyek }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <input type="hidden" name="nama_proyek" id="nama_proyek"> {{-- Hidden Input --}}
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+        {{-- Tanggal Pengeluaran --}}
+        <div class="space-y-1">
+            <label for="tanggal_pengeluaran" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal Pengeluaran</label>
+            <input type="date" name="tanggal_pengeluaran" id="tanggal_pengeluaran"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                       focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                       dark:bg-gray-700 dark:text-white transition"
+                required>
+        </div>
+    </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {{-- Pilih Jenis Vendor --}}
+        <div class="space-y-1">
+            <label for="jenis_vendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Vendor</label>
+            <div class="relative">
+                <select id="jenis_vendor"
+                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                           dark:bg-gray-700 dark:text-white transition"
+                    required>
+                    <option value="">-- Pilih Jenis Vendor --</option>
+                    @foreach ($jenisVendor as $jenis)
+                        <option value="{{ $jenis }}">{{ $jenis }}</option>
+                    @endforeach
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
 
-                        {{-- Tanggal Pengeluaran --}}
-                        <div class="space-y-1">
-                            <label for="tanggal_pengeluaran" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal
-                                Pengeluaran</label>
-                            <input type="date" name="tanggal_pengeluaran" id="tanggal_pengeluaran"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-gray-700 dark:text-white"
-                                required>
-                        </div>
-                    </div>
+        {{-- Pilih Vendor --}}
+        <div class="space-y-1">
+            <label for="vendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vendor</label>
+            <div class="relative">
+                <select id="vendor" name="id_vendor"
+                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                           dark:bg-gray-700 dark:text-white transition"
+                    required disabled>
+                    <option value="">-- Pilih Vendor --</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {{-- Pilih Jenis Vendor --}}
-                        <div class="space-y-1">
-                            <label for="jenis_vendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Vendor</label>
-                            <div class="relative">
-                                <select id="jenis_vendor"
-                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
-                                    required>
-                                    <option value="">-- Pilih Jenis Vendor --</option>
-                                    @foreach ($jenisVendor as $jenis)
-                                        <option value="{{ $jenis }}">{{ $jenis }}</option>
-                                    @endforeach
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+        {{-- Pilih Rekening --}}
+        <div class="space-y-1">
+            <label for="rekening" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rekening Vendor</label>
+            <div class="relative">
+                <select id="rekening" name="rekening"
+                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                           dark:bg-gray-700 dark:text-white transition"
+                    required disabled>
+                    <option value="">-- Pilih Rekening --</option>
+                    <option value="lainnya">Lainnya...</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        {{-- Pilih Vendor --}}
-                        <div class="space-y-1">
-                            <label for="vendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vendor</label>
-                            <div class="relative">
-                                <select id="vendor" name="id_vendor"
-                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
-                                    required disabled>
-                                    <option value="">-- Pilih Vendor --</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400 dark:text-gray-500">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+    {{-- Input Rekening Lainnya --}}
+    <div id="rekening_lainnya" class="space-y-4 mt-4 hidden">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detail Rekening Lainnya</label>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-1">
+                <label for="atas_nama" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Atas Nama</label>
+                <input type="text" name="atas_nama" id="atas_nama"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                           dark:bg-gray-700 dark:text-white transition"
+                    placeholder="Nama pemilik rekening">
+            </div>
 
-                        {{-- Pilih Rekening --}}
-                        <div class="space-y-1">
-                            <label for="rekening" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rekening Vendor</label>
-                            <div class="relative">
-                                <select id="rekening" name="rekening"
-                                    class="w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm transition duration-150 ease-in-out"
-                                    required disabled>
-                                    <option value="">-- Pilih Rekening --</option>
-                                    <option value="lainnya">Lainnya...</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400 dark:text-gray-500">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="space-y-1">
+                <label for="nama_bank" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Bank</label>
+                <input type="text" name="nama_bank" id="nama_bank"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                           dark:bg-gray-700 dark:text-white transition"
+                    placeholder="Contoh: BCA">
+            </div>
 
-                    {{-- Input Rekening Lainnya --}}
-                    <div id="rekening_lainnya" class="space-y-4 mt-4 hidden">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detail Rekening Lainnya</label>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {{-- Atas Nama --}}
-                            <div class="space-y-1">
-                                <label for="atas_nama" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Atas Nama</label>
-                                <input type="text" name="atas_nama" id="atas_nama"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-gray-700 dark:text-white"
-                                    placeholder="Nama pemilik rekening">
-                            </div>
-
-                            {{-- Nama Bank --}}
-                            <div class="space-y-1">
-                                <label for="nama_bank" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Bank</label>
-                                <input type="text" name="nama_bank" id="nama_bank"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-gray-700 dark:text-white"
-                                    placeholder="Contoh: Bank BCA">
-                            </div>
-
-                            {{-- Nomor Rekening --}}
-                            <div class="space-y-1">
-                                <label for="no_rekening" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor
-                                    Rekening</label>
-                                <input type="text" name="no_rekening" id="no_rekening"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-gray-700 dark:text-white"
-                                    placeholder="Nomor rekening">
-                            </div>
-                        </div>
-                    </div>
+            <div class="space-y-1">
+                <label for="no_rekening" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor Rekening</label>
+                <input type="text" name="no_rekening" id="no_rekening"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                           dark:bg-gray-700 dark:text-white transition"
+                    placeholder="Nomor rekening">
+            </div>
+        </div>
+    </div>
 
                     {{-- Jumlah --}}
                     <div class="space-y-1">
