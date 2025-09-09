@@ -206,19 +206,17 @@
                 </div>
 
                 {{-- Tombol --}}
-                <div
-                    class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-5 border-t border-gray-200 dark:border-gray-700">
-
-                    <a href="{{ route('vendors.index') }}"
-                        class="w-full sm:w-auto bg-gray-700 hover:bg-gray-800 text-white font-medium py-1.5 px-4 rounded-md shadow-sm text-xs sm:text-sm text-center transition duration-200">
-                        Batal
-                    </a>
-
-                    <button type="submit"
-                        class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-md shadow-sm text-xs sm:text-sm transition duration-200">
-                        Simpan
-                    </button>
-                </div>
+                 <div
+                        class="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{{ route('vendors.index') }}"
+                            class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium rounded-md text-xs shadow-sm transition-all duration-200">
+                            Batal
+                        </a>
+                        <button type="submit"
+                            class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-medium rounded-md text-xs shadow-sm transition-all duration-200">
+                            Simpan
+                        </button>
+                    </div>
 
             </form>
         </div>
