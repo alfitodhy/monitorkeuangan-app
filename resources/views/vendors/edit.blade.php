@@ -51,16 +51,18 @@
                     @csrf
                     @method('PUT')
 
-                    {{-- Informasi Dasar --}}
+                    {{-- Data Vendor --}}
                     <div class="mb-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {{-- Nama Vendor --}}
                             <div class="space-y-1">
                                 <label for="nama_vendor" class="block text-xs font-medium text-gray-700 dark:text-gray-300">
                                     Nama Vendor <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="nama_vendor" id="nama_vendor"
-                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                       bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white 
+                       placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                     value="{{ old('nama_vendor', $vendor->nama_vendor) }}"
                                     placeholder="Masukkan nama vendor" required>
                             </div>
@@ -72,7 +74,9 @@
                                     Jenis Vendor
                                 </label>
                                 <select name="jenis_vendor" id="jenis_vendor"
-                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                       bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white 
+                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                     <option value="">-- Pilih Jenis Vendor --</option>
                                     <option value="Tukang"
                                         {{ strtolower(trim(old('jenis_vendor', $vendor->jenis_vendor))) == 'tukang' ? 'selected' : '' }}>
@@ -90,14 +94,16 @@
 
                     {{-- Informasi Kontak --}}
                     <div class="mb-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {{-- No. Telepon --}}
                             <div class="space-y-1">
                                 <label for="no_telp" class="block text-xs font-medium text-gray-700 dark:text-gray-300">
                                     No. Telepon
                                 </label>
                                 <input type="text" name="no_telp" id="no_telp"
-                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                       bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white 
+                       placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                     value="{{ old('no_telp', $vendor->no_telp) }}" placeholder="Contoh: 08123456789">
                             </div>
 
@@ -107,7 +113,9 @@
                                     Email
                                 </label>
                                 <input type="email" name="email" id="email"
-                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                       bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white 
+                       placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                     value="{{ old('email', $vendor->email) }}" placeholder="vendor@example.com">
                             </div>
                         </div>
@@ -115,7 +123,7 @@
 
                     {{-- Spesialisasi & Alamat --}}
                     <div class="mb-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {{-- Spesialisasi --}}
                             <div class="space-y-1">
                                 <label for="spesialisasi"
@@ -123,7 +131,9 @@
                                     Spesialisasi
                                 </label>
                                 <input type="text" name="spesialisasi" id="spesialisasi" list="spesialisasi_options"
-                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                       bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white 
+                       placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                     value="{{ old('spesialisasi', $vendor->spesialisasi) }}"
                                     placeholder="Contoh: Plumbing, Elektrik, dll">
                                 <datalist id="spesialisasi_options">
@@ -139,11 +149,14 @@
                                     Alamat
                                 </label>
                                 <textarea name="alamat" id="alamat" rows="3"
-                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                       bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white 
+                       placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
                                     placeholder="Alamat lengkap vendor">{{ old('alamat', $vendor->alamat) }}</textarea>
                             </div>
                         </div>
                     </div>
+
 
                     {{-- Rekening Bank --}}
                     <div class="mb-6">
@@ -176,10 +189,11 @@
 
                             @foreach ($rekening_list as $key => $rekening)
                                 <div
-                                    class="rekening-group p-4 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm">
+                                    class="rekening-group p-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm text-sm transition-all duration-200 hover:shadow-md">
+
                                     <div class="flex items-center justify-between mb-3">
                                         <h3
-                                            class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                                            class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-indigo-500"
                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -187,9 +201,10 @@
                                             </svg>
                                             Rekening {{ $key + 1 }}
                                         </h3>
+
                                         @if ($key > 0)
                                             <button type="button"
-                                                class="remove-rekening p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all duration-200"
+                                                class="remove-rekening p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all duration-200"
                                                 title="Hapus rekening">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -203,40 +218,42 @@
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                                         {{-- Atas Nama --}}
                                         <div class="space-y-1">
-                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                                                 Atas Nama
                                             </label>
                                             <input type="text" name="rekening[{{ $key }}][atas_nama]"
-                                                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                                 value="{{ $rekening['atas_nama'] ?? '' }}"
                                                 placeholder="Nama pemilik rekening">
                                         </div>
 
                                         {{-- Nama Bank --}}
                                         <div class="space-y-1">
-                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                                                 Nama Bank
                                             </label>
                                             <input type="text" name="rekening[{{ $key }}][nama_bank]"
                                                 list="bank_options"
-                                                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                                 value="{{ $rekening['nama_bank'] ?? '' }}"
                                                 placeholder="Contoh: BCA, Mandiri">
                                         </div>
 
                                         {{-- No Rekening --}}
                                         <div class="space-y-1">
-                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                                                 No Rekening
                                             </label>
                                             <input type="text" name="rekening[{{ $key }}][no_rekening]"
-                                                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                                 value="{{ $rekening['no_rekening'] ?? '' }}"
                                                 placeholder="Nomor rekening">
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
+
+
                         </div>
                     </div>
 
@@ -285,42 +302,46 @@
             const createNewRekeningGroup = (index) => {
                 const newRekeningGroup = document.createElement('div');
                 newRekeningGroup.className =
-                    'rekening-group p-4 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm';
+                    'rekening-group p-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm text-sm transition-all duration-200 hover:shadow-md';
+
                 newRekeningGroup.innerHTML = `
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                    Rekening ${index + 1}
-                </h3>
-                <button type="button" class="remove-rekening p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all duration-200" title="Hapus rekening">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="space-y-1">
-                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Atas Nama</label>
-                    <input type="text" name="rekening[${index}][atas_nama]" 
-                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" 
-                           placeholder="Nama pemilik rekening">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Nama Bank</label>
-                    <input type="text" name="rekening[${index}][nama_bank]" list="bank_options" 
-                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" 
-                           placeholder="Contoh: BCA, Mandiri">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">No Rekening</label>
-                    <input type="text" name="rekening[${index}][no_rekening]" 
-                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" 
-                           placeholder="Nomor rekening">
-                </div>
-            </div>
-        `;
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            Rekening ${index + 1}
+        </h3>
+        <button type="button" 
+            class="remove-rekening p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all duration-200" 
+            title="Hapus rekening">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="space-y-1">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">Atas Nama</label>
+            <input type="text" name="rekening[${index}][atas_nama]" 
+                   class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" 
+                   placeholder="Nama pemilik rekening">
+        </div>
+        <div class="space-y-1">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">Nama Bank</label>
+            <input type="text" name="rekening[${index}][nama_bank]" list="bank_options" 
+                   class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" 
+                   placeholder="Contoh: BCA, Mandiri">
+        </div>
+        <div class="space-y-1">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">No Rekening</label>
+            <input type="text" name="rekening[${index}][no_rekening]" 
+                   class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" 
+                   placeholder="Nomor rekening">
+        </div>
+    </div>
+
+     `;
                 return newRekeningGroup;
             };
 

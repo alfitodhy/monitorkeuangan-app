@@ -97,10 +97,15 @@
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Unggah Bukti Transfer
                         </label>
-                        <input type="file" name="file_buktitf"
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
-                                   file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                   file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 mb-4">
+                       <input type="file" name="file_buktitf"
+    class="block w-full text-sm text-gray-600 dark:text-gray-300 
+           file:mr-3 file:py-1.5 file:px-3 
+           file:rounded-md file:border-0 
+           file:bg-gray-100 dark:file:bg-gray-800 
+           file:text-gray-700 dark:file:text-gray-300 
+           hover:file:bg-gray-200 dark:hover:file:bg-gray-700 
+           cursor-pointer mb-4">
+
                     </div>
 
                     {{-- Tombol --}}
