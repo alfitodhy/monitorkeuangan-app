@@ -1,12 +1,34 @@
 {{-- Tombol Detail --}}
 <a href="{{ route('pengeluaran.show', $item->id_pengeluaran) }}" title="Lihat Detail"
     class="inline-flex items-center justify-center w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded shadow">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
     </svg>
 </a>
+
+{{-- Tombol Cancel --}}
+{{-- Tombol Cancel --}}
+@if ($item->status === 'Pengajuan')
+    <form action="{{ route('pengeluaran.cancel', $item->id_pengeluaran) }}" method="POST"
+        class="inline-block cancel-form">
+        @csrf
+        @method('PATCH')
+        <button type="submit" title="Batalkan Pengajuan"
+            class="cancel-btn inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 
+                   text-white rounded shadow transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" 
+                fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="9" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+            </svg>
+        </button>
+    </form>
+@endif
+
+
+
 
 {{-- Tombol Edit (opsional) --}}
 {{-- @if ($item->status === 'Pengajuan' && (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) || auth()->user()->id_user === $item->user_created))
@@ -23,8 +45,7 @@
 {{-- Tombol Hapus --}}
 @if (
     $item->status === 'Ditolak' &&
-        (in_array(auth()->user()->role, ['bod', 'admin keuangan', 'super admin']) ||
-            auth()->user()->id_user === $item->user_created))
+        (in_array(auth()->user()->role, ['super admin']) || auth()->user()->id_user === $item->user_created))
     <form action="{{ route('pengeluaran.destroy', $item->id_pengeluaran) }}" method="POST"
         class="inline-block delete-form">
         @csrf
@@ -97,8 +118,8 @@
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Unggah Bukti Transfer
                         </label>
-                       <input type="file" name="file_buktitf"
-    class="block w-full text-sm text-gray-600 dark:text-gray-300 
+                        <input type="file" name="file_buktitf"
+                            class="block w-full text-sm text-gray-600 dark:text-gray-300 
            file:mr-3 file:py-1.5 file:px-3 
            file:rounded-md file:border-0 
            file:bg-gray-100 dark:file:bg-gray-800 

@@ -30,15 +30,27 @@
         {{-- Filter Status --}}
         <div class="flex flex-wrap items-center gap-2 mb-4">
             <div class="flex gap-2 flex-wrap flex-1">
-                <button class="status-filter-btn btn btn-sm btn-active border-gray-400" data-status="">Semua</button>
-                <button class="status-filter-btn btn btn-sm btn-outline border-yellow-500 text-yellow-700"
+                <button
+                    class="status-filter-btn btn btn-sm border border-gray-400 text-gray-100 hover:bg-gray-500 hover:text-white active"
+                    data-status="">Semua</button>
+
+                <button
+                    class="status-filter-btn btn btn-sm border border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white"
                     data-status="Pengajuan">Pengajuan</button>
-                <button class="status-filter-btn btn btn-sm btn-outline border-blue-500 text-blue-700"
+
+                <button
+                    class="status-filter-btn btn btn-sm border border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white"
                     data-status="Sedang diproses">Sedang diproses</button>
-                <button class="status-filter-btn btn btn-sm btn-outline border-green-500 text-green-700"
+
+                <button
+                    class="status-filter-btn btn btn-sm border border-green-500 text-green-600 hover:bg-green-500 hover:text-white"
                     data-status="Sudah dibayar">Sudah dibayar</button>
-                <button class="status-filter-btn btn btn-sm btn-outline border-red-500 text-red-700"
-                    data-status="Ditolak">Ditolak</button>
+
+                <button
+                    class="status-filter-btn btn btn-sm border border-red-500 text-red-600 hover:bg-red-500 hover:text-white"
+                    data-status='["Ditolak","Cancel"]'>Ditolak/Cancel</button>
+
+
             </div>
 
             <input id="pengeluaranSearch" type="text" placeholder="Cari..."
@@ -161,6 +173,27 @@
         </div>
     </div>
 
+    <style>
+    .status-filter-btn.active {
+        @apply bg-gray-700 text-white dark:bg-gray-900 dark:text-white;
+    }
+</style>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const buttons = document.querySelectorAll(".status-filter-btn");
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                buttons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+            });
+        });
+    });
+</script>
+
+
     @push('scripts')
         <script>
             function openProsesModal(id) {
@@ -238,6 +271,50 @@
         </script>
     @endpush
 
+    @push('scripts')
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                // SweetAlert untuk Cancel
+                document.addEventListener("click", function(e) {
+                    const btn = e.target.closest(".cancel-btn");
+                    if (btn) {
+                        e.preventDefault();
+                        const form = btn.closest("form");
+
+                        Swal.fire({
+                            title: 'Batalkan Pengajuan?',
+                            text: "Pengeluaran ini akan dibatalkan.",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#ef4444',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Ya, Batalkan',
+                            cancelButtonText: 'Batal',
+                            reverseButtons: true,
+                            customClass: {
+                                popup: 'rounded-xl shadow-lg',
+                                title: 'text-lg font-semibold text-gray-800',
+                                confirmButton: 'px-4 py-2 rounded-lg text-sm font-medium',
+                                cancelButton: 'px-4 py-2 rounded-lg text-sm font-medium'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Swal.fire({
+                                    title: 'Dibatalkan!',
+                                    text: 'Pengeluaran berhasil dibatalkan.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#10b981',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                setTimeout(() => form.submit(), 1500);
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+    @endpush
 
 
 
@@ -291,6 +368,11 @@
                 background-color: #fee2e2;
                 color: #991b1b;
             }
+
+            .status-cancel {
+                background-color: #fee2e2;
+                color: #991b1b;
+            }
         </style>
     @endpush
 
@@ -304,10 +386,17 @@
                     ajax: {
                         url: "{{ route('pengeluaran.data') }}",
                         data: function(d) {
-                            d.status_filter = $('.status-filter-btn.btn-active').data('status') || '';
+                            let statusFilter = $('.status-filter-btn.btn-active').data('status') || '';
+                            // kalau ada koma, ubah jadi array
+                            if (statusFilter.includes(',')) {
+                                d.status_filter = statusFilter.split(',');
+                            } else {
+                                d.status_filter = statusFilter;
+                            }
                             d.custom_search = $('#pengeluaranSearch').val();
                         }
                     },
+
 
                     columns: [{
                             data: 'DT_RowIndex',
@@ -342,10 +431,13 @@
                                     'Pengajuan': 'status-pengajuan',
                                     'Sedang diproses': 'status-diproses',
                                     'Sudah dibayar': 'status-dibayar',
-                                    'Ditolak': 'status-ditolak'
+                                    'Ditolak': 'status-ditolak',
+                                    'Cancel': 'status-cancel'
                                 } [data] || 'bg-gray-100 text-gray-800';
+
                                 return `<span class="status-badge ${cls}">${data}</span>`;
                             }
+
                         },
                         {
                             data: 'aksi',

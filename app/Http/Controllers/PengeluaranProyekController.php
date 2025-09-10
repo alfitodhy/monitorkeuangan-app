@@ -102,12 +102,20 @@ class PengeluaranProyekController extends Controller
 
             $query = PengeluaranProyek::query();
 
-            // 🔹 Filter berdasarkan status
+            //  Filter berdasarkan status
             if ($request->has('status_filter') && !empty($request->status_filter)) {
-                $query->where('status', $request->status_filter);
+                $statusFilter = $request->status_filter;
+
+                if (is_array($statusFilter)) {
+                    $query->whereIn('status', $statusFilter);
+                } elseif (str_contains($statusFilter, ',')) {
+                    $query->whereIn('status', explode(',', $statusFilter));
+                } else {
+                    $query->where('status', $statusFilter);
+                }
             }
 
-            // 🔹 Custom search filter
+            //  Custom search filter
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_proyek', 'like', "%{$search}%")
@@ -117,7 +125,7 @@ class PengeluaranProyekController extends Controller
                 });
             }
 
-            // 🔹 Sorting (urutan kolom sesuai tabel DataTables lu)
+            //  Sorting (urutan kolom sesuai tabel DataTables lu)
             $columns = ['nama_proyek', 'nama_vendor', 'tanggal_pengeluaran', 'jumlah', 'status'];
             if ($request->has('order')) {
                 foreach ($request->get('order') as $order) {
@@ -131,11 +139,11 @@ class PengeluaranProyekController extends Controller
                 $query->orderBy('tanggal_pengeluaran', 'desc'); // default
             }
 
-            // 🔹 Hitung total
+            //  Hitung total
             $totalRecords = PengeluaranProyek::count();
             $filteredRecords = $query->count();
 
-            // 🔹 Ambil data
+            // Ambil data
             $items = $query->offset($start)->limit($length)->get();
 
             $data = [];
@@ -145,6 +153,7 @@ class PengeluaranProyekController extends Controller
                     'Sedang diproses' => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
                     'Sudah dibayar' => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
                     'Ditolak' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
+                    'Cancel' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
                     default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
                 };
 
@@ -497,6 +506,23 @@ class PengeluaranProyekController extends Controller
 
         return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran proyek berhasil diperbarui.');
     }
+
+
+    public function cancel($id_pengeluaran)
+    {
+        $pengeluaran = PengeluaranProyek::where('id_pengeluaran', $id_pengeluaran)->firstOrFail();
+
+        if ($pengeluaran->status === 'Pengajuan') {
+            $pengeluaran->status = 'Cancel';
+            $pengeluaran->save();
+        }
+
+        return redirect()->route('pengeluaran.index')
+            ->with('success', 'Pengeluaran berhasil dibatalkan.');
+    }
+
+
+
 
     /**
      * Hapus pengeluaran

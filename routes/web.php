@@ -90,6 +90,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('pengeluaran/{id}/approve', [PengeluaranProyekController::class, 'approve'])->name('pengeluaran.approve');
     Route::post('pengeluaran/{id}/reject', [PengeluaranProyekController::class, 'reject'])->name('pengeluaran.reject');
+Route::patch('pengeluaran/{id}/cancel', [PengeluaranProyekController::class, 'cancel'])
+    ->name('pengeluaran.cancel');
 
 
     Route::get('/pengeluaran/create', [PengeluaranProyekController::class, 'create'])->name('pengeluaran.create');
