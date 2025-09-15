@@ -24,73 +24,6 @@ class PengeluaranProyekController extends Controller
     }
 
     // DataTables AJAX
-    public function getData2(Request $request)
-    {
-        if ($request->ajax()) {
-            $query = PengeluaranProyek::select('tb_pengeluaran_proyek.*');
-
-
-            // Filter berdasarkan status jika ada
-            if ($request->has('status_filter') && !empty($request->status_filter)) {
-                $query->where('status', $request->status_filter);
-            }
-
-
-            // Custom search filter
-            if ($request->has('custom_search') && !empty($request->custom_search)) {
-                $searchTerm = $request->custom_search;
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('nama_proyek', 'like', "%{$searchTerm}%")
-                        ->orWhere('nama_vendor', 'like', "%{$searchTerm}%")
-                        ->orWhere('keterangan', 'like', "%{$searchTerm}%")
-                        ->orWhere('keterangan', 'like', "%{$searchTerm}%")
-                        ->orWhere('jumlah', 'like', "%{$searchTerm}%");
-                });
-            }
-
-            return DataTables::eloquent($query)
-                ->addIndexColumn()
-                ->addColumn('nama_proyek', fn($row) => $row->nama_proyek ?? '-')
-                ->addColumn('nama_vendor', fn($row) => $row->nama_vendor ?? '-')
-                ->addColumn('tanggal', fn($row) => Carbon::parse($row->tanggal_pengeluaran)->format('d/m/Y'))
-                ->addColumn('jumlah', fn($row) => $row->jumlah)
-                ->addColumn('status', function ($row) {
-                    $statusClass = match ($row->status) {
-                        'Pengajuan' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
-                        'Sedang diproses' => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
-                        'Sudah dibayar' => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
-                        'Ditolak' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
-                        default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-                    };
-                    return '<span class="px-2 py-1 text-xs font-medium rounded ' . $statusClass . '">' .
-                        ucfirst($row->status ?: 'Pengajuan') . '</span>';
-                })
-                ->addColumn('aksi', fn($row) => view('pengeluaran.partials.actions', ['item' => $row])->render())
-
-                // 🔹 Kolom yang bisa di-sort
-                ->orderColumn('nama_proyek', fn($q, $order) => $q->orderBy('nama_proyek', $order))
-                ->orderColumn('nama_vendor', fn($q, $order) => $q->orderBy('nama_vendor', $order))
-                ->orderColumn('tanggal', fn($q, $order) => $q->orderBy('tanggal_pengeluaran', $order))
-                ->orderColumn('jumlah', fn($q, $order) => $q->orderBy('jumlah', $order))
-
-                // 🔹 Filter built-in DataTables
-                ->filter(function ($q) use ($request) {
-                    if ($request->has('search') && !empty($request->search['value'])) {
-                        $searchValue = $request->search['value'];
-                        $q->where(function ($sub) use ($searchValue) {
-                            $sub->where('nama_proyek', 'like', "%{$searchValue}%")
-                                ->orWhere('nama_vendor', 'like', "%{$searchValue}%")
-                                ->orWhere('keterangan', 'like', "%{$searchValue}%")
-                                ->orWhere('keterangan', 'like', "%{$searchValue}%");
-                        });
-                    }
-                })
-                ->rawColumns(['status', 'aksi'])
-                ->make(true);
-        }
-
-        return response()->json(['error' => 'Invalid request'], 400);
-    }
 
 
     public function getData(Request $request)
@@ -185,15 +118,22 @@ class PengeluaranProyekController extends Controller
 
     public function create()
     {
-        $proyek = Proyek::all();
-        $jenisVendor = Vendor::select('jenis_vendor')->distinct()->pluck('jenis_vendor');
+        $proyek = Proyek::orderBy('nama_proyek', 'asc')->get();
+
+        $jenisVendor = Vendor::select('jenis_vendor')
+            ->distinct()
+            ->orderBy('jenis_vendor', 'asc')
+            ->pluck('jenis_vendor');
+
         return view('pengeluaran.create', compact('proyek', 'jenisVendor'));
     }
+
 
     public function getVendorByJenis($jenis)
     {
         $vendors = Vendor::where('jenis_vendor', $jenis)
             ->select('id_vendor as id', 'nama_vendor', 'rekening')
+            ->orderBy('nama_vendor', 'asc')
             ->get()
             ->map(function ($v) {
                 $v->rekening = json_decode($v->rekening, true);

@@ -5,7 +5,8 @@
 @section('content')
 
     @if ($errors->any())
-        <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
+        <div
+            class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
             <ul class="list-disc pl-5">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -15,154 +16,141 @@
     @endif
 
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 flex justify-center">
+        <div
+            class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 flex justify-center">
             <div class="w-full max-w-2xl">
                 <h1 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-8 text-center tracking-tight">
                     Tambah Pengeluaran Proyek
                 </h1>
-<form action="{{ route('pengeluaran.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-    @csrf
+                <form action="{{ route('pengeluaran.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{-- Pilih Proyek --}}
-        <div class="space-y-1">
-            <label for="id_proyek" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Proyek</label>
-            <div class="relative">
-                <select name="id_proyek" id="id_proyek"
-                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
-                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-                           dark:bg-gray-700 dark:text-white transition"
-                    required>
-                    <option value="">-- Pilih Proyek --</option>
-                    @foreach ($proyek as $p)
-                        <option value="{{ $p->id_proyek }}" data-nama="{{ $p->nama_proyek }}">
-                            {{ $p->nama_proyek }}
-                        </option>
-                    @endforeach
-                </select>
-                <input type="hidden" name="nama_proyek" id="nama_proyek">
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-            </div>
-        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Pilih Proyek --}}
+                        <div class="space-y-1">
+                            <label for="id_proyek" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Proyek
+                            </label>
+                            <div class="relative">
+                                <select name="id_proyek" id="id_proyek" required>
+                                    <option value="">-- Pilih Proyek --</option>
+                                    @foreach ($proyek as $p)
+                                        <option value="{{ $p->id_proyek }}" data-nama="{{ $p->nama_proyek }}">
+                                            {{ $p->nama_proyek }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="nama_proyek" id="nama_proyek">
+                            </div>
+                        </div>
 
-        {{-- Tanggal Pengeluaran --}}
-        <div class="space-y-1">
-            <label for="tanggal_pengeluaran" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal Pengeluaran</label>
-            <input type="date" name="tanggal_pengeluaran" id="tanggal_pengeluaran"
-                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                        {{-- Tanggal Pengeluaran --}}
+                        <div class="space-y-1">
+                            <label for="tanggal_pengeluaran"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal
+                                Pengeluaran</label>
+                            <input type="date" name="tanggal_pengeluaran" id="tanggal_pengeluaran"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                        focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
                        dark:bg-gray-700 dark:text-white transition"
-                required>
-        </div>
-    </div>
+                                required>
+                        </div>
+                    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {{-- Pilih Jenis Vendor --}}
-        <div class="space-y-1">
-            <label for="jenis_vendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Vendor</label>
-            <div class="relative">
-                <select id="jenis_vendor"
-                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {{-- Pilih Jenis Vendor --}}
+                        <div class="space-y-1">
+                            <label for="jenis_vendor"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Vendor</label>
+                            <div class="relative">
+                                <select id="jenis_vendor"
+                                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                            focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
                            dark:bg-gray-700 dark:text-white transition"
-                    required>
-                    <option value="">-- Pilih Jenis Vendor --</option>
-                    @foreach ($jenisVendor as $jenis)
-                        <option value="{{ $jenis }}">{{ $jenis }}</option>
-                    @endforeach
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-            </div>
-        </div>
+                                    required>
+                                    <option value="">-- Pilih Jenis Vendor --</option>
+                                    @foreach ($jenisVendor as $jenis)
+                                        <option value="{{ $jenis }}">{{ $jenis }}</option>
+                                    @endforeach
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
 
-        {{-- Pilih Vendor --}}
-        <div class="space-y-1">
-            <label for="vendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vendor</label>
-            <div class="relative">
-                <select id="vendor" name="id_vendor"
-                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                        {{-- Pilih Vendor --}}
+                        <div class="space-y-1">
+                            <label for="vendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Vendor
+                            </label>
+                            <div class="relative">
+                                <select id="vendor" name="id_vendor" required disabled>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+                        {{-- Pilih Rekening --}}
+                        <div class="space-y-1">
+                            <label for="rekening" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Rekening Vendor
+                            </label>
+                            <div class="relative">
+                                <select id="rekening" name="rekening" required disabled>
+                                    <option value="lainnya">Lainnya...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Input Rekening Lainnya --}}
+                    <div id="rekening_lainnya" class="space-y-4 mt-4 hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detail Rekening
+                            Lainnya</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="space-y-1">
+                                <label for="atas_nama"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Atas Nama</label>
+                                <input type="text" name="atas_nama" id="atas_nama"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                            focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
                            dark:bg-gray-700 dark:text-white transition"
-                    required disabled>
-                    <option value="">-- Pilih Vendor --</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-            </div>
-        </div>
+                                    placeholder="Nama pemilik rekening">
+                            </div>
 
-        {{-- Pilih Rekening --}}
-        <div class="space-y-1">
-            <label for="rekening" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rekening Vendor</label>
-            <div class="relative">
-                <select id="rekening" name="rekening"
-                    class="w-full appearance-none px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                            <div class="space-y-1">
+                                <label for="nama_bank"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Bank</label>
+                                <input type="text" name="nama_bank" id="nama_bank"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                            focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
                            dark:bg-gray-700 dark:text-white transition"
-                    required disabled>
-                    <option value="">-- Pilih Rekening --</option>
-                    <option value="lainnya">Lainnya...</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
+                                    placeholder="Contoh: BCA">
+                            </div>
 
-    {{-- Input Rekening Lainnya --}}
-    <div id="rekening_lainnya" class="space-y-4 mt-4 hidden">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detail Rekening Lainnya</label>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="space-y-1">
-                <label for="atas_nama" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Atas Nama</label>
-                <input type="text" name="atas_nama" id="atas_nama"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                            <div class="space-y-1">
+                                <label for="no_rekening"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor
+                                    Rekening</label>
+                                <input type="text" name="no_rekening" id="no_rekening"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                            focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
                            dark:bg-gray-700 dark:text-white transition"
-                    placeholder="Nama pemilik rekening">
-            </div>
-
-            <div class="space-y-1">
-                <label for="nama_bank" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Bank</label>
-                <input type="text" name="nama_bank" id="nama_bank"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
-                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-                           dark:bg-gray-700 dark:text-white transition"
-                    placeholder="Contoh: BCA">
-            </div>
-
-            <div class="space-y-1">
-                <label for="no_rekening" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor Rekening</label>
-                <input type="text" name="no_rekening" id="no_rekening"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
-                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-                           dark:bg-gray-700 dark:text-white transition"
-                    placeholder="Nomor rekening">
-            </div>
-        </div>
-    </div>
+                                    placeholder="Nomor rekening">
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- Jumlah --}}
                     <div class="space-y-1">
-                        <label for="jumlah_display" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jumlah</label>
+                        <label for="jumlah_display"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jumlah</label>
                         <div class="relative mt-1 rounded-md shadow-sm">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-gray-500 dark:text-gray-400 sm:text-sm">Rp</span>
@@ -176,7 +164,8 @@
 
                     {{-- Keterangan --}}
                     <div class="space-y-1">
-                        <label for="keterangan" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Keterangan</label>
+                        <label for="keterangan"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Keterangan</label>
                         <textarea name="keterangan" id="keterangan"
                             class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out dark:bg-gray-700 dark:text-white"
                             rows="3" placeholder="Masukkan keterangan tambahan..."></textarea>
@@ -184,7 +173,8 @@
 
                     {{-- File Bukti Transfer / Nota --}}
                     <div class="space-y-1">
-                        <label for="file_nota" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bukti Nota</label>
+                        <label for="file_nota" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bukti
+                            Nota</label>
                         <div class="mt-1 flex items-center space-x-2">
                             <input type="file" name="file_nota" id="file_nota" accept="image/*"
                                 class="w-full text-sm text-gray-500 dark:text-gray-400
@@ -206,7 +196,8 @@
 
                     @if (in_array(Auth::user()->role, $rolesAllowed))
                         <div class="space-y-1">
-                            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                            <label for="status"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                             <select name="status" id="status"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out dark:bg-gray-700 dark:text-white">
                                 <option value="Pengajuan">Pengajuan</option>
@@ -216,7 +207,8 @@
 
                         {{-- Upload Bukti Transfer (muncul hanya kalau pilih Approve) --}}
                         <div class="space-y-1 mt-3 hidden" id="bukti_transfer_wrapper">
-                            <label for="file_buktitf" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Bukti
+                            <label for="file_buktitf"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Bukti
                                 Transfer</label>
                             <input type="file" name="file_buktitf" id="file_buktitf" accept="image/*,application/pdf"
                                 class="w-full text-sm text-gray-500 dark:text-gray-400
@@ -281,58 +273,174 @@
             const proyekSelect = document.getElementById('id_proyek');
             const namaProyekInput = document.getElementById('nama_proyek');
 
+            // Inisialisasi Tom Select - HANYA SEKALI
+            let vendorTomSelect = null;
+            let rekeningTomSelect = null;
+            let proyekTomSelect = null;
 
-            proyekSelect.addEventListener('change', function() {
-                const selectedOption = proyekSelect.options[proyekSelect.selectedIndex];
-                namaProyekInput.value = selectedOption.dataset.nama || '';
-            });
+            // Inisialisasi Tom Select untuk semua elemen
+            function initializeTomSelects() {
+                // Proyek
+                if (proyekSelect && !proyekTomSelect) {
+                    proyekTomSelect = new TomSelect("#id_proyek", {
+                        create: false,
+                        sortField: {
+                            field: "text",
+                            direction: "asc"
+                        },
+                        placeholder: "-- Pilih Proyek --",
+                        onChange: function(value) {
+                            const selectedOption = proyekSelect.querySelector(
+                                `option[value="${value}"]`);
+                            namaProyekInput.value = selectedOption ? selectedOption.dataset.nama || '' :
+                                '';
+                        }
+                    });
+                }
 
-            // Fungsi-fungsi reset
+                // Vendor - disabled awalnya
+                if (vendorEl && !vendorTomSelect) {
+                    vendorTomSelect = new TomSelect("#vendor", {
+                        create: false,
+                        sortField: {
+                            field: "text",
+                            direction: "asc"
+                        },
+                        placeholder: "-- Pilih Vendor --",
+                        onChange: function(value) {
+                            handleVendorChange(value);
+                        }
+                    });
+                    vendorTomSelect.disable(); // Disable awalnya
+                }
+
+                // Rekening - disabled awalnya  
+                if (rekeningEl && !rekeningTomSelect) {
+                    rekeningTomSelect = new TomSelect("#rekening", {
+                        create: false,
+                        sortField: {
+                            field: "text",
+                            direction: "asc"
+                        },
+                        placeholder: "-- Pilih Rekening --",
+                        onChange: function(value) {
+                            handleRekeningChange(value);
+                        }
+                    });
+                    rekeningTomSelect.disable(); // Disable awalnya
+                }
+            }
+
+            // Fungsi untuk reset vendors dengan Tom Select
             function resetVendors() {
-                vendorEl.innerHTML = '<option value="">-- Pilih Vendor --</option>';
-                vendorEl.disabled = true;
-                vendorEl.classList.add('bg-gray-50', 'dark:bg-gray-700');
-                vendorEl.classList.remove('bg-white', 'dark:bg-gray-800');
-                // Mengubah warna ikon menjadi abu-abu saat disabled
-                const vendorIcon = vendorEl.parentElement.querySelector('.pointer-events-none');
-                vendorIcon.classList.remove('text-gray-700', 'dark:text-gray-300');
-                vendorIcon.classList.add('text-gray-400', 'dark:text-gray-500');
+                if (vendorTomSelect) {
+                    vendorTomSelect.clearOptions();
+                    vendorTomSelect.addOption({
+                        value: '',
+                        text: '-- Pilih Vendor --'
+                    });
+                    vendorTomSelect.setValue('');
+                    vendorTomSelect.disable();
+                }
             }
 
+            // Fungsi untuk reset rekening dengan Tom Select
+            function resetRekening() {
+                if (rekeningTomSelect) {
+                    rekeningTomSelect.clearOptions();
+                    rekeningTomSelect.addOption({
+                        value: '',
+                        text: '-- Pilih Rekening --'
+                    });
+                    rekeningTomSelect.addOption({
+                        value: 'lainnya',
+                        text: 'Lainnya...'
+                    });
+                    rekeningTomSelect.setValue('');
+                    rekeningTomSelect.disable();
+                }
 
-
-
-            function resetRek() {
-                // Kita akan membangun daftar opsi dari awal setiap kali reset
-                const defaultOption = document.createElement('option');
-                defaultOption.value = "";
-                defaultOption.textContent = "-- Pilih Rekening --";
-
-                const othersOption = document.createElement('option');
-                othersOption.value = "lainnya";
-                othersOption.textContent = "Lainnya...";
-
-                rekeningEl.innerHTML = ''; // Kosongkan semua opsi
-                rekeningEl.appendChild(defaultOption);
-                rekeningEl.appendChild(othersOption);
-
-                rekeningEl.disabled = true;
-                rekeningEl.classList.add('bg-gray-50', 'dark:bg-gray-700');
-                rekeningEl.classList.remove('bg-white', 'dark:bg-gray-800');
-                rekeningLainnyaEl.classList.add('hidden');
-                atasNamaInput.removeAttribute('required');
-                namaBankInput.removeAttribute('required');
-                noRekeningInput.removeAttribute('required');
-                // Mengubah warna ikon menjadi abu-abu saat disabled
-                const rekeningIcon = rekeningEl.parentElement.querySelector('.pointer-events-none');
-                rekeningIcon.classList.remove('text-gray-700', 'dark:text-gray-300');
-                rekeningIcon.classList.add('text-gray-400', 'dark:text-gray-500');
+                // Hide form lainnya
+                if (rekeningLainnyaEl) {
+                    rekeningLainnyaEl.classList.add('hidden');
+                    atasNamaInput.removeAttribute('required');
+                    namaBankInput.removeAttribute('required');
+                    noRekeningInput.removeAttribute('required');
+                }
             }
 
-            // Event listener untuk Jenis Vendor
+            // Handle vendor change
+            function handleVendorChange(vendorId) {
+                resetRekening();
+
+                if (!vendorId) return;
+
+                // Cari option yang dipilih untuk mendapatkan data rekening
+                const selectedOption = vendorEl.querySelector(`option[value="${vendorId}"]`);
+                if (!selectedOption) return;
+
+                const rekeningData = selectedOption.dataset.rekening;
+                if (!rekeningData || rekeningData === 'null' || rekeningData === '[]') return;
+
+                try {
+                    const rekeningArray = JSON.parse(rekeningData);
+                    if (Array.isArray(rekeningArray) && rekeningArray.length > 0) {
+                        // Clear dan tambah opsi rekening
+                        rekeningTomSelect.clearOptions();
+                        rekeningTomSelect.addOption({
+                            value: '',
+                            text: '-- Pilih Rekening --'
+                        });
+
+                        // Tambah rekening dari data
+                        rekeningArray.forEach(rk => {
+                            const display = `${rk.nama_bank} - ${rk.no_rekening} a/n ${rk.atas_nama}`;
+                            rekeningTomSelect.addOption({
+                                value: display,
+                                text: display
+                            });
+                        });
+
+                        // Tambah opsi lainnya
+                        rekeningTomSelect.addOption({
+                            value: 'lainnya',
+                            text: 'Lainnya...'
+                        });
+
+                        // Enable rekening select
+                        rekeningTomSelect.enable();
+
+                        // Jika hanya 1 rekening, pilih otomatis
+                        if (rekeningArray.length === 1) {
+                            const display =
+                                `${rekeningArray[0].nama_bank} - ${rekeningArray[0].no_rekening} a/n ${rekeningArray[0].atas_nama}`;
+                            rekeningTomSelect.setValue(display);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error parsing rekening data:', e);
+                }
+            }
+
+            // Handle rekening change
+            function handleRekeningChange(value) {
+                if (value === 'lainnya') {
+                    rekeningLainnyaEl.classList.remove('hidden');
+                    atasNamaInput.setAttribute('required', 'required');
+                    namaBankInput.setAttribute('required', 'required');
+                    noRekeningInput.setAttribute('required', 'required');
+                } else {
+                    rekeningLainnyaEl.classList.add('hidden');
+                    atasNamaInput.removeAttribute('required');
+                    namaBankInput.removeAttribute('required');
+                    noRekeningInput.removeAttribute('required');
+                }
+            }
+
+            // Event listener untuk Jenis Vendor (native select)
             jenisEl.addEventListener('change', async function() {
                 resetVendors();
-                resetRek();
+                resetRekening();
 
                 const jenis = this.value;
                 if (!jenis) return;
@@ -343,86 +451,33 @@
                     const data = await res.json();
 
                     if (Array.isArray(data) && data.length > 0) {
-                        data.forEach(v => {
-                            const opt = document.createElement('option');
-                            opt.value = v.id;
-                            opt.textContent = v.nama_vendor ?? v.nama ?? ('Vendor ' + v.id);
-                            opt.dataset.rekening = JSON.stringify(v.rekening ?? []);
-                            vendorEl.appendChild(opt);
+                        // Clear dan tambah vendor baru ke Tom Select
+                        vendorTomSelect.clearOptions();
+                        vendorTomSelect.addOption({
+                            value: '',
+                            text: '-- Pilih Vendor --'
                         });
-                        vendorEl.disabled = false;
-                        vendorEl.classList.remove('bg-gray-50', 'dark:bg-gray-700');
-                        vendorEl.classList.add('bg-white', 'dark:bg-gray-800');
-                        // Mengubah warna ikon menjadi normal saat enabled
-                        const vendorIcon = vendorEl.parentElement.querySelector('.pointer-events-none');
-                        vendorIcon.classList.remove('text-gray-400', 'dark:text-gray-500');
-                        vendorIcon.classList.add('text-gray-700', 'dark:text-gray-300');
+
+                        data.forEach(v => {
+                            vendorTomSelect.addOption({
+                                value: v.id,
+                                text: v.nama_vendor ?? v.nama ?? ('Vendor ' + v.id)
+                            });
+
+                            // Juga update option di select asli untuk menyimpan data rekening
+                            const option = document.createElement('option');
+                            option.value = v.id;
+                            option.textContent = v.nama_vendor ?? v.nama ?? ('Vendor ' + v.id);
+                            option.dataset.rekening = JSON.stringify(v.rekening ?? []);
+                            vendorEl.appendChild(option);
+                        });
+
+                        // Enable vendor select
+                        vendorTomSelect.enable();
                     }
                 } catch (err) {
-                    console.error('fetch vendor error', err);
-                    vendorEl.disabled = true;
-                    vendorEl.classList.add('bg-gray-50', 'dark:bg-gray-700');
-                    vendorEl.classList.remove('bg-white', 'dark:bg-gray-800');
-                }
-            });
-
-            // Event listener untuk Vendor
-            vendorEl.addEventListener('change', function() {
-                resetRek();
-                const sel = this.selectedOptions[0];
-                if (!sel) return;
-
-                const rekeningData = sel.dataset.rekening;
-                if (!rekeningData || rekeningData === 'null' || rekeningData === '[]') return;
-
-                try {
-                    const arr = JSON.parse(rekeningData);
-                    if (Array.isArray(arr) && arr.length > 0) {
-                        // Simpan opsi "Lainnya..."
-                        const othersOption = rekeningEl.querySelector('option[value="lainnya"]');
-                        rekeningEl.removeChild(othersOption);
-
-                        // Tambahkan opsi-opsi rekening dari data
-                        arr.forEach(rk => {
-                            const display =
-                                `${rk.nama_bank} - ${rk.no_rekening} a/n ${rk.atas_nama}`;
-                            const opt = document.createElement('option');
-                            opt.value = display;
-                            opt.textContent = display;
-                            rekeningEl.appendChild(opt);
-                        });
-
-                        // Tambahkan kembali opsi "Lainnya..." di paling bawah
-                        rekeningEl.appendChild(othersOption);
-
-                        rekeningEl.disabled = false;
-                        rekeningEl.classList.remove('bg-gray-50', 'dark:bg-gray-700');
-                        rekeningEl.classList.add('bg-white', 'dark:bg-gray-800');
-                        if (arr.length === 1) rekeningEl.selectedIndex = 1;
-                        // Mengubah warna ikon menjadi normal saat enabled
-                        const rekeningIcon = rekeningEl.parentElement.querySelector('.pointer-events-none');
-                        rekeningIcon.classList.remove('text-gray-400', 'dark:text-gray-500');
-                        rekeningIcon.classList.add('text-gray-700', 'dark:text-gray-300');
-                    }
-                } catch (e) {
-                    console.error('parse rekening error', e);
-                }
-            });
-
-            // Event listener untuk Rekening Vendor
-            rekeningEl.addEventListener('change', function() {
-                const selectedValue = this.value;
-
-                if (selectedValue === 'lainnya') {
-                    rekeningLainnyaEl.classList.remove('hidden');
-                    atasNamaInput.setAttribute('required', 'required');
-                    namaBankInput.setAttribute('required', 'required');
-                    noRekeningInput.setAttribute('required', 'required');
-                } else {
-                    rekeningLainnyaEl.classList.add('hidden');
-                    atasNamaInput.removeAttribute('required');
-                    namaBankInput.removeAttribute('required');
-                    noRekeningInput.removeAttribute('required');
+                    console.error('Fetch vendor error:', err);
+                    vendorTomSelect.disable();
                 }
             });
 
@@ -442,7 +497,85 @@
                 jumlahDisplay.value = formattedValue;
             }
 
+            // Status handling untuk BOD/Admin
+            const statusSelect = document.getElementById("status");
+            const buktiWrapper = document.getElementById("bukti_transfer_wrapper");
+
+            if (statusSelect && buktiWrapper) {
+                statusSelect.addEventListener("change", function() {
+                    if (this.value === "Approve") {
+                        buktiWrapper.classList.remove("hidden");
+                    } else {
+                        buktiWrapper.classList.add("hidden");
+                    }
+                });
+            }
+
+            // Inisialisasi Tom Select setelah semua fungsi didefinisikan
+            initializeTomSelects();
         });
     </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+    <style>
+        /* Default (Light mode) */
+        .ts-wrapper {
+            @apply w-full text-sm border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 transition;
+        }
+
+        .ts-wrapper .ts-control {
+            @apply px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500;
+            border: none !important;
+            /* hilangin border default Tom Select */
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        .ts-dropdown {
+            @apply bg-white border border-gray-300 rounded-md shadow-lg mt-1;
+        }
+
+        .ts-dropdown .active {
+            @apply bg-indigo-500 text-white;
+        }
+
+        /* Dark mode (OS/theme) */
+        @media (prefers-color-scheme: dark) {
+            .ts-wrapper {
+                background-color: rgb(55 65 81) !important;
+                /* bg-gray-700 */
+                border-color: rgb(75 85 99) !important;
+                /* border-gray-600 */
+                color: #fff !important;
+            }
+
+            .ts-control {
+                background-color: transparent !important;
+                color: #fff !important;
+            }
+
+            .ts-dropdown {
+                background-color: rgb(55 65 81) !important;
+                border-color: rgb(75 85 99) !important;
+                color: #fff !important;
+            }
+
+            .ts-dropdown .active {
+                background-color: rgb(99 102 241) !important;
+                /* indigo-500 */
+                color: #fff !important;
+            }
+
+            .ts-dropdown,
+            .ts-control,
+            .ts-control input {
+                color: #ffffff;
+                font-family: inherit;
+                font-size: 13px;
+                line-height: 18px;
+            }
+    </style>
 
 @endsection

@@ -154,90 +154,97 @@
                 <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mt-6 mb-2">Termin Awal</h2>
                 <div
                     class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden mb-6">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th
-                                    class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Termin Ke</th>
-                                <th
-                                    class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Nominal Seharusnya</th>
-                                <th
-                                    class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Total Dibayar</th>
-                                <th
-                                    class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Sisa Bayar</th>
-                                <th
-                                    class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Status</th>
-                                <th
-                                    class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Lihat Bukti</th>
-                                <th
-                                    class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                            @php $allow_payment = true; @endphp
-                            @foreach ($termins['termin awal'] as $termin)
-                                @php
-                                    $is_paid = $termin->total_bayar >= $termin->nilai_termin;
-                                    $status = $is_paid ? 'Lunas' : 'Belum Lunas';
-                                @endphp
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
-                                    <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $termin->termin_ke }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-700 dark:text-gray-300">
-                                        Rp {{ number_format($termin->nilai_termin, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-right text-green-600 font-medium">
-                                        Rp {{ number_format($termin->total_bayar, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-right text-red-600 font-medium">
-                                        Rp {{ number_format($termin->sisa_bayar, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="px-2 py-0.5 rounded-full text-xs font-semibold
-        {{ $is_paid
-            ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'
-            : 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100' }}">
-                                            {{ $status }}
-                                        </span>
-                                    </td>
 
-                                    <td class="px-4 py-2 text-center">
-                                        @if (isset($bukti_per_termin[$termin->id_termin]) && $bukti_per_termin[$termin->id_termin]->isNotEmpty())
-                                            <button
-                                                @click="proofModalData = {
-                                        termin_ke: {{ $termin->termin_ke }},
-                                        bukti: @js($bukti_per_termin[$termin->id_termin]->map(fn($b) => ['file' => $b->attachment_file]))
-                                    }"
-                                                class="px-3 py-1 text-blue-500 dark:text-blue-400 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
-                                                Lihat Bukti
-                                            </button>
-                                        @else
-                                            <span class="text-gray-500 dark:text-gray-400 italic">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        @if (!$is_paid && $allow_payment)
-                                            <button @click="modalOpen = {{ $termin->termin_ke }}"
-                                                class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
-                                                Lunasi
-                                            </button>
-                                        @endif
-                                    </td>
+                    <!-- wrapper supaya tabel bisa scroll kalau layar kecil -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th
+                                        class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Termin Ke</th>
+                                    <th
+                                        class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Nominal Seharusnya</th>
+                                    <th
+                                        class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Total Dibayar</th>
+                                    <th
+                                        class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Sisa Bayar</th>
+                                    <th
+                                        class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Status</th>
+                                    <th
+                                        class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Lihat Bukti</th>
+                                    <th
+                                        class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Aksi</th>
                                 </tr>
-                                @php
-                                    if (!$is_paid) {
-                                        $allow_payment = false;
-                                    }
-                                @endphp
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                @php $allow_payment = true; @endphp
+                                @foreach ($termins['termin awal'] as $termin)
+                                    @php
+                                        $is_paid = $termin->total_bayar >= $termin->nilai_termin;
+                                        $status = $is_paid ? 'Lunas' : 'Belum Lunas';
+                                    @endphp
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $termin->termin_ke }}
+                                        </td>
+                                        <td class="px-4 py-2 text-right text-gray-700 dark:text-gray-300">
+                                            Rp {{ number_format($termin->nilai_termin, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2 text-right text-green-600 font-medium">
+                                            Rp {{ number_format($termin->total_bayar, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2 text-right text-red-600 font-medium">
+                                            Rp {{ number_format($termin->sisa_bayar, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            <span
+                                                class="px-2 py-0.5 rounded-full text-xs font-semibold
+                                    {{ $is_paid
+                                        ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'
+                                        : 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100' }}">
+                                                {{ $status }}
+                                            </span>
+                                        </td>
+
+                                        <td class="px-4 py-2 text-center">
+                                            @if (isset($bukti_per_termin[$termin->id_termin]) && $bukti_per_termin[$termin->id_termin]->isNotEmpty())
+                                                <button
+                                                    @click="proofModalData = {
+                                            termin_ke: {{ $termin->termin_ke }},
+                                            bukti: @js($bukti_per_termin[$termin->id_termin]->map(fn($b) => ['file' => $b->attachment_file]))
+                                        }"
+                                                    class="px-3 py-1 text-blue-500 dark:text-blue-400 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
+                                                    Lihat Bukti
+                                                </button>
+                                            @else
+                                                <span class="text-gray-500 dark:text-gray-400 italic">-</span>
+                                            @endif
+                                        </td>
+
+                                        <td class="px-4 py-2 text-center">
+                                            @if (!$is_paid && $allow_payment)
+                                                <button @click="modalOpen = {{ $termin->termin_ke }}"
+                                                    class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
+                                                    Lunasi
+                                                </button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @php
+                                        if (!$is_paid) {
+                                            $allow_payment = false;
+                                        }
+                                    @endphp
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             @endif
+
 
 
             {{-- Termin Addendum --}}
@@ -245,90 +252,97 @@
                 <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mt-6 mb-2">Termin Addendum</h2>
                 <div
                     class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th
-                                    class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Termin Ke</th>
-                                <th
-                                    class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Nominal Seharusnya</th>
-                                <th
-                                    class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Total Dibayar</th>
-                                <th
-                                    class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Sisa Bayar</th>
-                                <th
-                                    class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Status</th>
-                                <th
-                                    class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Lihat Bukti</th>
-                                <th
-                                    class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                            @php $allow_payment = true; @endphp
-                            @foreach ($termins['termin addendum'] as $termin)
-                                @php
-                                    $is_paid = $termin->total_bayar >= $termin->nilai_termin;
-                                    $status = $is_paid ? 'Lunas' : 'Belum Lunas';
-                                @endphp
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
-                                    <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $termin->termin_ke }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-700 dark:text-gray-300">
-                                        Rp {{ number_format($termin->nilai_termin, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-right text-green-600 font-medium">
-                                        Rp {{ number_format($termin->total_bayar, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-right text-red-600 font-medium">
-                                        Rp {{ number_format($termin->sisa_bayar, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="px-2 py-0.5 rounded-full text-xs font-semibold
-        {{ $is_paid
-            ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'
-            : 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100' }}">
-                                            {{ $status }}
-                                        </span>
-                                    </td>
 
-                                    <td class="px-4 py-2 text-center">
-                                        @if (isset($bukti_per_termin[$termin->id_termin]) && $bukti_per_termin[$termin->id_termin]->isNotEmpty())
-                                            <button
-                                                @click="proofModalData = {
-                                        termin_ke: {{ $termin->termin_ke }},
-                                        bukti: @js($bukti_per_termin[$termin->id_termin]->map(fn($b) => ['file' => $b->attachment_file]))
-                                    }"
-                                                class="px-3 py-1 text-blue-500 dark:text-blue-400 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
-                                                Lihat Bukti
-                                            </button>
-                                        @else
-                                            <span class="text-gray-500 dark:text-gray-400 italic">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        @if (!$is_paid && $allow_payment)
-                                            <button @click="modalOpen = {{ $termin->termin_ke }}"
-                                                class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
-                                                Lunasi
-                                            </button>
-                                        @endif
-                                    </td>
+                    <!-- wrapper supaya bisa scroll di layar kecil -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th
+                                        class="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Termin Ke</th>
+                                    <th
+                                        class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Nominal Seharusnya</th>
+                                    <th
+                                        class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Total Dibayar</th>
+                                    <th
+                                        class="px-4 py-2 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Sisa Bayar</th>
+                                    <th
+                                        class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Status</th>
+                                    <th
+                                        class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Lihat Bukti</th>
+                                    <th
+                                        class="px-4 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Aksi</th>
                                 </tr>
-                                @php
-                                    if (!$is_paid) {
-                                        $allow_payment = false;
-                                    }
-                                @endphp
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                @php $allow_payment = true; @endphp
+                                @foreach ($termins['termin addendum'] as $termin)
+                                    @php
+                                        $is_paid = $termin->total_bayar >= $termin->nilai_termin;
+                                        $status = $is_paid ? 'Lunas' : 'Belum Lunas';
+                                    @endphp
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $termin->termin_ke }}
+                                        </td>
+                                        <td class="px-4 py-2 text-right text-gray-700 dark:text-gray-300">
+                                            Rp {{ number_format($termin->nilai_termin, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2 text-right text-green-600 font-medium">
+                                            Rp {{ number_format($termin->total_bayar, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2 text-right text-red-600 font-medium">
+                                            Rp {{ number_format($termin->sisa_bayar, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            <span
+                                                class="px-2 py-0.5 rounded-full text-xs font-semibold
+                                    {{ $is_paid
+                                        ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'
+                                        : 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100' }}">
+                                                {{ $status }}
+                                            </span>
+                                        </td>
+
+                                        <td class="px-4 py-2 text-center">
+                                            @if (isset($bukti_per_termin[$termin->id_termin]) && $bukti_per_termin[$termin->id_termin]->isNotEmpty())
+                                                <button
+                                                    @click="proofModalData = {
+                                            termin_ke: {{ $termin->termin_ke }},
+                                            bukti: @js($bukti_per_termin[$termin->id_termin]->map(fn($b) => ['file' => $b->attachment_file]))
+                                        }"
+                                                    class="px-3 py-1 text-blue-500 dark:text-blue-400 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
+                                                    Lihat Bukti
+                                                </button>
+                                            @else
+                                                <span class="text-gray-500 dark:text-gray-400 italic">-</span>
+                                            @endif
+                                        </td>
+
+                                        <td class="px-4 py-2 text-center">
+                                            @if (!$is_paid && $allow_payment)
+                                                <button @click="modalOpen = {{ $termin->termin_ke }}"
+                                                    class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
+                                                    Lunasi
+                                                </button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @php
+                                        if (!$is_paid) {
+                                            $allow_payment = false;
+                                        }
+                                    @endphp
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             @endif
+
 
 
 
