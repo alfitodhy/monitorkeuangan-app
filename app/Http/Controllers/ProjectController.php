@@ -18,9 +18,14 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $proyek = Proyek::where('is_active', 'Y')->latest()->get();
+        $proyek = Proyek::where('is_active', 'Y')
+            ->orderByRaw("CASE WHEN status_proyek = 'process' THEN 0 ELSE 1 END") 
+            ->latest()
+            ->get();
+
         return view('projects.index', compact('proyek'));
     }
+
 
     public function datatable(Request $request)
     {
