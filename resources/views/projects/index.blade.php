@@ -629,13 +629,13 @@
                         </div>
 
                         ${addendum.deskripsi_perubahan ? `
-                               <div class="mb-4">
-                                   <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
-                                   <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-                                       ${addendum.deskripsi_perubahan}
+                                   <div class="mb-4">
+                                       <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
+                                       <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                           ${addendum.deskripsi_perubahan}
+                                       </div>
                                    </div>
-                               </div>
-                           ` : ''}
+                               ` : ''}
 
                         ${attachmentsHtml}
 
@@ -1175,14 +1175,43 @@
                     pagination.empty();
                     const totalPages = info.pages;
                     const currentPage = info.page;
+                    const maxVisible = 5; // jumlah halaman yang ditampilkan
 
-                    const pageBtn = (content, page, disabled = false, active = false) =>
-                        `<li><button class="btn btn-sm ${active?'btn-active':'btn-outline'} ${disabled?'btn-disabled':''}" data-page="${page}">${content}</button></li>`;
+                    const pageBtn = (label, page, disabled = false, active = false) =>
+                        `<li><button class="btn btn-sm ${active ? 'btn-active' : 'btn-outline'} ${disabled ? 'btn-disabled' : ''}" data-page="${page}">${label}</button></li>`;
 
+                    // Prev
                     pagination.append(pageBtn('Prev', currentPage - 1, currentPage === 0));
-                    for (let i = 0; i < totalPages; i++) {
+
+                    let start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
+                    let end = start + maxVisible - 1;
+
+                    if (end >= totalPages) {
+                        end = totalPages - 1;
+                        start = Math.max(0, end - maxVisible + 1);
+                    }
+
+                    // Halaman awal + ...
+                    if (start > 0) {
+                        pagination.append(pageBtn(1, 0, false, currentPage === 0));
+                        if (start > 1) pagination.append(
+                            `<li><span class="btn btn-sm btn-disabled">...</span></li>`);
+                    }
+
+                    // Halaman tengah
+                    for (let i = start; i <= end; i++) {
                         pagination.append(pageBtn(i + 1, i, false, i === currentPage));
                     }
+
+                    // Halaman akhir + ...
+                    if (end < totalPages - 1) {
+                        if (end < totalPages - 2) pagination.append(
+                            `<li><span class="btn btn-sm btn-disabled">...</span></li>`);
+                        pagination.append(pageBtn(totalPages, totalPages - 1, false, currentPage ===
+                            totalPages - 1));
+                    }
+
+                    // Next
                     pagination.append(pageBtn('Next', currentPage + 1, currentPage === totalPages - 1));
 
                     $('#proyekPagination button').off('click').on('click', function() {
@@ -1190,6 +1219,7 @@
                         if (page >= 0 && page < totalPages) dt.page(page).draw('page');
                     });
                 }
+
             });
 
             // Debug: Log struktur data untuk memahami masalah
