@@ -174,24 +174,24 @@
     </div>
 
     <style>
-    .status-filter-btn.active {
-        @apply bg-gray-700 text-white dark:bg-gray-900 dark:text-white;
-    }
-</style>
+        .status-filter-btn.active {
+            @apply bg-gray-700 text-white dark:bg-gray-900 dark:text-white;
+        }
+    </style>
 
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const buttons = document.querySelectorAll(".status-filter-btn");
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const buttons = document.querySelectorAll(".status-filter-btn");
 
-        buttons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                buttons.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
+            buttons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    buttons.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                });
             });
         });
-    });
-</script>
+    </script>
 
 
     @push('scripts')
@@ -464,14 +464,43 @@
                         pagination.empty();
                         const totalPages = info.pages;
                         const currentPage = info.page;
+                        const maxVisible = 5; // jumlah halaman yang ditampilkan
 
                         const pageBtn = (label, page, disabled = false, active = false) =>
                             `<li><button class="btn btn-sm ${active ? 'btn-active' : 'btn-outline'} ${disabled ? 'btn-disabled' : ''}" data-page="${page}">${label}</button></li>`;
 
+                        // Prev
                         pagination.append(pageBtn('Prev', currentPage - 1, currentPage === 0));
-                        for (let i = 0; i < totalPages; i++) {
+
+                        let start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
+                        let end = start + maxVisible - 1;
+
+                        if (end >= totalPages) {
+                            end = totalPages - 1;
+                            start = Math.max(0, end - maxVisible + 1);
+                        }
+
+                        // Jika ada halaman sebelum start, tampilkan ...
+                        if (start > 0) {
+                            pagination.append(pageBtn(1, 0, false, currentPage === 0));
+                            if (start > 1) pagination.append(
+                                `<li><span class="btn btn-sm btn-disabled">...</span></li>`);
+                        }
+
+                        // Halaman tengah
+                        for (let i = start; i <= end; i++) {
                             pagination.append(pageBtn(i + 1, i, false, i === currentPage));
                         }
+
+                        // Jika ada halaman setelah end, tampilkan ...
+                        if (end < totalPages - 1) {
+                            if (end < totalPages - 2) pagination.append(
+                                `<li><span class="btn btn-sm btn-disabled">...</span></li>`);
+                            pagination.append(pageBtn(totalPages, totalPages - 1, false, currentPage ===
+                                totalPages - 1));
+                        }
+
+                        // Next
                         pagination.append(pageBtn('Next', currentPage + 1, currentPage === totalPages - 1));
 
                         $('#pengeluaranPagination button').off('click').on('click', function() {
@@ -479,6 +508,7 @@
                             if (page >= 0 && page < totalPages) table.page(page).draw('page');
                         });
                     }
+
                 });
 
                 // Filter status
