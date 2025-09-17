@@ -33,7 +33,6 @@
                             </label>
                             <div class="relative">
                                 <select name="id_proyek" id="id_proyek" required>
-                                    <option value="">-- Pilih Proyek --</option>
                                     @foreach ($proyek as $p)
                                         <option value="{{ $p->id_proyek }}" data-nama="{{ $p->nama_proyek }}">
                                             {{ $p->nama_proyek }}
@@ -257,6 +256,10 @@
     </div>
 
     {{-- Skrip JavaScript --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elemen-elemen formulir
@@ -273,228 +276,298 @@
             const proyekSelect = document.getElementById('id_proyek');
             const namaProyekInput = document.getElementById('nama_proyek');
 
-            // Inisialisasi Tom Select - HANYA SEKALI
-            let vendorTomSelect = null;
-            let rekeningTomSelect = null;
-            let proyekTomSelect = null;
+            // Inisialisasi Choices.js - HANYA SEKALI
+            let vendorChoices = null;
+            let rekeningChoices = null;
+            let proyekChoices = null;
 
-            // Inisialisasi Tom Select untuk semua elemen
-            function initializeTomSelects() {
+            // Object untuk menyimpan data vendor (termasuk rekening)
+            let vendorData = {};
+
+            // Inisialisasi Choices.js untuk semua elemen
+            function initializeChoices() {
                 // Proyek
-                if (proyekSelect && !proyekTomSelect) {
-                    proyekTomSelect = new TomSelect("#id_proyek", {
-                        create: false,
-                        sortField: {
-                            field: "text",
-                            direction: "asc"
-                        },
-                        placeholder: "-- Pilih Proyek --",
-                        onChange: function(value) {
-                            const selectedOption = proyekSelect.querySelector(
-                                `option[value="${value}"]`);
-                            namaProyekInput.value = selectedOption ? selectedOption.dataset.nama || '' :
-                                '';
+                if (proyekSelect && !proyekChoices) {
+                    // Cek apakah sudah di-inisialisasi sebelumnya
+                    if (proyekSelect.hasAttribute('data-choice') || proyekSelect.classList.contains(
+                            'choices__input')) {
+                        return; // Skip jika sudah ada
+                    }
+
+                    proyekChoices = new Choices(proyekSelect, {
+                        searchEnabled: true,
+                        placeholderValue: "-- Pilih Proyek --",
+                        searchPlaceholderValue: "Cari proyek...",
+                        noResultsText: "Tidak ada hasil ditemukan",
+                        itemSelectText: "",
+                        shouldSort: false
+                    });
+
+                    // Listener Choices.js
+                    proyekChoices.passedElement.element.addEventListener('change', function(event) {
+                        const selectedOption = proyekSelect.querySelector(
+                            `option[value="${event.target.value}"]`
+                        );
+                        if (namaProyekInput && selectedOption) {
+                            namaProyekInput.value = selectedOption.dataset.nama || '';
                         }
                     });
+
                 }
 
                 // Vendor - disabled awalnya
-                if (vendorEl && !vendorTomSelect) {
-                    vendorTomSelect = new TomSelect("#vendor", {
-                        create: false,
-                        sortField: {
-                            field: "text",
-                            direction: "asc"
-                        },
-                        placeholder: "-- Pilih Vendor --",
-                        onChange: function(value) {
-                            handleVendorChange(value);
-                        }
+                if (vendorEl && !vendorChoices) {
+                    vendorChoices = new Choices(vendorEl, {
+                        searchEnabled: true,
+                        placeholderValue: "-- Pilih Vendor --",
+                        searchPlaceholderValue: "Cari vendor...",
+                        noResultsText: "Tidak ada hasil ditemukan",
+                        itemSelectText: "",
+                        shouldSort: false
                     });
-                    vendorTomSelect.disable(); // Disable awalnya
+
+                    vendorChoices.disable(); // Disable awalnya
+
+                    vendorEl.addEventListener('change', function() {
+                        handleVendorChange(this.value);
+                    });
+
                 }
 
                 // Rekening - disabled awalnya  
-                if (rekeningEl && !rekeningTomSelect) {
-                    rekeningTomSelect = new TomSelect("#rekening", {
-                        create: false,
-                        sortField: {
-                            field: "text",
-                            direction: "asc"
-                        },
-                        placeholder: "-- Pilih Rekening --",
-                        onChange: function(value) {
-                            handleRekeningChange(value);
-                        }
+                if (rekeningEl && !rekeningChoices) {
+                    rekeningChoices = new Choices(rekeningEl, {
+                        searchEnabled: true,
+                        placeholderValue: "-- Pilih Rekening --",
+                        searchPlaceholderValue: "Cari rekening...",
+                        noResultsText: "Tidak ada hasil ditemukan",
+                        itemSelectText: "",
+                        shouldSort: false
                     });
-                    rekeningTomSelect.disable(); // Disable awalnya
+
+                    rekeningChoices.disable(); // Disable awalnya
+
+                    // Pakai change event, bukan choice
+                    rekeningEl.addEventListener('change', function() {
+                        handleRekeningChange(this.value);
+                    });
                 }
             }
 
-            // Fungsi untuk reset vendors dengan Tom Select
+            // Fungsi untuk reset vendors dengan Choices.js
             function resetVendors() {
-                if (vendorTomSelect) {
-                    vendorTomSelect.clearOptions();
-                    vendorTomSelect.addOption({
-                        value: '',
-                        text: '-- Pilih Vendor --'
-                    });
-                    vendorTomSelect.setValue('');
-                    vendorTomSelect.disable();
+                if (vendorChoices) {
+                    vendorChoices.clearStore();
+                    vendorChoices.disable();
                 }
+                // Clear data vendor
+                vendorData = {};
+                // Clear select asli
+                vendorEl.innerHTML = '';
             }
 
-            // Fungsi untuk reset rekening dengan Tom Select
+            // Fungsi untuk reset rekening dengan Choices.js
             function resetRekening() {
-                if (rekeningTomSelect) {
-                    rekeningTomSelect.clearOptions();
-                    rekeningTomSelect.addOption({
-                        value: '',
-                        text: '-- Pilih Rekening --'
-                    });
-                    rekeningTomSelect.addOption({
-                        value: 'lainnya',
-                        text: 'Lainnya...'
-                    });
-                    rekeningTomSelect.setValue('');
-                    rekeningTomSelect.disable();
+                if (rekeningChoices) {
+                    rekeningChoices.clearStore();
+                    rekeningChoices.setChoices([
+
+                        {
+                            value: 'lainnya',
+                            label: 'Lainnya...',
+                            selected: false,
+                            disabled: false
+                        }
+                    ], 'value', 'label', true);
+                    rekeningChoices.disable();
                 }
 
                 // Hide form lainnya
                 if (rekeningLainnyaEl) {
                     rekeningLainnyaEl.classList.add('hidden');
-                    atasNamaInput.removeAttribute('required');
-                    namaBankInput.removeAttribute('required');
-                    noRekeningInput.removeAttribute('required');
+                    if (atasNamaInput) atasNamaInput.removeAttribute('required');
+                    if (namaBankInput) namaBankInput.removeAttribute('required');
+                    if (noRekeningInput) noRekeningInput.removeAttribute('required');
                 }
             }
 
             // Handle vendor change
             function handleVendorChange(vendorId) {
+                console.log('Vendor selected:', vendorId); // Debug log
                 resetRekening();
 
                 if (!vendorId) return;
 
-                // Cari option yang dipilih untuk mendapatkan data rekening
-                const selectedOption = vendorEl.querySelector(`option[value="${vendorId}"]`);
-                if (!selectedOption) return;
+                // Ambil data rekening dari vendorData object
+                const vendor = vendorData[String(vendorId)] || vendorData[Number(vendorId)];
+                console.log('Vendor data:', vendor); // Debug log
 
-                const rekeningData = selectedOption.dataset.rekening;
-                if (!rekeningData || rekeningData === 'null' || rekeningData === '[]') return;
+                if (!vendor || !vendor.rekening || vendor.rekening.length === 0) {
+                    console.log('No rekening data found');
+                    return;
+                }
 
                 try {
-                    const rekeningArray = JSON.parse(rekeningData);
+                    const rekeningArray = vendor.rekening;
+                    console.log('Rekening array:', rekeningArray); // Debug log
+
                     if (Array.isArray(rekeningArray) && rekeningArray.length > 0) {
-                        // Clear dan tambah opsi rekening
-                        rekeningTomSelect.clearOptions();
-                        rekeningTomSelect.addOption({
+                        // Siapkan pilihan rekening untuk Choices.js
+                        const rekeningChoicesData = [{
                             value: '',
-                            text: '-- Pilih Rekening --'
-                        });
+                            label: '',
+                            selected: true,
+                            disabled: false
+                        }];
 
                         // Tambah rekening dari data
                         rekeningArray.forEach(rk => {
                             const display = `${rk.nama_bank} - ${rk.no_rekening} a/n ${rk.atas_nama}`;
-                            rekeningTomSelect.addOption({
+                            rekeningChoicesData.push({
                                 value: display,
-                                text: display
+                                label: display,
+                                selected: false,
+                                disabled: false
                             });
                         });
 
                         // Tambah opsi lainnya
-                        rekeningTomSelect.addOption({
+                        rekeningChoicesData.push({
                             value: 'lainnya',
-                            text: 'Lainnya...'
+                            label: 'Lainnya...',
+                            selected: false,
+                            disabled: false
                         });
 
+                        console.log('Rekening choices data:', rekeningChoicesData); // Debug log
+
+                        // Clear dan set choices baru
+                        rekeningChoices.clearStore();
+                        rekeningChoices.setChoices(rekeningChoicesData, 'value', 'label', true);
+
                         // Enable rekening select
-                        rekeningTomSelect.enable();
+                        rekeningChoices.enable();
 
                         // Jika hanya 1 rekening, pilih otomatis
                         if (rekeningArray.length === 1) {
                             const display =
                                 `${rekeningArray[0].nama_bank} - ${rekeningArray[0].no_rekening} a/n ${rekeningArray[0].atas_nama}`;
-                            rekeningTomSelect.setValue(display);
+                            setTimeout(() => {
+                                rekeningChoices.setChoiceByValue(display);
+                            }, 100);
                         }
                     }
                 } catch (e) {
-                    console.error('Error parsing rekening data:', e);
+                    console.error('Error processing rekening data:', e);
                 }
             }
 
             // Handle rekening change
             function handleRekeningChange(value) {
                 if (value === 'lainnya') {
-                    rekeningLainnyaEl.classList.remove('hidden');
-                    atasNamaInput.setAttribute('required', 'required');
-                    namaBankInput.setAttribute('required', 'required');
-                    noRekeningInput.setAttribute('required', 'required');
+                    if (rekeningLainnyaEl) {
+                        rekeningLainnyaEl.classList.remove('hidden');
+                        if (atasNamaInput) atasNamaInput.setAttribute('required', 'required');
+                        if (namaBankInput) namaBankInput.setAttribute('required', 'required');
+                        if (noRekeningInput) noRekeningInput.setAttribute('required', 'required');
+                    }
                 } else {
-                    rekeningLainnyaEl.classList.add('hidden');
-                    atasNamaInput.removeAttribute('required');
-                    namaBankInput.removeAttribute('required');
-                    noRekeningInput.removeAttribute('required');
+                    if (rekeningLainnyaEl) {
+                        rekeningLainnyaEl.classList.add('hidden');
+                        if (atasNamaInput) atasNamaInput.removeAttribute('required');
+                        if (namaBankInput) namaBankInput.removeAttribute('required');
+                        if (noRekeningInput) noRekeningInput.removeAttribute('required');
+                    }
                 }
             }
 
             // Event listener untuk Jenis Vendor (native select)
-            jenisEl.addEventListener('change', async function() {
-                resetVendors();
-                resetRekening();
+            if (jenisEl) {
+                jenisEl.addEventListener('change', async function() {
+                    resetVendors();
+                    resetRekening();
 
-                const jenis = this.value;
-                if (!jenis) return;
+                    const jenis = this.value;
+                    if (!jenis) return;
 
-                try {
-                    const res = await fetch(`/vendor-by-jenis/${encodeURIComponent(jenis)}`);
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const data = await res.json();
+                    try {
+                        const res = await fetch(`/vendor-by-jenis/${encodeURIComponent(jenis)}`);
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const data = await res.json();
 
-                    if (Array.isArray(data) && data.length > 0) {
-                        // Clear dan tambah vendor baru ke Tom Select
-                        vendorTomSelect.clearOptions();
-                        vendorTomSelect.addOption({
-                            value: '',
-                            text: '-- Pilih Vendor --'
-                        });
+                        console.log('Fetched vendor data:', data); // Debug log
 
-                        data.forEach(v => {
-                            vendorTomSelect.addOption({
-                                value: v.id,
-                                text: v.nama_vendor ?? v.nama ?? ('Vendor ' + v.id)
+                        if (Array.isArray(data) && data.length > 0) {
+                            // Clear select asli dan data
+                            vendorEl.innerHTML = '';
+                            vendorData = {};
+
+                            // Siapkan data untuk Choices.js
+                            const vendorChoicesData = [{
+                                value: '',
+                                label: '',
+                                selected: true,
+                                disabled: false
+                            }];
+
+                            data.forEach(v => {
+                                const vendorName = v.nama_vendor ?? v.nama ?? ('Vendor ' + v
+                                    .id);
+
+                                // Simpan data vendor di object
+                                vendorData[v.id] = {
+                                    id: v.id,
+                                    nama: vendorName,
+                                    rekening: v.rekening ?? []
+                                };
+
+                                vendorChoicesData.push({
+                                    value: v.id,
+                                    label: vendorName,
+                                    selected: false,
+                                    disabled: false
+                                });
+
+                                // Tambah option di select asli juga (backup)
+                                const option = document.createElement('option');
+                                option.value = v.id;
+                                option.textContent = vendorName;
+                                option.dataset.rekening = JSON.stringify(v.rekening ?? []);
+                                vendorEl.appendChild(option);
                             });
 
-                            // Juga update option di select asli untuk menyimpan data rekening
-                            const option = document.createElement('option');
-                            option.value = v.id;
-                            option.textContent = v.nama_vendor ?? v.nama ?? ('Vendor ' + v.id);
-                            option.dataset.rekening = JSON.stringify(v.rekening ?? []);
-                            vendorEl.appendChild(option);
-                        });
+                            console.log('Vendor data stored:', vendorData); // Debug log
 
-                        // Enable vendor select
-                        vendorTomSelect.enable();
+                            // Clear dan set choices baru
+                            vendorChoices.clearStore();
+                            vendorChoices.setChoices(vendorChoicesData, 'value', 'label', true);
+
+                            // Enable vendor select
+                            vendorChoices.enable();
+                        }
+                    } catch (err) {
+                        console.error('Fetch vendor error:', err);
+                        if (vendorChoices) vendorChoices.disable();
                     }
-                } catch (err) {
-                    console.error('Fetch vendor error:', err);
-                    vendorTomSelect.disable();
-                }
-            });
+                });
+            }
 
             // Event listener untuk input Jumlah (memformat angka)
-            jumlahDisplay.addEventListener('input', function(e) {
-                let value = e.target.value;
-                value = value.replace(/\D/g, '');
-                let formattedValue = new Intl.NumberFormat('id-ID').format(value);
-                e.target.value = formattedValue;
-                jumlahValue.value = value;
-            });
+            if (jumlahDisplay) {
+                jumlahDisplay.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    value = value.replace(/\D/g, '');
+                    let formattedValue = new Intl.NumberFormat('id-ID').format(value);
+                    e.target.value = formattedValue;
+                    if (jumlahValue) jumlahValue.value = value;
+                });
 
-            // Inisialisasi format jumlah jika ada nilai default
-            if (jumlahValue.value) {
-                let value = jumlahValue.value;
-                let formattedValue = new Intl.NumberFormat('id-ID').format(value);
-                jumlahDisplay.value = formattedValue;
+                // Inisialisasi format jumlah jika ada nilai default
+                if (jumlahValue && jumlahValue.value) {
+                    let value = jumlahValue.value;
+                    let formattedValue = new Intl.NumberFormat('id-ID').format(value);
+                    jumlahDisplay.value = formattedValue;
+                }
             }
 
             // Status handling untuk BOD/Admin
@@ -511,71 +584,62 @@
                 });
             }
 
-            // Inisialisasi Tom Select setelah semua fungsi didefinisikan
-            initializeTomSelects();
+            // Tunggu sebentar untuk memastikan DOM siap, lalu inisialisasi
+            setTimeout(() => {
+                initializeChoices();
+            }, 100);
         });
     </script>
 
-    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
     <style>
-        /* Default (Light mode) */
-        .ts-wrapper {
-            @apply w-full text-sm border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 transition;
-        }
-
-        .ts-wrapper .ts-control {
-            @apply px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500;
-            border: none !important;
-            /* hilangin border default Tom Select */
-            box-shadow: none !important;
-            background: transparent !important;
-        }
-
-        .ts-dropdown {
-            @apply bg-white border border-gray-300 rounded-md shadow-lg mt-1;
-        }
-
-        .ts-dropdown .active {
-            @apply bg-indigo-500 text-white;
-        }
-
-        /* Dark mode (OS/theme) */
         @media (prefers-color-scheme: dark) {
-            .ts-wrapper {
-                background-color: rgb(55 65 81) !important;
-                /* bg-gray-700 */
-                border-color: rgb(75 85 99) !important;
-                /* border-gray-600 */
-                color: #fff !important;
+            .choices {
+                background-color: #374151 !important;
+                /* abu-abu tua */
+                color: #f0f0f0 !important;
+                border-radius: 8px !important;
             }
 
-            .ts-control {
-                background-color: transparent !important;
-                color: #fff !important;
+            .choices__inner {
+                background-color: #374151 !important;
+                color: #f0f0f0 !important;
+                border: none !important;
+                min-height: 42px;
+                /* biar tinggi konsisten */
+                padding: 5px;
+                border-radius: 8px;
             }
 
-            .ts-dropdown {
-                background-color: rgb(55 65 81) !important;
-                border-color: rgb(75 85 99) !important;
-                color: #fff !important;
+            .choices__input {
+                background-color: #2d2d2d !important;
+                color: #f0f0f0 !important;
+                border: none !important;
+                font-size: 14px !important;
+                /* kecilin juga input */
             }
 
-            .ts-dropdown .active {
-                background-color: rgb(99 102 241) !important;
-                /* indigo-500 */
-                color: #fff !important;
+            .choices__input::placeholder {
+                color: #aaa !important;
             }
 
-            .ts-dropdown,
-            .ts-control,
-            .ts-control input {
-                color: #ffffff;
-                font-family: inherit;
-                font-size: 13px;
-                line-height: 18px;
+            .choices__list--dropdown {
+                background-color: #2d2d2d !important;
+                color: #f0f0f0 !important;
+                border: none !important;
+                border-radius: 8px;
             }
+
+            .choices__list--dropdown .choices__item {
+                font-size: 13px !important;
+                /* kecilin font dropdown */
+                padding: 6px 10px;
+                /* biar lebih rapih */
+            }
+
+            .choices__list--dropdown .choices__item--selectable.is-highlighted {
+                background-color: #444 !important;
+            }
+        }
     </style>
 
 @endsection

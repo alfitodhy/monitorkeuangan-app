@@ -6,7 +6,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1
             class="text-2xl font-bold mb-8 text-gray-800 dark:text-gray-200 border-b-2 border-gray-400 pb-2 flex items-center">
-             Laporan Proyek
+            Laporan Proyek
         </h1>
 
         {{-- Filter Proyek --}}
@@ -15,12 +15,7 @@
                 <div class="flex-grow w-full">
                     <label for="id_proyek" class="sr-only">Pilih Proyek</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <i class="fas fa-clipboard-list text-gray-400"></i>
-                        </div>
-                        <select name="id_proyek" id="id_proyek"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                            <option value="">-- Pilih Proyek --</option>
+                        <select name="id_proyek" id="id_proyek">
                             @foreach ($proyekList as $proyek)
                                 <option value="{{ $proyek->id_proyek }}"
                                     {{ request('id_proyek') == $proyek->id_proyek ? 'selected' : '' }}>
@@ -45,22 +40,28 @@
             {{-- Tabel Ringkasan --}}
             <div class="overflow-x-auto mb-8 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-                 <thead class="bg-gray-200 dark:bg-gray-800">
-    <tr class="uppercase tracking-wider text-xs">
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Nilai Proyek</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Adendum</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Estimasi HPP</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Real HPP</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Estimasi Profit</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Real Profit</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Margin HPP (%)</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Margin Nilai (%)</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Pembayaran Client</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Sisa Kewajiban Client</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Sisa Kas Proyek</th>
-        <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Aksi</th>
-    </tr>
-</thead>
+                    <thead class="bg-gray-200 dark:bg-gray-800">
+                        <tr class="uppercase tracking-wider text-xs">
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Nilai Proyek</th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Adendum</th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Estimasi HPP</th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Real HPP</th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Estimasi Profit
+                            </th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Real Profit</th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Margin HPP (%)
+                            </th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Margin Nilai (%)
+                            </th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Pembayaran Client
+                            </th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Sisa Kewajiban
+                                Client</th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Sisa Kas Proyek
+                            </th>
+                            <th class="px-3 py-2 font-semibold text-gray-700 dark:text-gray-100 text-left">Aksi</th>
+                        </tr>
+                    </thead>
 
 
                     <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 text-xs">
@@ -207,3 +208,65 @@
         }
     </script>
 @endpush
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        new Choices("#id_proyek", {
+            placeholderValue: "Pilih atau cari proyek...",
+            searchPlaceholderValue: "Ketik untuk cari...",
+            shouldSort: true,
+            allowHTML: true,
+        });
+    });
+</script>
+
+
+<style>
+    @media (prefers-color-scheme: dark) {
+        .choices__inner {
+            background-color: rgba(0, 0, 0, 0.3) !important;
+            color: #f0f0f0 !important;
+            border: none !important;
+        }
+
+        .choices__list--dropdown,
+        .choices__list[aria-expanded] {
+            background-color: #2d2d2d !important;
+            color: #f0f0f0 !important;
+        }
+
+        .choices__item--choice {
+            background-color: #2d2d2d !important;
+            color: #f0f0f0 !important;
+        }
+
+        .choices__item--selectable.is-highlighted {
+            background-color: #3a3a3a !important;
+        }
+    }
+
+    /* ☀️ Light Mode */
+    @media (prefers-color-scheme: light) {
+        .choices__inner {
+            background-color: #ffffff !important;
+            color: #000 !important;
+            border: 1px solid #ddd !important;
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .choices__input {
+            background-color: #2d2d2d !important;
+            color: #f0f0f0 !important;
+            border: none !important;
+        }
+
+        .choices__input::placeholder {
+            color: #aaa !important;
+            /* placeholder jadi abu-abu */
+        }
+    }
+</style>

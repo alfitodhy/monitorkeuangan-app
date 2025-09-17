@@ -454,12 +454,16 @@ class PengeluaranProyekController extends Controller
 
         if ($pengeluaran->status === 'Pengajuan') {
             $pengeluaran->status = 'Cancel';
-            $pengeluaran->save();
+        } elseif ($pengeluaran->status === 'Sudah dibayar' && in_array(auth()->user()->role, ['super admin', 'bod'])) {
+            $pengeluaran->status = 'Cancel'; 
         }
+
+        $pengeluaran->save();
 
         return redirect()->route('pengeluaran.index')
             ->with('success', 'Pengeluaran berhasil dibatalkan.');
     }
+
 
 
 

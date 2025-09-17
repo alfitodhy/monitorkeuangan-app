@@ -9,7 +9,6 @@
 </a>
 
 {{-- Tombol Cancel --}}
-{{-- Tombol Cancel --}}
 @if ($item->status === 'Pengajuan')
     <form action="{{ route('pengeluaran.cancel', $item->id_pengeluaran) }}" method="POST"
         class="inline-block cancel-form">
@@ -18,14 +17,33 @@
         <button type="submit" title="Batalkan Pengajuan"
             class="cancel-btn inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 
                    text-white rounded shadow transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" 
-                fill="none" stroke="currentColor" stroke-width="2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="9" />
                 <line x1="15" y1="9" x2="9" y2="15" />
             </svg>
         </button>
     </form>
 @endif
+
+{{-- Tambahan khusus role Super Admin & Direktur --}}
+@if ($item->status === 'Sudah dibayar' && in_array(auth()->user()->role, ['super admin', 'bod']))
+    <form action="{{ route('pengeluaran.cancel', $item->id_pengeluaran) }}" method="POST"
+        class="inline-block cancel-form">
+        @csrf
+        @method('PATCH')
+        <button type="submit" title="Batalkan Pengajuan"
+            class="cancel-btn inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 
+                   text-white rounded shadow transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="9" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+            </svg>
+        </button>
+    </form>
+@endif
+
 
 
 

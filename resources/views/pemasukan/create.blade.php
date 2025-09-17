@@ -31,7 +31,7 @@
                     </label>
                     <select id="id_proyek" name="id_proyek"
                         class="select select-bordered w-full dark:bg-gray-800 dark:text-white" required>
-                        <option value="">-- Pilih Proyek --</option>
+                        <option value="" disabled selected>-- Pilih Proyek --</option>
                         @foreach ($proyek as $item)
                             <option value="{{ $item->id_proyek }}" data-klien="{{ $item->nama_klien }}">
                                 {{ $item->nama_proyek }}

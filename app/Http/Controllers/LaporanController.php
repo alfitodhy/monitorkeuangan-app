@@ -184,6 +184,8 @@ class LaporanController extends Controller
                 // total pengeluaran aktual
                 $totalPengeluaran = \DB::table('tb_pengeluaran_proyek')
                     ->where('id_proyek', $proyek->id_proyek)
+                    ->where('status', 'sudah dibayar')
+
                     ->sum('jumlah');
 
                 // real profit = total nilai proyek - pengeluaran aktual
@@ -204,6 +206,7 @@ class LaporanController extends Controller
                     ->unionAll(
                         \DB::table('tb_pengeluaran_proyek')
                             ->where('id_proyek', $proyek->id_proyek)
+                            ->where('status', 'Sudah dibayar')
                             ->select(
                                 'tanggal_pengeluaran as tanggal',
                                 'jumlah',
@@ -213,11 +216,6 @@ class LaporanController extends Controller
                     )
                     ->orderBy('tanggal')
                     ->get();
-
-
-
-
-
 
                 $laporan = [
                     'nama_proyek' => $proyek->nama_proyek,
@@ -265,6 +263,7 @@ class LaporanController extends Controller
             });
 
         $pengeluaran = PengeluaranProyek::whereBetween('tanggal_pengeluaran', [$tgl_mulai, $tgl_akhir])
+            ->where('status', 'Sudah dibayar')
             ->get()
             ->map(function ($item) {
                 return (object)[
