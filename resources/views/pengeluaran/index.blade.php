@@ -136,46 +136,147 @@
 
     {{-- Modal Approve Pengeluaran --}}
     <div id="approveModal"
-        class="modal hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
-            <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Approve Pengeluaran</h2>
-            <form id="approveForm" method="POST">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="status" value="Sudah dibayar">
-                <p class="text-sm text-gray-600 dark:text-gray-300">Yakin ingin meng-approve pengeluaran ini?</p>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('approveModal')" class="btn btn-sm">Batal</button>
-                    <button type="submit" class="btn btn-sm bg-green-500 hover:bg-green-600 text-white">Approve</button>
+        class="modal-overlay hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
+        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mx-auto mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
                 </div>
-            </form>
+                <h3 class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
+                    Approve Pengeluaran
+                </h3>
+                <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">
+                    Unggah bukti transfer untuk menyelesaikan approval.
+                </p>
+                <form id="approveForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        Unggah Bukti Transfer
+                    </label>
+                    <input type="file" name="file_buktitf" required
+                        class="block w-full text-sm text-gray-700 dark:text-gray-200 
+                               file:mr-3 file:py-1.5 file:px-3 
+                               file:rounded-md file:border-0 
+                               file:text-xs file:font-medium 
+                               file:bg-gray-100 file:text-gray-700 
+                               hover:file:bg-gray-200 
+                               dark:file:bg-gray-700 dark:file:text-gray-200 dark:hover:file:bg-gray-600
+                               mb-4 border border-gray-300 dark:border-gray-600 rounded-md p-1.5 
+                               bg-white dark:bg-gray-800 
+                               focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all" />
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeApproveModal()"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 dark:border-gray-600 
+                   bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 
+                   hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-md text-white 
+                   bg-green-600 hover:bg-green-700 
+                   focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1 
+                   shadow-sm transition-all">
+                            Approve
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     {{-- Modal Reject Pengeluaran --}}
     <div id="rejectModal"
-        class="modal hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
-            <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Tolak Pengeluaran</h2>
-            <form id="rejectForm" method="POST">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="status" value="Ditolak">
-                <div class="mb-3">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alasan Penolakan</label>
-                    <textarea name="alasan" class="textarea textarea-bordered w-full" rows="3" required></textarea>
+        class="modal-overlay hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
+        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mx-auto mb-4">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('rejectModal')" class="btn btn-sm">Batal</button>
-                    <button type="submit" class="btn btn-sm bg-red-500 hover:bg-red-600 text-white">Tolak</button>
-                </div>
-            </form>
+                <h3 class="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
+                    Tolak Pengeluaran
+                </h3>
+                <p class="text-sm text-center text-gray-500 dark:text-gray-400 mb-6">
+                    Mohon berikan alasan penolakan yang jelas.</p>
+                <form id="rejectForm" method="POST">
+                    @csrf
+                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        Alasan Penolakan
+                    </label>
+                    <textarea name="catatan_bod" rows="3" required placeholder="Masukkan alasan penolakan..."
+                        class="w-full p-2.5 border border-gray-300 dark:border-gray-600 rounded-md mb-3 
+                               bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
+                               placeholder-gray-400 dark:placeholder-gray-500 
+                               focus:ring-2 focus:ring-red-500 focus:border-red-500 shadow-sm text-sm transition-all resize-none"></textarea>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeRejectModal()"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 dark:border-gray-600 
+               bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 
+               hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-md text-white 
+               bg-red-600 hover:bg-red-700 
+               focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 
+               shadow-sm transition-all">
+                            Tolak
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <style>
         .status-filter-btn.active {
             @apply bg-gray-700 text-white dark:bg-gray-900 dark:text-white;
+        }
+
+        /* Modal fixes for mobile */
+        .modal-overlay {
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(1);
+            transition: all 0.3s ease;
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 640px) {
+            .modal-content {
+                max-height: 95vh !important;
+                margin: 1rem;
+            }
+
+            .modal-overlay {
+                padding: 1rem !important;
+            }
+        }
+
+        /* Touch-friendly buttons */
+        .btn-mobile {
+            min-height: 44px !important;
+            min-width: 44px !important;
+            touch-action: manipulation;
         }
     </style>
 
@@ -206,23 +307,117 @@
                 document.getElementById(modalId).classList.add('hidden');
             }
 
+            // FIXED: Improved modal functions for mobile
             function openApproveModal(id) {
-                document.getElementById('approveForm').action = `/pengeluaran/${id}/approve`;
-                document.getElementById('approveModal').classList.remove('hidden');
+                console.log('Opening approve modal for ID:', id);
+
+                // Set form action
+                const form = document.getElementById('approveForm');
+                if (form) {
+                    form.action = `/pengeluaran/${id}/approve`;
+                }
+
+                // Prevent body scroll
+                document.body.classList.add('modal-open');
+
+                // Show modal
+                const modal = document.getElementById('approveModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+
+                    // Focus for accessibility
+                    setTimeout(() => {
+                        const firstInput = modal.querySelector('input[type="file"]');
+                        if (firstInput) firstInput.focus();
+                    }, 100);
+                }
             }
 
             function closeApproveModal() {
-                document.getElementById('approveModal').classList.add('hidden');
+                console.log('Closing approve modal');
+
+                const modal = document.getElementById('approveModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+
+                // Restore body scroll
+                document.body.classList.remove('modal-open');
+
+                // Reset form
+                const form = document.getElementById('approveForm');
+                if (form) {
+                    form.reset();
+                }
             }
 
             function openRejectModal(id) {
-                document.getElementById('rejectForm').action = `/pengeluaran/${id}/reject`;
-                document.getElementById('rejectModal').classList.remove('hidden');
+                console.log('Opening reject modal for ID:', id);
+
+                // Set form action
+                const form = document.getElementById('rejectForm');
+                if (form) {
+                    form.action = `/pengeluaran/${id}/reject`;
+                }
+
+                // Prevent body scroll
+                document.body.classList.add('modal-open');
+
+                // Show modal
+                const modal = document.getElementById('rejectModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+
+                    // Focus for accessibility
+                    setTimeout(() => {
+                        const textarea = modal.querySelector('textarea');
+                        if (textarea) textarea.focus();
+                    }, 100);
+                }
             }
 
             function closeRejectModal() {
-                document.getElementById('rejectModal').classList.add('hidden');
+                console.log('Closing reject modal');
+
+                const modal = document.getElementById('rejectModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+
+                // Restore body scroll
+                document.body.classList.remove('modal-open');
+
+                // Reset form
+                const form = document.getElementById('rejectForm');
+                if (form) {
+                    form.reset();
+                }
             }
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(event) {
+                if (event.target && event.target.id === 'approveModal') {
+                    closeApproveModal();
+                }
+                if (event.target && event.target.id === 'rejectModal') {
+                    closeRejectModal();
+                }
+            });
+
+            // Close modals with Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    const approveModal = document.getElementById('approveModal');
+                    const rejectModal = document.getElementById('rejectModal');
+
+                    if (approveModal && !approveModal.classList.contains('hidden')) {
+                        closeApproveModal();
+                    }
+                    if (rejectModal && !rejectModal.classList.contains('hidden')) {
+                        closeRejectModal();
+                    }
+                }
+            });
         </script>
     @endpush
 
