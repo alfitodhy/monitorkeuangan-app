@@ -17,9 +17,11 @@ class DashboardController extends Controller
             ->whereYear('created_at', Carbon::now()->year)
             ->count();
 
-        // Total pengajuan aktif (semua, user_created = kepalaops)
+        // Total pengajuan aktif (semua, user_created = kepalaops, kecuali ditolak/cancel)
         $totalPengeluaranKepalaops = PengeluaranProyek::where('user_created', 'kepalaops')
+            ->whereNotIn('status', ['ditolak', 'cancel'])
             ->count();
+
 
         // Total sedang diproses (semua)
         $totalSedangDiproses = PengeluaranProyek::where('status', 'sedang diproses')
