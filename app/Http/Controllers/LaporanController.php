@@ -14,72 +14,7 @@ class LaporanController extends Controller
 
 
 
-    public function indexlama(Request $request)
-    {
-        $proyekList = Proyek::all(); // untuk dropdown
-        $laporan = null;
 
-
-        if ($request->id_proyek) {
-            $proyek = Proyek::find($request->id_proyek);
-
-
-            if ($proyek) {
-                // nilai proyek & adendum
-                $nilaiProyek = $proyek->nilai_proyek;
-                $adendum = $proyek->adendum ?? 0;
-
-
-                // estimasi HPP (persen) -> konversi ke nominal
-                $estimasiPersen = $proyek->estimasi_hpp ?? 0;
-                $estimasiHpp = ($nilaiProyek + $adendum) * $estimasiPersen / 100;
-
-
-                // estimasi profit (nominal)
-                $estimasiProfit = ($nilaiProyek + $adendum) - $estimasiHpp;
-
-
-                // total pemasukan dari client
-                $totalPembayaranClient = \DB::table('tb_pemasukan_proyek')
-                    ->where('id_proyek', $proyek->id_proyek)
-                    ->sum('jumlah');
-
-
-                // total pengeluaran aktual
-                $totalPengeluaran = \DB::table('tb_pengeluaran_proyek')
-                    ->where('id_proyek', $proyek->id_proyek)
-                    ->sum('jumlah');
-
-
-                // real profit = nilai proyek + adendum - pengeluaran aktual
-                $realProfit = ($nilaiProyek + $adendum) - $totalPengeluaran;
-
-
-                // persentase margin
-                $marginHpp = $estimasiHpp > 0 ? round(($estimasiProfit / $estimasiHpp) * 100, 2) : 0;
-                $marginNilai = ($nilaiProyek + $adendum) > 0 ? round(($estimasiProfit / ($nilaiProyek + $adendum)) * 100, 2) : 0;
-
-
-                $laporan = [
-                    'nama_proyek' => $proyek->nama_proyek,
-                    'nilai_proyek' => $nilaiProyek,
-                    'adendum' => $adendum,
-                    'estimasi_hpp' => $estimasiHpp,
-                    'estimasi_profit' => $estimasiProfit,
-                    'margin_hpp' => $marginHpp,
-                    'margin_nilai' => $marginNilai,
-                    'real_hpp' => $totalPengeluaran,
-                    'real_profit' => $realProfit,
-                    'total_pembayaran_client' => $totalPembayaranClient,
-                    'sisa_kewajiban_client' => ($nilaiProyek + $adendum) - $totalPembayaranClient,
-                    'sisa_kas' => $totalPembayaranClient - $totalPengeluaran,
-                ];
-            }
-        }
-
-
-        return view('laporan.index', compact('proyekList', 'laporan'));
-    }
 
 
     public function keuanganlama(Request $request)
@@ -145,7 +80,7 @@ class LaporanController extends Controller
 
 
 
-    public function index(Request $request)
+    public function index2(Request $request)
     {
         $proyekList = Proyek::all(); // untuk dropdown
         $laporan = null;
@@ -239,6 +174,258 @@ class LaporanController extends Controller
     }
 
 
+    public function index()
+    {
+        return view('laporan.index');
+    }
+
+
+
+    public function getDataLaporansemua(Request $request)
+    {
+        try {
+            $start  = $request->get('start', 0);
+            $length = $request->get('length', 10);
+            $search = $request->get('search')['value'] ?? '';
+
+            // mapping index kolom DataTables -> kolom di database
+            $columns = [
+                0 => 'id_proyek',
+                1 => 'nama_proyek',
+                2 => 'nilai_proyek',
+                3 => 'estimasi_hpp',
+                4 => 'target_hpp_total',
+                5 => 'target_hpp_termin',
+                6 => 'real_profit',
+                7 => 'tanggal_deadline', 
+            ];
+
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderColumn = $columns[$orderColumnIndex] ?? 'id_proyek';
+            $orderDir = $request->input('order.0.dir') ?? 'asc';
+
+            $query = Proyek::query();
+
+            // Search global
+            if (!empty($search)) {
+                $query->where('nama_proyek', 'like', "%{$search}%");
+            }
+
+            $totalRecords    = Proyek::count();
+            $filteredRecords = $query->count();
+
+            // apply sorting
+            $query->orderBy($orderColumn, $orderDir);
+
+            // apply limit & offset
+            $proyekList = $query->offset($start)->limit($length)->get();
+
+            $data = [];
+            foreach ($proyekList as $index => $proyek) {
+                $totalAddendum = \DB::table('tb_addendum_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->selectRaw('COALESCE(SUM(nilai_proyek_addendum), 0) as nilai_addendum,
+                             COALESCE(SUM(estimasi_hpp_addendum), 0) as estimasi_hpp_addendum')
+                    ->first();
+
+                $nilaiProyek = $proyek->nilai_proyek;
+                $adendum     = $totalAddendum->nilai_addendum;
+                $estimasiPersen = $proyek->estimasi_hpp ?? 0;
+
+                $estimasiHpp = ($nilaiProyek * $estimasiPersen / 100) + ($totalAddendum->estimasi_hpp_addendum ?? 0);
+                $totalNilaiProyek = $nilaiProyek + $adendum;
+                $estimasiProfit   = $totalNilaiProyek - $estimasiHpp;
+
+                $totalPengeluaran = \DB::table('tb_pengeluaran_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->where('status', 'sudah dibayar')
+                    ->sum('jumlah');
+
+                $realProfit = $totalNilaiProyek - $totalPengeluaran;
+
+                $targetHppTotal = ($totalNilaiProyek * $estimasiPersen / 100) + ($totalAddendum->estimasi_hpp_addendum ?? 0);
+
+
+                $totalTerminDibayar = \DB::table('tb_pemasukan_proyek as p')
+                    ->join('tb_termin_proyek as t', 'p.id_termin', '=', 't.id_termin')
+                    ->where('t.id_proyek', $proyek->id_proyek)
+                    ->whereIn('t.status_pembayaran', ['sebagian', 'lunas'])
+                    ->sum('p.jumlah');
+
+
+                $targetHppTermin = $totalTerminDibayar * ($estimasiPersen / 100);
+
+                $marginNilai = $totalNilaiProyek > 0 ? round(($realProfit / $totalNilaiProyek) * 100, 2) : 0;
+
+                $data[] = [
+                    'DT_RowIndex'        => $start + $index + 1,
+                    'nama_proyek'        => $proyek->nama_proyek,
+                    'total_nilai_proyek' => number_format($totalNilaiProyek, 0, ',', '.'),
+                    'target_hpp_total'   => number_format($targetHppTotal, 0, ',', '.'),
+                    'target_hpp_termin'  => number_format($targetHppTermin, 0, ',', '.'), 
+                    'real_hpp'           => number_format($totalPengeluaran, 0, ',', '.'),
+                    'estimasi_profit'    => number_format($estimasiProfit, 0, ',', '.'),
+                    'real_profit'        => number_format($realProfit, 0, ',', '.'),
+                    'margin_nilai'       => $marginNilai . '%',
+                    'tanggal_deadline'   => \Carbon\Carbon::parse($proyek->tanggal_deadline)->format('d/m/Y'),
+                    'aksi'               => '<button onclick="toggleDetail(' . $proyek->id_proyek . ')" class="px-2 py-1 bg-green-600 text-white rounded">Detail</button>',
+                ];
+            }
+
+            return response()->json([
+                'draw'            => intval($request->get('draw')),
+                'recordsTotal'    => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data'            => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function getDataLaporan(Request $request)
+    {
+        try {
+            $start  = $request->get('start', 0);
+            $length = $request->get('length', 10);
+            $search = $request->get('search')['value'] ?? '';
+
+            // mapping index kolom DataTables -> kolom di database
+            $columns = [
+                0 => 'id_proyek',
+                1 => 'nama_proyek',
+                2 => 'nilai_proyek',
+                3 => 'estimasi_hpp',
+                4 => 'target_hpp_total',
+                5 => 'target_hpp_termin',
+                6 => 'real_profit',
+                7 => 'tanggal_deadline',
+            ];
+
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderColumn = $columns[$orderColumnIndex] ?? 'id_proyek';
+            $orderDir = $request->input('order.0.dir') ?? 'asc';
+
+            $query = Proyek::whereIn('status_proyek', ['process', 'progress']);
+
+            // Search global
+            if (!empty($search)) {
+                $query->where('nama_proyek', 'like', "%{$search}%");
+            }
+            
+
+            $totalRecords    = Proyek::count();
+            $filteredRecords = $query->count();
+
+            // apply sorting
+            $query->orderBy($orderColumn, $orderDir);
+
+            // apply limit & offset
+            $proyekList = $query->offset($start)->limit($length)->get();
+
+            $data = [];
+            foreach ($proyekList as $index => $proyek) {
+                $totalAddendum = \DB::table('tb_addendum_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->selectRaw('COALESCE(SUM(nilai_proyek_addendum), 0) as nilai_addendum,
+                             COALESCE(SUM(estimasi_hpp_addendum), 0) as estimasi_hpp_addendum')
+                    ->first();
+
+                $nilaiProyek = $proyek->nilai_proyek;
+                $adendum     = $totalAddendum->nilai_addendum;
+                $estimasiPersen = $proyek->estimasi_hpp ?? 0;
+
+                $estimasiHpp = ($nilaiProyek * $estimasiPersen / 100) + ($totalAddendum->estimasi_hpp_addendum ?? 0);
+                $totalNilaiProyek = $nilaiProyek + $adendum;
+                $estimasiProfit   = $totalNilaiProyek - $estimasiHpp;
+
+                $totalPengeluaran = \DB::table('tb_pengeluaran_proyek')
+                    ->where('id_proyek', $proyek->id_proyek)
+                    ->where('status', 'sudah dibayar')
+                    ->sum('jumlah');
+
+                $realProfit = $totalNilaiProyek - $totalPengeluaran;
+
+                $targetHppTotal = ($totalNilaiProyek * $estimasiPersen / 100) + ($totalAddendum->estimasi_hpp_addendum ?? 0);
+
+
+                $totalTerminDibayar = \DB::table('tb_pemasukan_proyek as p')
+                    ->join('tb_termin_proyek as t', 'p.id_termin', '=', 't.id_termin')
+                    ->where('t.id_proyek', $proyek->id_proyek)
+                    ->whereIn('t.status_pembayaran', ['sebagian', 'lunas'])
+                    ->sum('p.jumlah');
+
+
+                $targetHppTermin = $totalTerminDibayar * ($estimasiPersen / 100);
+
+                $marginNilai = $totalNilaiProyek > 0 ? round(($realProfit / $totalNilaiProyek) * 100, 2) : 0;
+
+                $data[] = [
+                    'DT_RowIndex'        => $start + $index + 1,
+                    'nama_proyek'        => $proyek->nama_proyek,
+                    'total_nilai_proyek' => number_format($totalNilaiProyek, 0, ',', '.'),
+                    'target_hpp_total'   => number_format($targetHppTotal, 0, ',', '.'),
+                    'target_hpp_termin'  => number_format($targetHppTermin, 0, ',', '.'),
+                    'real_hpp'           => number_format($totalPengeluaran, 0, ',', '.'),
+                    'estimasi_profit'    => number_format($estimasiProfit, 0, ',', '.'),
+                    'real_profit'        => number_format($realProfit, 0, ',', '.'),
+                    'margin_nilai'       => $marginNilai . '%',
+                    'tanggal_deadline'   => \Carbon\Carbon::parse($proyek->tanggal_deadline)->format('d/m/Y'),
+                    'aksi'               => '<button onclick="toggleDetail(' . $proyek->id_proyek . ')" class="px-2 py-1 bg-green-600 text-white rounded">Detail</button>',
+                ];
+            }
+
+            return response()->json([
+                'draw'            => intval($request->get('draw')),
+                'recordsTotal'    => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data'            => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function getTransaksi($id)
+    {
+        try {
+            $pemasukan = \DB::table('tb_pemasukan_proyek')
+                ->where('id_proyek', $id)
+                ->select('tanggal_pemasukan as tanggal', 'keterangan', 'jumlah')
+                ->get()
+                ->map(function ($row) {
+                    return [
+                        'tanggal' => $row->tanggal,
+                        'keterangan' => $row->keterangan,
+                        'jumlah' => (int) $row->jumlah,
+                        'tipe' => 'pemasukan'
+                    ];
+                });
+
+            $pengeluaran = \DB::table('tb_pengeluaran_proyek')
+                ->where('id_proyek', $id)
+                ->where('status', 'sudah dibayar')
+                ->select('tanggal_pengeluaran as tanggal', 'keterangan', 'jumlah')
+                ->get()
+                ->map(function ($row) {
+                    return [
+                        'tanggal' => $row->tanggal,
+                        'keterangan' => $row->keterangan,
+                        'jumlah' => (int) $row->jumlah,
+                        'tipe' => 'pengeluaran'
+                    ];
+                });
+
+
+            $data = $pemasukan->merge($pengeluaran)->sortBy('tanggal')->values();
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
 
     public function keuangan(Request $request)

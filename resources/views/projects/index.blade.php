@@ -54,7 +54,6 @@
                         <thead class="bg-gray-100 dark:bg-gray-700">
                             <tr>
                                 <th>No</th>
-                                <th>Kode</th>
                                 <th>Proyek</th>
                                 <th>Klien</th>
                                 <th>Nilai</th>
@@ -68,7 +67,6 @@
                             @foreach ($proyek as $index => $item)
                                 <tr class="transition-all hover:scale-102 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <td>{{ $index + 1 }}</td>
-                                    <td>{{ $item->kode_proyek }}</td>
                                     <td>{{ $item->nama_proyek }}</td>
                                     <td>{{ $item->nama_klien }}</td>
                                     <td>Rp {{ number_format($item->nilai_proyek, 0, ',', '.') }}</td>
@@ -99,9 +97,10 @@
                                             {{ ucfirst($item->status_proyek ?: '-') }}
                                         </span>
                                     </td>
+
                                     <td class="px-2 py-1 text-center">
                                         <div class="flex items-center justify-center gap-1">
-                                            {{-- Tombol Detail --}}
+                                            {{-- Tombol Detail (selalu tampil) --}}
                                             <a href="{{ route('projects.show', $item->id_proyek) }}" title="Lihat Detail"
                                                 class="inline-flex items-center justify-center w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
@@ -113,59 +112,60 @@
                                                 </svg>
                                             </a>
 
-                                            {{-- Tombol Edit --}}
-                                            @if ($item->status_proyek === 'process')
-                                                <a href="{{ route('projects.edit', $item->id_proyek) }}"
-                                                    title="Edit Proyek"
-                                                    class="inline-flex items-center justify-center w-7 h-7 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11 16H7v-4l2-2z" />
-                                                    </svg>
-                                                </a>
+                                            {{-- Tombol lain kecuali untuk kepala operasional --}}
+                                            @if (Auth::user()->role !== 'kepala operational')
+                                                {{-- Tombol Edit --}}
+                                                @if ($item->status_proyek === 'process')
+                                                    <a href="{{ route('projects.edit', $item->id_proyek) }}"
+                                                        title="Edit Proyek"
+                                                        class="inline-flex items-center justify-center w-7 h-7 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11 16H7v-4l2-2z" />
+                                                        </svg>
+                                                    </a>
+                                                @endif
+
+                                                {{-- Tombol Addendum --}}
+                                                @if ($item->status_proyek === 'progress')
+                                                    <button type="button"
+                                                        onclick="openAddendumModal({{ $item->id_proyek }}, '{{ $item->nama_proyek }}')"
+                                                        title="Tambah Addendum"
+                                                        class="inline-flex items-center justify-center w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow transition duration-200 ease-in-out">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                                            stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M7 2h8l5 5v13a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M12 11v6m-3-3h6" />
+                                                        </svg>
+                                                    </button>
+                                                @endif
+
+                                                {{-- Tombol Hapus --}}
+                                                <form action="{{ route('projects.destroy', $item->id_proyek) }}"
+                                                    method="POST" class="delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" title="Hapus Proyek"
+                                                        class="delete-btn inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
                                             @endif
-
-                                            {{-- Tombol Addendum --}}
-                                            @if ($item->status_proyek === 'progress')
-                                                <button type="button"
-                                                    onclick="openAddendumModal({{ $item->id_proyek }}, '{{ $item->nama_proyek }}')"
-                                                    title="Tambah Addendum"
-                                                    class="inline-flex items-center justify-center w-7 h-7 
-           bg-orange-500 hover:bg-orange-600 text-white 
-           rounded-lg shadow transition duration-200 ease-in-out">
-                                                    <!-- Ikon Dokumen + Plus -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                        <!-- Dokumen -->
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M7 2h8l5 5v13a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
-                                                        <!-- Tanda Plus -->
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M12 11v6m-3-3h6" />
-                                                    </svg>
-                                                </button>
-                                            @endif
-
-
-                                            {{-- Tombol Hapus --}}
-                                            <form action="{{ route('projects.destroy', $item->id_proyek) }}" method="POST"
-                                                class="delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" title="Hapus Proyek"
-                                                    class="delete-btn inline-flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-
                                         </div>
                                     </td>
+
+
+
+
                                 </tr>
                             @endforeach
                         </tbody>
@@ -629,13 +629,13 @@
                         </div>
 
                         ${addendum.deskripsi_perubahan ? `
-                                   <div class="mb-4">
-                                       <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
-                                       <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-                                           ${addendum.deskripsi_perubahan}
-                                       </div>
-                                   </div>
-                               ` : ''}
+                                               <div class="mb-4">
+                                                   <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi Perubahan</label>
+                                                   <div class="mt-1 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                                       ${addendum.deskripsi_perubahan}
+                                                   </div>
+                                               </div>
+                                           ` : ''}
 
                         ${attachmentsHtml}
 

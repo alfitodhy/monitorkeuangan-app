@@ -31,16 +31,7 @@
 
             <form action="{{ route('projects.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    <!-- Kode Proyek -->
-                    <div>
-                        <label for="kode_proyek"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Kode
-                            Proyek</label>
-                        <input type="text" id="kode_proyek" name="kode_proyek"
-                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                            value="{{ old('kode_proyek') }}" placeholder="Masukkan kode proyek" required>
-                    </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-4 lg:gap-x-6 gap-y-4">
 
                     <!-- Nama Proyek -->
                     <div>
@@ -84,6 +75,32 @@
 
                     </div>
 
+
+   <!-- Tipe Proyek -->
+                    <div>
+                        <label for="tipe_proyek"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tipe
+                            Proyek</label>
+                        <select id="tipe_proyek" name="tipe_proyek"
+                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                            onchange="toggleTipeLainnya()" required>
+                            <option value="">-- Pilih Tipe --</option>
+                            <option value="Design" {{ old('tipe_proyek') == 'Design' ? 'selected' : '' }}>Design
+                            </option>
+                            <option value="Renovasi" {{ old('tipe_proyek') == 'Renovasi' ? 'selected' : '' }}>Renovasi
+                            </option>
+                            <option value="Bangun" {{ old('tipe_proyek') == 'Bangun' ? 'selected' : '' }}>Bangun
+                            </option>
+                            <option value="Lainnya" {{ old('tipe_proyek') == 'Lainnya' ? 'selected' : '' }}>Lainnya
+                            </option>
+                        </select>
+
+                        <!-- Input tambahan, hidden default -->
+                        <input type="text" id="tipe_lainnya_input" name="tipe_lainnya"
+                            class="w-full mt-2 border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                            placeholder="Tulis tipe proyek..." style="display: none;" value="{{ old('tipe_lainnya') }}">
+                    </div>
+
                     <!-- Nilai Proyek -->
                     <div>
                         <label for="nilai_proyek"
@@ -112,18 +129,12 @@
                             oninput="this.value = formatPersen(this.value)">
                     </div>
 
-                    <div>
-                        <label for="termin"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Jumlah
-                            Termin</label>
-                        <input type="number" id="termin" name="termin"
-                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                            value="{{ old('termin', 1) }}" min="1" max="20" placeholder="Contoh: 3">
-                    </div>
+                 
 
-                    <div>
-                        <div class="flex gap-4">
-                            <div class="flex-1">
+                    <!-- Nominal HPP & Profit -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
                                 <label for="nominal_hpp"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Nominal
                                     HPP</label>
@@ -133,7 +144,7 @@
                             </div>
 
                             <!-- Profit (readonly) -->
-                            <div class="flex-1">
+                            <div>
                                 <label for="profit"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Profit</label>
                                 <input type="text" id="profit" name="profit"
@@ -143,71 +154,69 @@
                         </div>
                     </div>
 
-                    <!-- Dynamic termin inputs -->
-                    <div id="termin-container" class="mt-4 space-y-6"></div>
-
-                    <!-- Tanggal Proyek -->
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex gap-4">
-                                <div class="flex-1">
-                                    <label for="tanggal_start_proyek"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
-                                        Mulai</label>
-                                    <input type="date" id="tanggal_start_proyek" name="tanggal_start_proyek"
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                        value="{{ old('tanggal_start_proyek') }}">
-                                </div>
-                                <div class="flex-1">
-                                    <label for="tanggal_deadline"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
-                                        Deadline</label>
-                                    <input type="date" id="tanggal_deadline" name="tanggal_deadline"
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                        value="{{ old('tanggal_deadline') }}">
-                                </div>
+                    <!-- Tanggal Start & Deadline -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="tanggal_start_proyek"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
+                                    Mulai</label>
+                                <input type="date" id="tanggal_start_proyek" name="tanggal_start_proyek"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('tanggal_start_proyek') }}">
                             </div>
-                        </div>
-
-                        <!-- Tipe Proyek -->
-                        <div>
-                            <label for="tipe_proyek"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tipe
-                                Proyek</label>
-                            <select id="tipe_proyek" name="tipe_proyek"
-                                class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                onchange="toggleTipeLainnya()" required>
-                                <option value="">-- Pilih Tipe --</option>
-                                <option value="Design" {{ old('tipe_proyek') == 'Design' ? 'selected' : '' }}>Design
-                                </option>
-                                <option value="Renovasi" {{ old('tipe_proyek') == 'Renovasi' ? 'selected' : '' }}>Renovasi
-                                </option>
-                                <option value="Bangun" {{ old('tipe_proyek') == 'Bangun' ? 'selected' : '' }}>Bangun
-                                </option>
-                                <option value="Lainnya" {{ old('tipe_proyek') == 'Lainnya' ? 'selected' : '' }}>Lainnya
-                                </option>
-                            </select>
-
-                            <!-- Input tambahan, hidden default -->
-                            <input type="text" id="tipe_lainnya_input" name="tipe_lainnya"
-                                class="w-full mt-2 border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                placeholder="Tulis tipe proyek..." style="display: none;"
-                                value="{{ old('tipe_lainnya') }}">
-                        </div>
-
-                        <!-- Durasi Pengerjaan -->
-                        <div>
-                            <label for="durasi_pengerjaan_bulan"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Durasi
-                                Pengerjaan (bulan)</label>
-                            <input type="number" id="durasi_pengerjaan_bulan" name="durasi_pengerjaan_bulan"
-                                class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                value="{{ old('durasi_pengerjaan_bulan') }}" placeholder="Contoh: 6">
+                            <div>
+                                <label for="tanggal_deadline"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
+                                    Deadline</label>
+                                <input type="date" id="tanggal_deadline" name="tanggal_deadline"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('tanggal_deadline') }}">
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Termin & Durasi -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="termin"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Jumlah
+                                    Termin</label>
+                                <input type="number" id="termin" name="termin"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('termin', 1) }}" min="1" max="20"
+                                    placeholder="Contoh: 3">
+                            </div>
+
+                            <!-- Durasi Pengerjaan -->
+                            <div>
+                                <label for="durasi_pengerjaan_bulan"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Durasi
+                                    Pengerjaan (bulan)</label>
+                                <input type="number" id="durasi_pengerjaan_bulan" name="durasi_pengerjaan_bulan"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('durasi_pengerjaan_bulan') }}" placeholder="Contoh: 6">
+                            </div>
+                        </div>
+                    </div>
+
+    <!-- Dynamic termin inputs -->
+                    <div id="termin-container" class="lg:col-span-2 mt-4 space-y-4"></div>
+
+
+                    <!-- Lokasi Proyek -->
+                    <div class="lg:col-span-2">
+                        <label for="lokasi_proyek"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Lokasi Proyek</label>
+                        <textarea id="lokasi_proyek" name="lokasi_proyek"
+                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                            value="{{ old('lokasi_proyek') }}" placeholder="Masukkan lokasi proyek"></textarea>
+                    </div>
+
+                
                     <!-- Keterangan -->
-                    <div class="md:col-span-2">
+                    <div class="lg:col-span-2">
                         <label for="keterangan"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Keterangan</label>
                         <textarea id="keterangan" name="keterangan" rows="3"
@@ -216,9 +225,9 @@
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-end gap-4">
+                <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
                     <a href="{{ route('projects.index') }}"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
+                        class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md 
           bg-gray-100 text-gray-700 hover:bg-gray-200 
           dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 
           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 
@@ -227,7 +236,7 @@
                     </a>
 
                     <button type="submit"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
+                        class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md 
           bg-indigo-600 text-white hover:bg-indigo-700 
           dark:bg-indigo-500 dark:hover:bg-indigo-600 
           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
@@ -237,6 +246,9 @@
 
                 </div>
             </form>
+
+
+
         </div>
 
         <script>
@@ -327,24 +339,24 @@
                         
       <!-- Wrapper per termin -->
 <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-gray-50 dark:bg-gray-800">
-    <!-- Grid atas -->
-    <div class="grid grid-cols-6 gap-4 items-start">
+    <!-- Grid atas - Responsive -->
+    <div class="grid grid-cols-1 lg:grid-cols-6 gap-4 items-start">
         <!-- Termin Ke -->
-        <div class="col-span-1">
+        <div class="lg:col-span-1">
             <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5 whitespace-nowrap">
                 Termin Ke
             </label>
             <input type="number" name="termins[${i}][termin_ke]" value="${i}"
                 class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
-                                                       focus:ring-indigo-500 focus:border-indigo-500 
-                                                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                       focus:ring-indigo-500 focus:border-indigo-500 
+                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 readonly>
         </div>
 
-        <!-- Jatuh Tempo & Jumlah (kasih jarak dari Termin Ke) -->
-        <div class="col-span-5 flex gap-4 ml-2">
+        <!-- Jatuh Tempo & Jumlah -->
+        <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:ml-2">
             <!-- Jatuh Tempo -->
-            <div class="flex-1 basis-[55%]">
+            <div>
                 <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5">Jatuh Tempo</label>
                 <input type="date" name="termins[${i}][tanggal_jatuh_tempo]"
                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
@@ -353,7 +365,7 @@
             </div>
 
             <!-- Jumlah -->
-            <div class="flex-1 basis-[45%]">
+            <div>
                 <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5">Jumlah</label>
                 <input type="text" name="termins[${i}][jumlah]" id="jumlah-${i}"
                     class="rupiah-input w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
@@ -399,6 +411,8 @@
                 });
             });
         </script>
+
+
     </body>
 
     <script>

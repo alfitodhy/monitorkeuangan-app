@@ -78,10 +78,140 @@ class ProjectController extends Controller
     }
 
 
-
-
-
     public function store(Request $request)
+    {
+        // Bersihkan input
+        $request->merge([
+            'nilai_proyek' => preg_replace('/[^\d]/', '', $request->input('nilai_proyek', '')),
+            'estimasi_hpp' => preg_replace('/[^\d]/', '', $request->input('estimasi_hpp', '')),
+        ]);
+
+        // Bersihkan format rupiah dari setiap termin jumlah
+        if ($request->has('termins')) {
+            $termins = $request->input('termins');
+            foreach ($termins as $key => $termin) {
+                if (isset($termin['jumlah'])) {
+                    $termins[$key]['jumlah'] = preg_replace('/[^\d]/', '', $termin['jumlah']);
+                }
+            }
+            $request->merge(['termins' => $termins]);
+        }
+
+        // Validasi input utama
+        $validated = $request->validate([
+            'nama_proyek' => 'required|string|unique:tb_proyek,nama_proyek',
+            'nama_klien' => 'required|string',
+            'lokasi_proyek' => 'nullable|string',
+            'nilai_proyek' => 'required|numeric',
+            'estimasi_hpp' => 'required|numeric|min:0|max:100',
+            'termin' => 'nullable|integer|min:1',
+            'tipe_proyek' => 'required|string',
+            'tipe_lainnya' => 'nullable|string',
+            'tanggal_start_proyek' => 'nullable|date',
+            'tanggal_deadline' => 'nullable|date|after_or_equal:tanggal_start_proyek',
+            'durasi_pengerjaan_bulan' => 'nullable|integer',
+            'keterangan' => 'nullable|string',
+            'attachment_file.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,png|max:5120',
+            'termins' => 'nullable|array',
+            'termins.*.termin_ke' => 'required|integer|min:1',
+            'termins.*.tanggal_jatuh_tempo' => 'required|date',
+            'termins.*.jumlah' => 'required|numeric|min:0',
+            'termins.*.keterangan' => 'nullable|string',
+        ]);
+
+        // Override tipe_proyek kalau pilih "Lainnya"
+        if ($validated['tipe_proyek'] === 'Lainnya' && !empty($validated['tipe_lainnya'])) {
+            $validated['tipe_proyek'] = $validated['tipe_lainnya'];
+        }
+        unset($validated['tipe_lainnya']); 
+
+        // Validasi termin tambahan
+        if (!empty($validated['termins'])) {
+            $terminKeList = array_column($validated['termins'], 'termin_ke');
+            if (count($terminKeList) !== count(array_unique($terminKeList))) {
+                return back()->withInput()->withErrors(['termins' => 'Nomor termin tidak boleh duplikat.']);
+            }
+
+            $totalTermin = 0;
+            foreach ($validated['termins'] as $termin) {
+                if (!empty($validated['tanggal_start_proyek']) && $termin['tanggal_jatuh_tempo'] < $validated['tanggal_start_proyek']) {
+                    return back()->withInput()->withErrors(['termins' => 'Tanggal jatuh tempo termin tidak boleh lebih awal dari tanggal mulai proyek.']);
+                }
+                $totalTermin += (int) $termin['jumlah'];
+            }
+
+            if ($totalTermin != $validated['nilai_proyek']) {
+                return back()->withInput()->withErrors([
+                    'termins' => "Total jumlah termin (" . number_format($totalTermin, 0, ',', '.') . ") harus sama dengan nilai proyek (" . number_format($validated['nilai_proyek'], 0, ',', '.') . ")."
+                ]);
+            }
+        }
+
+        // Format kapital setiap kata
+        $validated['nama_klien'] = ucwords(strtolower(trim($validated['nama_klien'])));
+        $validated['nama_proyek'] = ucwords(strtolower(trim($validated['nama_proyek'])));
+        if (!empty($validated['keterangan'])) {
+            $validated['keterangan'] = ucwords(strtolower(trim($validated['keterangan'])));
+        }
+
+        // Set default status_proyek
+        $validated['status_proyek'] = 'process';
+
+        // Hapus attachment_file dari array validated
+        unset($validated['attachment_file']);
+
+        // Timestamp
+        $now = Carbon::now();
+        $validated['created_at'] = $now;
+        $validated['updated_at'] = $now;
+
+        // --- Insert proyek setelah semua validasi lolos ---
+        $project = Proyek::create($validated);
+        $idProyek = $project->id_proyek;
+        $projectFolder = storage_path('app/public/uploads/proyek/pr_' . $idProyek);
+
+        if (!File::exists($projectFolder)) {
+            File::makeDirectory($projectFolder, 0755, true);
+        }
+
+        $fileNames = [];
+        if ($request->hasFile('attachment_file')) {
+            foreach ($request->file('attachment_file') as $file) {
+                $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
+                    . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('uploads/proyek/pr_' . $idProyek, $filename, 'public');
+                $fileNames[] = $filename;
+            }
+        }
+
+        if (count($fileNames) > 0) {
+            $project->attachment_file = json_encode($fileNames);
+            $project->save();
+        }
+
+        // Simpan termin
+        if (!empty($validated['termins'])) {
+            foreach ($validated['termins'] as $termin) {
+                TerminProyek::create([
+                    'id_proyek' => $idProyek,
+                    'termin_ke' => $termin['termin_ke'],
+                    'tanggal_jatuh_tempo' => $termin['tanggal_jatuh_tempo'],
+                    'jumlah' => (int) $termin['jumlah'],
+                    'keterangan' => $termin['keterangan'] ?? '',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return redirect()->route('projects.index')->with('success', 'Proyek berhasil ditambahkan.');
+    }
+
+
+
+
+
+    public function store2(Request $request)
     {
         $request->merge([
             'nilai_proyek' => preg_replace('/[^\d]/', '', $request->input('nilai_proyek', '')),
@@ -101,7 +231,6 @@ class ProjectController extends Controller
 
         // Validasi input
         $validated = $request->validate([
-            'kode_proyek' => 'required|string|unique:tb_proyek,kode_proyek',
             'nama_proyek' => 'required|string|unique:tb_proyek,nama_proyek',
             'nama_klien' => 'required|string',
             'nilai_proyek' => 'required|numeric',
@@ -222,11 +351,6 @@ class ProjectController extends Controller
     public function update(Request $request, Proyek $project)
     {
         $validated = $request->validate([
-            'kode_proyek' => [
-                'required',
-                'string',
-                Rule::unique('tb_proyek', 'kode_proyek')->ignore($project->id_proyek, 'id_proyek'),
-            ],
             'nama_proyek' => [
                 'required',
                 'string',
@@ -246,13 +370,13 @@ class ProjectController extends Controller
             'replace_file.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx,xls,xlsx,ppt,pptx|max:5120',
         ]);
 
-        // Bersihkan angka & persen
+        //  Bersihkan angka & persen
         $validated['nilai_proyek'] = (int) str_replace('.', '', $validated['nilai_proyek']);
         $validated['estimasi_hpp'] = !empty($validated['estimasi_hpp'])
             ? (float) str_replace('%', '', $validated['estimasi_hpp'])
             : null;
 
-        // 🔹 Validasi total termin
+        //  Validasi total termin
         if ($request->has('termins')) {
             $totalTermin = 0;
             foreach ($request->termins as $terminData) {
@@ -269,23 +393,28 @@ class ProjectController extends Controller
             }
         }
 
-        // 🔹 Update data proyek
+        // Jika pilih "lainnya", ganti value ke input teks
+        if ($request->tipe_proyek === 'Lainnya' && !empty($request->tipe_lainnya)) {
+            $validated['tipe_proyek'] = $request->tipe_lainnya;
+        }
+
+
+
+        //  Update data proyek
         $project->update([
-            'kode_proyek' => $validated['kode_proyek'],
             'nama_proyek' => $validated['nama_proyek'],
             'nama_klien' => $validated['nama_klien'],
             'nilai_proyek' => $validated['nilai_proyek'],
             'estimasi_hpp' => $validated['estimasi_hpp'],
             'termin' => $validated['termin'] ?? null,
-            'tipe_proyek' => $validated['tipe_proyek'],
-            'tipe_lainnya' => $validated['tipe_lainnya'] ?? null,
+            'tipe_proyek' => $validated['tipe_proyek'], // sudah fix kalau "lainnya"
             'tanggal_start_proyek' => $validated['tanggal_start_proyek'] ?? null,
             'tanggal_deadline' => $validated['tanggal_deadline'] ?? null,
             'durasi_pengerjaan_bulan' => $validated['durasi_pengerjaan_bulan'] ?? null,
             'keterangan' => $validated['keterangan'] ?? '',
         ]);
 
-        // 🔹 Handle Attachment (tetap sama seperti punyamu)
+        //  Handle Attachment
         $storageFolder = 'uploads/proyek/pr_' . $project->id_proyek;
         $existingAttachments = $project->attachment_file
             ? json_decode($project->attachment_file, true)
@@ -319,7 +448,7 @@ class ProjectController extends Controller
             'attachment_file' => json_encode($existingAttachments),
         ]);
 
-        // 🔹 Handle Termin Proyek
+        //  Handle Termin Proyek
         if ($request->has('termins')) {
             foreach ($request->termins as $terminData) {
                 $jumlah = isset($terminData['jumlah'])
@@ -350,6 +479,7 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')->with('success', 'Proyek berhasil diperbarui.');
     }
+
 
 
 

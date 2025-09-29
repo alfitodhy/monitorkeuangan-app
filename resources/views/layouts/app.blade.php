@@ -96,7 +96,7 @@
 
                             {{-- Dropdown (nested list) --}}
                             <ul x-show="open" x-transition class="ml-8 mt-1 space-y-1">
-                                @if ($role !== 'kepala operational')
+                             
                                     <li>
                                         <a href="{{ route('projects.index') }}"
                                             class="block px-3 py-2 text-sm rounded-md transition-colors duration-200
@@ -119,7 +119,7 @@
                                 </li>
                             </ul>
                         </li>
-                    @endif
+                 
 
 
 

@@ -103,6 +103,10 @@
                     <p class="font-semibold text-gray-500 dark:text-gray-400">Lokasi</p>
                     <p class="text-gray-900 dark:text-white">{{ $vendor->alamat ?? '-' }}</p>
                 </div>
+                <div>
+                    <p class="font-semibold text-gray-500 dark:text-gray-400">Link Googlw Maps</p>
+                    <p class="text-gray-900 dark:text-white">{{ $vendor->lokasi ?? '-' }}</p>
+                </div>
             </div>
         </div>
     </div>

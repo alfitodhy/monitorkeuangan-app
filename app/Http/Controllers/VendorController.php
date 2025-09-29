@@ -130,6 +130,7 @@ class VendorController extends Controller
             'nama_vendor' => 'required|string|max:150|unique:tb_vendor,nama_vendor',
             'jenis_vendor' => 'required|string|max:100',
             'alamat' => 'nullable|string',
+            'lokasi' => 'nullable|string',
             'spesialisasi' => 'nullable|string|max:150',
             'keterangan' => 'nullable|string',
             'rekening' => 'nullable|array',
@@ -142,9 +143,10 @@ class VendorController extends Controller
         $kode_vendor = $request->kode_vendor ?? 'VND-' . str_pad(Vendor::count() + 1, 4, '0', STR_PAD_LEFT);
 
         // Format kapital di awal kata
-        $nama_vendor = ucwords(strtolower($request->nama_vendor));
+        $nama_vendor = $request->nama_vendor;
         $jenis_vendor = ucwords(strtolower($request->jenis_vendor));
         $alamat = ucwords(strtolower($request->alamat ?? ''));
+        $lokasi = strtolower($request->lokasi ?? '');
         $spesialisasi = ucwords(strtolower($request->spesialisasi ?? ''));
         $keterangan = ucwords(strtolower($request->keterangan ?? ''));
 
@@ -178,6 +180,7 @@ class VendorController extends Controller
             'no_telp' => $request->no_telp,
             'email' => $request->email,
             'alamat' => $alamat,
+            'lokasi' => $lokasi,
             'jenis_vendor' => $jenis_vendor,
             'spesialisasi' => $spesialisasi,
             'rekening' => json_encode($rekeningFormatted),
@@ -227,23 +230,28 @@ class VendorController extends Controller
      */
     public function update(Request $request, Vendor $vendor)
     {
-        // Lakukan validasi data di sini
+        // Validasi input
         $request->validate([
             'nama_vendor' => 'required|string|max:255',
-            // Tambahkan aturan validasi lainnya
+            'jenis_vendor' => 'required|string|max:100',
+            'alamat' => 'nullable|string',
+            'lokasi' => 'nullable|string', 
+            'spesialisasi' => 'nullable|string|max:150',
+            'keterangan' => 'nullable|string',
             'rekening.*.atas_nama' => 'nullable|string|max:255',
             'rekening.*.nama_bank' => 'nullable|string|max:255',
             'rekening.*.no_rekening' => 'nullable|string|max:255',
         ]);
 
-        // Update data vendor
+        // Format kapital awal kata
         $vendor->nama_vendor = $request->nama_vendor;
         $vendor->no_telp = $request->no_telp;
         $vendor->email = $request->email;
-        $vendor->jenis_vendor = $request->jenis_vendor;
-        $vendor->spesialisasi = $request->spesialisasi;
-        $vendor->alamat = $request->alamat;
-        $vendor->keterangan = $request->keterangan;
+        $vendor->jenis_vendor = ucwords(strtolower($request->jenis_vendor));
+        $vendor->spesialisasi = ucwords(strtolower($request->spesialisasi ?? ''));
+        $vendor->alamat = ucwords(strtolower($request->alamat ?? ''));
+        $vendor->lokasi = strtolower($request->lokasi ?? ''); // <-- lokasi
+        $vendor->keterangan = ucwords(strtolower($request->keterangan ?? ''));
 
         // Simpan data rekening sebagai JSON
         $vendor->rekening = json_encode(array_values($request->rekening ?? []));

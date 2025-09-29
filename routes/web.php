@@ -33,7 +33,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Route yang hanya bisa diakses setelah login
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -90,8 +91,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('pengeluaran/{id}/approve', [PengeluaranProyekController::class, 'approve'])->name('pengeluaran.approve');
     Route::post('pengeluaran/{id}/reject', [PengeluaranProyekController::class, 'reject'])->name('pengeluaran.reject');
-Route::patch('pengeluaran/{id}/cancel', [PengeluaranProyekController::class, 'cancel'])
-    ->name('pengeluaran.cancel');
+    Route::patch('pengeluaran/{id}/cancel', [PengeluaranProyekController::class, 'cancel'])
+        ->name('pengeluaran.cancel');
 
 
     Route::get('/pengeluaran/create', [PengeluaranProyekController::class, 'create'])->name('pengeluaran.create');
@@ -103,6 +104,9 @@ Route::patch('pengeluaran/{id}/cancel', [PengeluaranProyekController::class, 'ca
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/', [LaporanController::class, 'index'])->name('index');
         Route::get('/rekap', [LaporanController::class, 'rekap'])->name('rekap');
+        Route::get('/data', [LaporanController::class, 'getDataLaporan'])->name('proyek.data');
+        Route::get('/transaksi/{id}', [LaporanController::class, 'getTransaksi'])->name('transaksi');
+
         Route::get('/keuangan', [LaporanController::class, 'keuangan'])->name('keuangan');
     });
 

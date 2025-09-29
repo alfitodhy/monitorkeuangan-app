@@ -113,6 +113,14 @@
                             <textarea name="alamat" id="alamat" rows="3"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 resize-none">{{ old('alamat') }}</textarea>
                         </div>
+                        <div class="md:col-span-2">
+                            <label for="lokasi" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Link Google Maps
+                            </label>
+                            <input type="text" name="lokasi" id="lokasi"
+                                class="w-full h-10 px-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                                value="{{ old('lokasi') }}">
+                        </div>
                     </div>
                 </div>
 
@@ -206,17 +214,17 @@
                 </div>
 
                 {{-- Tombol --}}
-                 <div
-                        class="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <a href="{{ route('vendors.index') }}"
-                            class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium rounded-md text-xs shadow-sm transition-all duration-200">
-                            Batal
-                        </a>
-                        <button type="submit"
-                            class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-medium rounded-md text-xs shadow-sm transition-all duration-200">
-                            Simpan
-                        </button>
-                    </div>
+                <div
+                    class="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{{ route('vendors.index') }}"
+                        class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium rounded-md text-xs shadow-sm transition-all duration-200">
+                        Batal
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-medium rounded-md text-xs shadow-sm transition-all duration-200">
+                        Simpan
+                    </button>
+                </div>
 
             </form>
         </div>

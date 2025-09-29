@@ -157,6 +157,21 @@
                         </div>
                     </div>
 
+                    {{-- Lokasi (row baru) --}}
+                    <div class="mb-6">
+                        <div class="space-y-1">
+                            <label for="lokasi" class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                Lokasi
+                            </label>
+                            <input type="text" name="lokasi" id="lokasi"
+                                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                   bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white 
+                   placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('lokasi', $vendor->lokasi) }}">
+                        </div>
+                    </div>
+
+
 
                     {{-- Rekening Bank --}}
                     <div class="mb-6">

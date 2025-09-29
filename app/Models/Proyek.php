@@ -27,6 +27,7 @@ class Proyek extends Model
         'tanggal_start_proyek',
         'tanggal_deadline',
         'durasi_pengerjaan_bulan',
+        'lokasi_proyek',
         'keterangan',
     ];
 }

@@ -24,7 +24,11 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard'); // atau route yang kamu mau
+
+            // Tambahin flash session di sini
+            session()->flash('welcome', 'Selamat datang kembali, ' . Auth::user()->nama_lengkap . '!');
+
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([

@@ -11,10 +11,7 @@
 
         {{-- Grid Detail --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 text-sm text-gray-700 dark:text-gray-300">
-            <div class="space-y-1">
-                <span class="font-semibold text-gray-900 dark:text-white">Kode Proyek:</span>
-                <p>{{ $project->kode_proyek }}</p>
-            </div>
+           
             <div class="space-y-1">
                 <span class="font-semibold text-gray-900 dark:text-white">Nama Klien:</span>
                 <p>{{ $project->nama_klien }}</p>

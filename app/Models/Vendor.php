@@ -15,6 +15,7 @@ class Vendor extends Model
         'no_telp',
         'email',
         'alamat',
+        'lokasi',
         'jenis_vendor',
         'spesialisasi',
         'rekening',
@@ -22,7 +23,7 @@ class Vendor extends Model
     ];
 
     protected $casts = [
-        'rekening' => 'array', // Laravel otomatis decode/encode JSON
+        'rekening' => 'array', 
     ];
     
 }

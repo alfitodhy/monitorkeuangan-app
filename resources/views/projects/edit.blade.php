@@ -7,14 +7,17 @@
         // Format ribuan untuk nilai proyek di awal
         $formattedNilaiProyek = number_format($project->nilai_proyek, 0, ',', '.');
         $formattedEstimasiHPP = $project->estimasi_hpp . '%';
+        
+        // Cek apakah tipe proyek adalah salah satu dari dropdown
+        $defaultTypes = ['Design', 'Renovasi', 'Bangun'];
+        $isOtherType = !in_array($project->tipe_proyek, $defaultTypes);
     @endphp
 
     <body class="bg-gray-50 dark:bg-gray-900">
-        <div
-            class="max-w-6xl mx-auto p-10 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 my-10">
-            <h2 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white text-left">Edit Proyek:
+        <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-10 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 my-6 sm:my-10">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white text-left">Edit Proyek:
                 {{ $project->nama_proyek }}</h2>
-            <hr class="mb-6 border-gray-300 dark:border-gray-600">
+            <hr class="mb-4 sm:mb-6 border-gray-300 dark:border-gray-600">
 
             <div id="error-section"
                 class="hidden mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg border border-red-200 dark:border-red-800 shadow-sm">
@@ -36,19 +39,12 @@
                 </div>
             @endif
 
+          
             <form action="{{ route('projects.update', $project->id_proyek) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    <!-- Kode Proyek -->
-                    <div>
-                        <label for="kode_proyek"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Kode Proyek</label>
-                        <input type="text" id="kode_proyek" name="kode_proyek"
-                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                            value="{{ old('kode_proyek', $project->kode_proyek) }}" required readonly>
-                    </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
 
                     <!-- Nama Proyek -->
                     <div>
@@ -80,9 +76,9 @@
                 text-gray-700 dark:text-gray-300
                 border border-gray-300 dark:border-gray-600 
                 rounded-md
-                file:mr-4 file:py-2 file:px-4
+                file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-2 sm:file:px-4
                 file:rounded-l-md file:border-0
-                file:text-sm file:font-semibold
+                file:text-xs sm:file:text-sm file:font-semibold
                 file:bg-indigo-50 file:text-indigo-700
                 hover:file:bg-indigo-100
                 dark:file:bg-gray-700 dark:file:text-indigo-300
@@ -90,6 +86,32 @@
                 bg-white dark:bg-gray-800"
                             name="attachment_file[]" multiple>
                     </div>
+
+
+         <!-- Tipe Proyek -->
+                    <div>
+                        <label for="tipe_proyek"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tipe
+                            Proyek</label>
+                        <select id="tipe_proyek" name="tipe_proyek"
+                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                            onchange="toggleTipeLainnya()" required>
+                            <option value="">-- Pilih Tipe --</option>
+                            @foreach (['Design', 'Renovasi', 'Bangun', 'Lainnya'] as $tipe)
+                                <option value="{{ $tipe }}"
+                                    {{ old('tipe_proyek', $isOtherType ? 'Lainnya' : $project->tipe_proyek) === $tipe ? 'selected' : '' }}>
+                                    {{ $tipe }}</option>
+                            @endforeach
+                        </select>
+
+                        <!-- Input tambahan untuk Lainnya -->
+                        <input type="text" id="tipe_lainnya_input" name="tipe_lainnya"
+                            class="w-full mt-2 border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                            placeholder="Tulis tipe proyek..." 
+                            style="display: {{ $isOtherType ? 'block' : 'none' }};"
+                            value="{{ old('tipe_lainnya', $isOtherType ? $project->tipe_proyek : '') }}">
+                    </div>
+
 
                     <!-- Nilai Proyek -->
                     <div>
@@ -119,20 +141,11 @@
                             placeholder="Contoh: 60" oninput="this.value = formatPersen(this.value)">
                     </div>
 
-                    <!-- Jumlah Termin -->
-                    <div>
-                        <label for="termin"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Jumlah Termin</label>
-                        <input type="number" id="termin" name="termin"
-                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                            value="{{ old('termin', $project->termin) }}" min="1" max="20"
-                            placeholder="Contoh: 3">
-                    </div>
-
-                    <!-- HPP dan Profit -->
-                    <div>
-                        <div class="flex gap-4">
-                            <div class="flex-1">
+           
+                    <!-- Nominal HPP & Profit -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
                                 <label for="nominal_hpp"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Nominal
                                     HPP</label>
@@ -142,7 +155,7 @@
                             </div>
 
                             <!-- Profit (readonly) -->
-                            <div class="flex-1">
+                            <div>
                                 <label for="profit"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Profit</label>
                                 <input type="text" id="profit" name="profit"
@@ -152,69 +165,70 @@
                         </div>
                     </div>
 
-                    <!-- Dynamic termin inputs -->
-                    <div id="termin-container" class="mt-4 space-y-6"></div>
-
-                    <!-- Tanggal Proyek -->
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex gap-4">
-                                <div class="flex-1">
-                                    <label for="tanggal_start_proyek"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
-                                        Mulai</label>
-                                    <input type="date" id="tanggal_start_proyek" name="tanggal_start_proyek"
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                        value="{{ old('tanggal_start_proyek', $project->tanggal_start_proyek) }}">
-                                </div>
-                                <div class="flex-1">
-                                    <label for="tanggal_deadline"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
-                                        Deadline</label>
-                                    <input type="date" id="tanggal_deadline" name="tanggal_deadline"
-                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                        value="{{ old('tanggal_deadline', $project->tanggal_deadline) }}">
-                                </div>
+                    <!-- Tanggal Start & Deadline -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="tanggal_start_proyek"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
+                                    Mulai</label>
+                                <input type="date" id="tanggal_start_proyek" name="tanggal_start_proyek"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('tanggal_start_proyek', $project->tanggal_start_proyek) }}">
                             </div>
-                        </div>
-
-                        <!-- Tipe Proyek -->
-                        <div>
-                            <label for="tipe_proyek"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tipe
-                                Proyek</label>
-                            <select id="tipe_proyek" name="tipe_proyek"
-                                class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                onchange="toggleTipeLainnya()" required>
-                                <option value="">-- Pilih Tipe --</option>
-                                @foreach (['Design', 'Renovasi', 'Bangun', 'Lainnya'] as $tipe)
-                                    <option value="{{ $tipe }}"
-                                        {{ old('tipe_proyek', $project->tipe_proyek) === $tipe ? 'selected' : '' }}>
-                                        {{ $tipe }}</option>
-                                @endforeach
-                            </select>
-
-                            <!-- Input tambahan, hidden default -->
-                            <input type="text" id="tipe_lainnya_input" name="tipe_lainnya"
-                                class="w-full mt-2 border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                placeholder="Tulis tipe proyek..." style="display: none;"
-                                value="{{ old('tipe_lainnya', $project->tipe_lainnya) }}">
-                        </div>
-
-                        <!-- Durasi Pengerjaan -->
-                        <div>
-                            <label for="durasi_pengerjaan_bulan"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Durasi Pengerjaan
-                                (bulan)</label>
-                            <input type="number" id="durasi_pengerjaan_bulan" name="durasi_pengerjaan_bulan"
-                                class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
-                                value="{{ old('durasi_pengerjaan_bulan', $project->durasi_pengerjaan_bulan) }}"
-                                placeholder="Contoh: 6">
+                            <div>
+                                <label for="tanggal_deadline"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Tanggal
+                                    Deadline</label>
+                                <input type="date" id="tanggal_deadline" name="tanggal_deadline"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('tanggal_deadline', $project->tanggal_deadline) }}">
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Termin & Durasi -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="termin"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Jumlah Termin</label>
+                                <input type="number" id="termin" name="termin"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('termin', $project->termin) }}" min="1" max="20"
+                                    placeholder="Contoh: 3">
+                            </div>
+                            <!-- Durasi Pengerjaan -->
+                            <div>
+                                <label for="durasi_pengerjaan_bulan"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Durasi Pengerjaan
+                                    (bulan)</label>
+                                <input type="number" id="durasi_pengerjaan_bulan" name="durasi_pengerjaan_bulan"
+                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition duration-200 bg-white dark:bg-gray-700"
+                                    value="{{ old('durasi_pengerjaan_bulan', $project->durasi_pengerjaan_bulan) }}"
+                                    placeholder="Contoh: 6">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lokasi Proyek -->
+                    <div class="lg:col-span-2">
+                        <label for="lokasi_proyek"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Lokasi
+                            Proyek</label>
+                        <input type="text" id="lokasi_proyek" name="lokasi_proyek"
+                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
+               text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 
+               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition 
+               duration-200 bg-white dark:bg-gray-700"
+                            value="{{ old('lokasi_proyek', $project->lokasi_proyek) }}" placeholder="Masukkan lokasi proyek">
+                    </div>
+
+                    <!-- Dynamic termin inputs -->
+                    <div id="termin-container" class="lg:col-span-2 mt-4 space-y-4"></div>
+
                     <!-- Keterangan -->
-                    <div class="md:col-span-2">
+                    <div class="lg:col-span-2">
                         <label for="keterangan"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0.5">Keterangan</label>
                         <textarea id="keterangan" name="keterangan" rows="3"
@@ -223,19 +237,17 @@
                     </div>
 
                     <!-- Lampiran yang Sudah Diupload -->
-                    <div class="md:col-span-2">
+                    <div class="lg:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lampiran yang Sudah
                             Diupload:</label>
 
                         @php
-                            $attachments = $project->attachment_file
-                                ? json_decode($project->attachment_file, true)
-                                : [];
+                            $attachments = $project->attachment_file ? json_decode($project->attachment_file, true) : [];
                         @endphp
 
                         <div class="overflow-x-auto">
                             <table
-                                class="w-full text-sm mt-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg">
+                                class="w-full text-xs sm:text-sm mt-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg">
                                 <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                                     <tr>
                                         <th class="p-2 border dark:border-gray-700">No</th>
@@ -256,35 +268,33 @@
                                                     in_array($ext, ['pdf']) => 'fa-file-pdf text-red-500',
                                                     in_array($ext, ['doc', 'docx']) => 'fa-file-word text-blue-500',
                                                     in_array($ext, ['xls', 'xlsx']) => 'fa-file-excel text-green-500',
-                                                    in_array($ext, ['ppt', 'pptx'])
-                                                        => 'fa-file-powerpoint text-orange-500',
+                                                    in_array($ext, ['ppt', 'pptx']) => 'fa-file-powerpoint text-orange-500',
                                                     default => 'fa-file text-gray-500',
                                                 };
                                             @endphp
 
-                                            <tr
-                                                class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                            <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                                                 <td
                                                     class="p-2 border dark:border-gray-700 text-center text-gray-900 dark:text-white">
                                                     {{ $loop->iteration }}</td>
                                                 <td class="p-2 border dark:border-gray-700 text-center">
-                                                    <i class="fa-solid {{ $iconClass }} text-xl"></i>
+                                                    <i class="fa-solid {{ $iconClass }} text-lg sm:text-xl"></i>
                                                 </td>
                                                 <td
-                                                    class="p-2 border dark:border-gray-700 text-blue-600 dark:text-blue-400 hover:underline">
+                                                    class="p-2 border dark:border-gray-700 text-blue-600 dark:text-blue-400 hover:underline break-all">
                                                     <a href="{{ asset($baseFolder . $file) }}"
                                                         target="_blank">{{ $file }}</a>
                                                 </td>
                                                 <td class="p-2 border dark:border-gray-700 text-center">
                                                     <input type="file" name="replace_file[{{ $file }}]"
-                                                        class="text-sm text-gray-700 dark:text-gray-300 
-                                                        file:mr-2 file:py-1 file:px-3
-                                                        file:rounded file:border-0
-                                                        file:text-sm file:font-semibold
-                                                        file:bg-indigo-50 file:text-indigo-700
-                                                        hover:file:bg-indigo-100
-                                                        dark:file:bg-gray-700 dark:file:text-indigo-300
-                                                        dark:hover:file:bg-gray-600">
+                                                        class="text-xs text-gray-700 dark:text-gray-300 
+                                                            file:mr-2 file:py-1 file:px-2
+                                                            file:rounded file:border-0
+                                                            file:text-xs file:font-semibold
+                                                            file:bg-indigo-50 file:text-indigo-700
+                                                            hover:file:bg-indigo-100
+                                                            dark:file:bg-gray-700 dark:file:text-indigo-300
+                                                            dark:hover:file:bg-gray-600">
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -302,27 +312,29 @@
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-end gap-4">
+                <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
                     <a href="{{ route('projects.index') }}"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
-          bg-gray-100 text-gray-700 hover:bg-gray-200 
-          dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 
-          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 
-          transition duration-200">
+                        class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md 
+              bg-gray-100 text-gray-700 hover:bg-gray-200 
+              dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 
+              transition duration-200">
                         Kembali
                     </a>
 
                     <button type="submit"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
-          bg-indigo-600 text-white hover:bg-indigo-700 
-          dark:bg-indigo-500 dark:hover:bg-indigo-600 
-          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
-          transition duration-200">
+                        class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md 
+              bg-indigo-600 text-white hover:bg-indigo-700 
+              dark:bg-indigo-500 dark:hover:bg-indigo-600 
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
+              transition duration-200">
                         Simpan Perubahan
                     </button>
-
                 </div>
+
             </form>
+
+        
         </div>
 
         <script>
@@ -383,7 +395,6 @@
                         rupiah += separator + ribuan.join(".");
                     }
 
-                    // ❌ Hapus desimal, cuma pakai ribuan
                     return rupiah ? "Rp " + rupiah : "";
                 }
 
@@ -407,10 +418,9 @@
 
                     for (let i = 1; i <= jumlahTermin; i++) {
                         const wrapper = document.createElement('div');
-                        wrapper.classList.add('p-4', 'border', 'border-gray-200', 'dark:border-gray-600', 'rounded-lg',
+                        wrapper.classList.add('p-3', 'sm:p-4', 'border', 'border-gray-200', 'dark:border-gray-600', 'rounded-lg',
                             'shadow-sm', 'bg-gray-50', 'dark:bg-gray-700', 'transition-colors', 'duration-300');
 
-                        // Get existing termin data for this index
                         const existingTermin = existingTermins.find(t => t.termin_ke == i);
                         const existingJumlah = existingTermin ? formatRupiah(existingTermin.jumlah.toString()) : '';
                         const existingTanggal = existingTermin ? existingTermin.tanggal_jatuh_tempo : '';
@@ -419,36 +429,34 @@
                         wrapper.innerHTML = `
                             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Termin ke-${i}</h4>
                             
-                            <!-- Wrapper per termin -->
-                            <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-gray-50 dark:bg-gray-800">
-                                <!-- Grid atas -->
-                                <div class="grid grid-cols-6 gap-4 items-start">
+                            <div class="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-gray-50 dark:bg-gray-800">
+                                <!-- Grid responsive -->
+                                <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 sm:gap-4 items-start">
                                     <!-- Termin Ke -->
-                                   <div class="col-span-1">
-    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 whitespace-nowrap">
-        Termin Ke
-    </label>
-    <input 
-        type="number" 
-        name="termins[${i}][termin_ke]" 
-        value="${i}" 
-        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
-                                                       focus:ring-indigo-500 focus:border-indigo-500 
-                                                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
-        readonly
-    >
-    <input 
-        type="hidden" 
-        name="termins[${i}][id_termin]" 
-        value="${existingTermin ? existingTermin.id_termin : ''}"
-    >
-</div>
+                                    <div class="sm:col-span-1">
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Termin Ke
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            name="termins[${i}][termin_ke]" 
+                                            value="${i}" 
+                                            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
+                                                   focus:ring-indigo-500 focus:border-indigo-500 
+                                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                                            readonly
+                                        >
+                                        <input 
+                                            type="hidden" 
+                                            name="termins[${i}][id_termin]" 
+                                            value="${existingTermin ? existingTermin.id_termin : ''}"
+                                        >
+                                    </div>
 
-
-                                    <!-- Jatuh Tempo & Jumlah (kasih jarak dari Termin Ke) -->
-                                    <div class="col-span-5 flex gap-4 ml-2">
+                                    <!-- Jatuh Tempo & Jumlah -->
+                                    <div class="sm:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                         <!-- Jatuh Tempo -->
-                                        <div class="flex-1 basis-[55%]">
+                                        <div>
                                             <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5">Jatuh Tempo</label>
                                             <input type="date" name="termins[${i}][tanggal_jatuh_tempo]" value="${existingTanggal}"
                                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
@@ -457,7 +465,7 @@
                                         </div>
 
                                         <!-- Jumlah -->
-                                        <div class="flex-1 basis-[45%]">
+                                        <div>
                                             <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5">Jumlah</label>
                                             <input type="text" name="termins[${i}][jumlah]" id="jumlah-${i}" value="${existingJumlah}"
                                                 class="rupiah-input w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
@@ -472,16 +480,15 @@
                                 <!-- Keterangan (full width di bawah) -->
                                 <div class="mt-3">
                                     <label class="block text-sm text-gray-600 dark:text-gray-400 mb-0.5">Keterangan</label>
-                                   <input 
-    type="text" 
-    name="termins[${i}][keterangan]" 
-    value="${existingKeterangan && existingKeterangan.toLowerCase() !== 'null' ? existingKeterangan : ''}"
-    class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
-           focus:ring-indigo-500 focus:border-indigo-500 
-           bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
-           placeholder-gray-400 dark:placeholder-gray-500"
-    placeholder="Opsional">
-
+                                    <input 
+                                        type="text" 
+                                        name="termins[${i}][keterangan]" 
+                                        value="${existingKeterangan && existingKeterangan.toLowerCase() !== 'null' ? existingKeterangan : ''}"
+                                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 text-sm 
+                                               focus:ring-indigo-500 focus:border-indigo-500 
+                                               bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
+                                               placeholder-gray-400 dark:placeholder-gray-500"
+                                        placeholder="Opsional">
                                 </div>
                             </div>
                         `;
