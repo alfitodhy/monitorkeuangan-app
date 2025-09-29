@@ -11,7 +11,7 @@
 
         {{-- Grid Detail --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 text-sm text-gray-700 dark:text-gray-300">
-           
+
             <div class="space-y-1">
                 <span class="font-semibold text-gray-900 dark:text-white">Nama Klien:</span>
                 <p>{{ $project->nama_klien }}</p>
@@ -45,11 +45,15 @@
                 <p>{{ $project->durasi_pengerjaan_bulan }} bulan</p>
             </div>
             <div class="space-y-1">
+                <span class="font-semibold text-gray-900 dark:text-white">Lokasi Proyek:</span>
+                <p>{{ $project->lokasi_proyek ?? '-' }}</p>
+            </div>
+            <div class="space-y-1">
                 <span class="font-semibold text-gray-900 dark:text-white">Status Proyek:</span>
                 <p>
                     <span
                         class="inline-block px-2 py-0.5 rounded-full text-xs font-medium
-                        {{ $project->status_proyek == 'selesai' ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-50' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-50' }}">
+                {{ $project->status_proyek == 'selesai' ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-50' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-50' }}">
                         {{ ucfirst($project->status_proyek ?: 'belum mulai') }}
                     </span>
                 </p>
@@ -63,6 +67,7 @@
                 <p>{{ $project->keterangan ?? '-' }}</p>
             </div>
         </div>
+
 
 
 
