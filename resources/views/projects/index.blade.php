@@ -1164,7 +1164,7 @@
                     [1, 'asc']
                 ],
                 stripeClasses: ['table-zebra', 'table-zebra'],
-                pageLength: 5,
+                pageLength: 10,
                 lengthChange: false,
                 dom: 't',
                 drawCallback: function() {
