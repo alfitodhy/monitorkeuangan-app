@@ -95,7 +95,7 @@ class PemasukanProyekController extends Controller
                 }
             }
         } else {
-            $query->orderBy('nama_proyek', 'asc');
+            $query->orderBy('pr.created_at', 'desc');
         }
 
         $pemasukan = $query->offset($start)->limit($length)->get()

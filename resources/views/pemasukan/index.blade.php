@@ -125,7 +125,7 @@
                     }
                 ],
                 order: [
-                    [1, 'asc']
+                    [1, 'desc']
                 ],
                 stripeClasses: ['table-zebra', 'table-zebra'],
                 dom: 't',

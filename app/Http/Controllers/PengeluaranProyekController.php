@@ -33,7 +33,8 @@ class PengeluaranProyekController extends Controller
             $length = $request->get('length', 10);
             $search = $request->get('search')['value'] ?? '';
 
-            $query = PengeluaranProyek::query();
+            $query = PengeluaranProyek::query()
+                ->orderBy('created_at', 'desc'); 
 
             //  Filter berdasarkan status
             if ($request->has('status_filter') && !empty($request->status_filter)) {
@@ -69,7 +70,7 @@ class PengeluaranProyekController extends Controller
                     }
                 }
             } else {
-                $query->orderBy('tanggal_pengeluaran', 'desc'); // default
+                $query->orderBy('created_at', 'desc'); // default
             }
 
             //  Hitung total

@@ -24,7 +24,7 @@ class ProjectController extends Controller
 
     public function datatable(Request $request)
     {
-        $query = Proyek::query();
+        $query = Proyek::query()->orderBy('created_at', 'desc'); 
 
         // Search custom
         if ($request->has('search') && $request->search['value'] != '') {

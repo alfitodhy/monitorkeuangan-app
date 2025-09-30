@@ -197,7 +197,7 @@ class LaporanController extends Controller
                 4 => 'target_hpp_total',
                 5 => 'target_hpp_termin',
                 6 => 'real_profit',
-                7 => 'tanggal_deadline', 
+                7 => 'tanggal_deadline',
             ];
 
             $orderColumnIndex = $request->input('order.0.column');
@@ -262,7 +262,7 @@ class LaporanController extends Controller
                     'nama_proyek'        => $proyek->nama_proyek,
                     'total_nilai_proyek' => number_format($totalNilaiProyek, 0, ',', '.'),
                     'target_hpp_total'   => number_format($targetHppTotal, 0, ',', '.'),
-                    'target_hpp_termin'  => number_format($targetHppTermin, 0, ',', '.'), 
+                    'target_hpp_termin'  => number_format($targetHppTermin, 0, ',', '.'),
                     'real_hpp'           => number_format($totalPengeluaran, 0, ',', '.'),
                     'estimasi_profit'    => number_format($estimasiProfit, 0, ',', '.'),
                     'real_profit'        => number_format($realProfit, 0, ',', '.'),
@@ -307,13 +307,15 @@ class LaporanController extends Controller
             $orderColumn = $columns[$orderColumnIndex] ?? 'id_proyek';
             $orderDir = $request->input('order.0.dir') ?? 'asc';
 
-            $query = Proyek::whereIn('status_proyek', ['process', 'progress']);
+            $query = Proyek::whereIn('status_proyek', ['process', 'progress'])
+                ->orderBy('created_at', 'desc');
+
 
             // Search global
             if (!empty($search)) {
                 $query->where('nama_proyek', 'like', "%{$search}%");
             }
-            
+
 
             $totalRecords    = Proyek::count();
             $filteredRecords = $query->count();

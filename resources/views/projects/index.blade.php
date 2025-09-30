@@ -1160,9 +1160,7 @@
                 processing: false,
                 serverSide: false,
                 responsive: true,
-                order: [
-                    [1, 'asc']
-                ],
+               
                 stripeClasses: ['table-zebra', 'table-zebra'],
                 pageLength: 10,
                 lengthChange: false,
