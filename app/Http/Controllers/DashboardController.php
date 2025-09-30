@@ -19,7 +19,7 @@ class DashboardController extends Controller
 
         // Total pengajuan aktif (semua, user_created = kepalaops, kecuali ditolak/cancel)
         $totalPengeluaranKepalaops = PengeluaranProyek::where('user_created', 'kepalaops')
-            ->whereNotIn('status', ['ditolak', 'cancel'])
+            ->where('status', 'pengajuan')
             ->count();
 
 
