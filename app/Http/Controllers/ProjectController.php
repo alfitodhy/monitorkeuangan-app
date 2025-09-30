@@ -123,7 +123,7 @@ class ProjectController extends Controller
         if ($validated['tipe_proyek'] === 'Lainnya' && !empty($validated['tipe_lainnya'])) {
             $validated['tipe_proyek'] = $validated['tipe_lainnya'];
         }
-        unset($validated['tipe_lainnya']); 
+        unset($validated['tipe_lainnya']);
 
         // Validasi termin tambahan
         if (!empty($validated['termins'])) {
@@ -335,7 +335,10 @@ class ProjectController extends Controller
 
         $termins = TerminProyek::where('id_proyek', $id)->get();
 
-        return view('projects.show', compact('project', 'termins'));
+
+        $addendums = AddendumProyek::where('id_proyek', $id)->get();
+
+        return view('projects.show', compact('project', 'termins', 'addendums'));
     }
 
 
